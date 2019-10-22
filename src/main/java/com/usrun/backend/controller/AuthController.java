@@ -23,15 +23,20 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.net.URI;
 import java.util.Collections;
 
 @RestController
 @RequestMapping("/user")
+@Validated
 public class AuthController {
 
     @Autowired
@@ -87,16 +92,20 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+    public ResponseEntity<?> registerUser(
+            @Email @NotBlank @RequestParam("email") String email,
+            @NotBlank @Size(max = 50) @RequestParam("password") String password,
+            @NotBlank @Size(max = 50) @RequestParam("name") String name
+    ) {
+        if (userRepository.existsByEmail(email)) {
             return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_IS_USED), HttpStatus.BAD_REQUEST);
         }
 
         // Creating user's account
         User user = new User();
-        user.setName(signUpRequest.getName());
-        user.setEmail(signUpRequest.getEmail());
-        user.setPassword(signUpRequest.getPassword());
+        user.setName(name);
+        user.setEmail(email);
+        user.setPassword(password);
         user.setType(AuthType.local);
 
         Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
