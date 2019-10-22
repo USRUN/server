@@ -10,4 +10,4 @@
 log/
 target/
 
-# application.yaml
+application-dev.yaml
