@@ -7,10 +7,8 @@ import com.usrun.backend.model.AuthType;
 import com.usrun.backend.model.Role;
 import com.usrun.backend.model.RoleName;
 import com.usrun.backend.model.User;
-import com.usrun.backend.payload.ApiResponse;
 import com.usrun.backend.payload.CodeResponse;
 import com.usrun.backend.payload.LoginResponse;
-import com.usrun.backend.payload.SignUpRequest;
 import com.usrun.backend.repository.RoleRepository;
 import com.usrun.backend.repository.UserRepository;
 import com.usrun.backend.security.TokenProvider;
@@ -117,12 +115,20 @@ public class AuthController {
 
         User result = userRepository.save(user);
 
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getEmail(), password)
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String jwt = tokenProvider.createToken(authentication);
+
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath().path("/user/info")
                 .buildAndExpand(result.getId()).toUri();
 
         return ResponseEntity.created(location)
-                .body(new CodeResponse(0));
+                .body(new LoginResponse(result, jwt));
     }
 
 }
