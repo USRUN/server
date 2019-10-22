@@ -8,7 +8,7 @@ import com.usrun.backend.model.Role;
 import com.usrun.backend.model.RoleName;
 import com.usrun.backend.model.User;
 import com.usrun.backend.payload.CodeResponse;
-import com.usrun.backend.payload.LoginResponse;
+import com.usrun.backend.payload.UserInfoResponse;
 import com.usrun.backend.repository.RoleRepository;
 import com.usrun.backend.repository.UserRepository;
 import com.usrun.backend.security.TokenProvider;
@@ -25,7 +25,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -86,7 +85,7 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String jwt = tokenProvider.createToken(authentication);
-        return ResponseEntity.ok(new LoginResponse(user, jwt));
+        return ResponseEntity.ok(new UserInfoResponse(user, jwt));
     }
 
     @PostMapping("/signup")
@@ -115,20 +114,14 @@ public class AuthController {
 
         User result = userRepository.save(user);
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getEmail(), password)
-        );
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        String jwt = tokenProvider.createToken(authentication);
+        String jwt = tokenProvider.createTokenUserId(result.getId());
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath().path("/user/info")
                 .buildAndExpand(result.getId()).toUri();
 
         return ResponseEntity.created(location)
-                .body(new LoginResponse(result, jwt));
+                .body(new UserInfoResponse(result, jwt));
     }
 
 }

@@ -9,7 +9,7 @@ import java.time.Instant;
 
 @Getter
 @Setter
-public class LoginResponse {
+public class UserInfoResponse {
 
     private int code;
     private Data data;
@@ -57,7 +57,7 @@ public class LoginResponse {
         }
     }
 
-    public LoginResponse(User user, String accessToken) {
+    public UserInfoResponse(User user, String accessToken) {
         this.data = new Data(user, accessToken);
     }
 }
