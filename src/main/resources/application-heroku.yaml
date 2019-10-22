@@ -3,7 +3,6 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_USERNAME}
-    initialization-mode: always
   jpa:
     properties:
       hibernate:
