@@ -65,7 +65,14 @@ public class AuthController {
         User user = null;
 
         if (type == AuthType.local.ordinal()) {
-            user = userRepository.findByEmail(email).orElse(null);
+            try {
+                user = userRepository.findByEmail(email).orElseThrow(
+                        () -> new Exception("Email not found")
+                );
+            } catch (Exception ex) {
+                return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_NOT_FOUND), HttpStatus.BAD_REQUEST);
+            }
+
             authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, password)
             );
