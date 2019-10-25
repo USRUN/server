@@ -3,7 +3,7 @@ package com.usrun.backend.controller;
 import com.usrun.backend.config.ErrorCode;
 import com.usrun.backend.exception.AppException;
 import com.usrun.backend.exception.OAuth2AuthenticationProcessingException;
-import com.usrun.backend.model.AuthType;
+import com.usrun.backend.model.type.AuthType;
 import com.usrun.backend.model.Role;
 import com.usrun.backend.model.RoleName;
 import com.usrun.backend.model.User;

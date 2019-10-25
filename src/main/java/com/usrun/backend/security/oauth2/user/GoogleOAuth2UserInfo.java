@@ -1,7 +1,7 @@
 package com.usrun.backend.security.oauth2.user;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.usrun.backend.model.AuthType;
+import com.usrun.backend.model.type.AuthType;
 
 public class GoogleOAuth2UserInfo extends OAuth2UserInfo {
     private GoogleIdToken.Payload payload;

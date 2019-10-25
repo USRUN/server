@@ -9,7 +9,7 @@ import com.usrun.backend.config.AppProperties;
 import com.usrun.backend.config.ErrorCode;
 import com.usrun.backend.exception.OAuth2AuthenticationProcessingException;
 import com.usrun.backend.exception.ResourceNotFoundException;
-import com.usrun.backend.model.AuthType;
+import com.usrun.backend.model.type.AuthType;
 import com.usrun.backend.model.Role;
 import com.usrun.backend.model.RoleName;
 import com.usrun.backend.model.User;
@@ -23,7 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;

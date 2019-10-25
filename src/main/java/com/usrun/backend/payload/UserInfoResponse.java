@@ -1,6 +1,6 @@
 package com.usrun.backend.payload;
 
-import com.usrun.backend.model.Gender;
+import com.usrun.backend.model.type.Gender;
 import com.usrun.backend.model.User;
 import lombok.Getter;
 import lombok.Setter;

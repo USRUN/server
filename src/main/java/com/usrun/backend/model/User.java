@@ -2,6 +2,8 @@ package com.usrun.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.usrun.backend.model.audit.DateAudit;
+import com.usrun.backend.model.type.AuthType;
+import com.usrun.backend.model.type.Gender;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -66,6 +68,12 @@ public class User extends DateAudit {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
+
+    @ManyToMany(mappedBy = "users")
+    private Set<Team> teams = new HashSet<>();
+
+    @ManyToMany(mappedBy = "users")
+    private Set<Event> eventss = new HashSet<>();
 
     public User() {}
 

@@ -1,6 +1,6 @@
 package com.usrun.backend.security.oauth2.user;
 
-import com.usrun.backend.model.AuthType;
+import com.usrun.backend.model.type.AuthType;
 
 public abstract class OAuth2UserInfo {
 
