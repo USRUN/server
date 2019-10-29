@@ -55,12 +55,17 @@ public class User extends DateAudit {
 
     private Double height;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     private Gender gender;
 
     private Instant birthday;
 
     private String code;
+
+    private String deviceToken;
+
+    @Size(max = 50)
+    private String nameSlug;
 
     @JsonProperty("isActive")
     private boolean isEnabled = true;
