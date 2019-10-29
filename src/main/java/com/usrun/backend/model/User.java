@@ -55,7 +55,7 @@ public class User extends DateAudit {
 
     private Double height;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     private Gender gender;
 
     private Instant birthday;

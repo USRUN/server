@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -66,9 +68,14 @@ public class UserController {
 //            @Email @Size(max = 50) @RequestParam(name = "email", required = false) String email,
 //            @Size(max = 50) @RequestParam(name = "img", required = false) String img,
             @Size(max = 50) @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "gender", required = false) Integer gender,
+            @RequestParam(name = "birthday", required = false) Long birthdayNum,
+            @RequestParam(name = "weight", required = false) Double weight,
+            @RequestParam(name = "height", required = false) Double height,
             @RequestParam(name = "deviceToken", required = false) String deviceToken
     ) {
-        User user = userService.updateUser(userPrincipal.getId(), name, deviceToken);
+        Instant birthday = new Date(birthdayNum).toInstant();
+        User user = userService.updateUser(userPrincipal.getId(), name, deviceToken, gender, birthday, weight, height);
         return ResponseEntity.ok(new CodeResponse(user));
     }
 }
