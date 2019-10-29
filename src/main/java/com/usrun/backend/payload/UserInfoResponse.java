@@ -54,6 +54,7 @@ public class UserInfoResponse {
             this.gender = user.getGender();
             this.lastLogin = user.getLastLogin();
             this.isActive = user.isEnabled() ? 1 : 0;
+            this.deviceToken = user.getDeviceToken();
         }
     }
 

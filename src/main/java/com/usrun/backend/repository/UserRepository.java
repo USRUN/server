@@ -22,6 +22,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Query("UPDATE User u set u.lastLogin = current_date where u.id = :userId")
     void updateLastLogin(@Param("userId") Long userId);
 
-    @Query(value = "SELECT u FROM User u WHERE u.name LIKE :keyword OR u.email LIKE :keyword OR u.code LIKE :keyword")
-    List<User> findUser(String keyword, Pageable pageable);
+    @Query(value = "SELECT u FROM User u WHERE u.isEnabled = TRUE AND (u.name LIKE :keyword OR u.email LIKE :keyword OR u.code LIKE :keyword)")
+    List<User> findUserIsEnable(String keyword, Pageable pageable);
 }

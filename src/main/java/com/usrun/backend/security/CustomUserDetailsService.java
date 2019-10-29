@@ -1,5 +1,7 @@
 package com.usrun.backend.security;
 
+import com.usrun.backend.config.ErrorCode;
+import com.usrun.backend.exception.CodeException;
 import com.usrun.backend.exception.ResourceNotFoundException;
 import com.usrun.backend.model.User;
 import com.usrun.backend.repository.UserRepository;
@@ -23,8 +25,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found with email : " + email)
+                        new CodeException(ErrorCode.USER_EMAIL_NOT_FOUND)
                 );
+
+        if(!user.isEnabled())
+            new CodeException(ErrorCode.USER_DOES_NOT_PERMISSION);
 
         user.setLastLogin(Instant.now());
         userRepository.save(user);
@@ -35,8 +40,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Transactional
     public UserDetails loadUserById(Long id) {
         User user = userRepository.findById(id).orElseThrow(
-                () -> new UsernameNotFoundException("User not found with id : " + id)
+                () -> new CodeException(ErrorCode.USER_NOT_FOUND)
         );
+
+        if(!user.isEnabled())
+            throw new CodeException(ErrorCode.USER_DOES_NOT_PERMISSION);
 
         return UserPrincipal.create(user);
     }

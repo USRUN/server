@@ -62,6 +62,11 @@ public class User extends DateAudit {
 
     private String code;
 
+    private String deviceToken;
+
+    @Size(max = 50)
+    private String nameSlug;
+
     @JsonProperty("isActive")
     private boolean isEnabled = true;
 
