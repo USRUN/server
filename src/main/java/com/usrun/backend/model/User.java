@@ -1,6 +1,7 @@
 package com.usrun.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.usrun.backend.model.audit.DateAudit;
 import com.usrun.backend.model.type.AuthType;
 import com.usrun.backend.model.type.Gender;
@@ -41,7 +42,7 @@ public class User extends DateAudit {
     private String password;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     private AuthType type;
 
     private String openId;
@@ -61,19 +62,23 @@ public class User extends DateAudit {
 
     private String code;
 
+    @JsonProperty("isActive")
     private boolean isEnabled = true;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "users")
     private Set<Team> teams = new HashSet<>();
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "users")
-    private Set<Event> eventss = new HashSet<>();
+    private Set<Event> events = new HashSet<>();
 
     public User() {}
 
