@@ -69,6 +69,6 @@ public class UserController {
             @RequestParam(name = "deviceToken", required = false) String deviceToken
     ) {
         User user = userService.updateUser(userPrincipal.getId(), name, deviceToken);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(new CodeResponse(user));
     }
 }
