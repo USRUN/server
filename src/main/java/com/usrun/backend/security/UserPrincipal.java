@@ -16,13 +16,15 @@ public class UserPrincipal implements UserDetails {
     private String email;
     private String password;
     private boolean isEnabled;
+    private boolean hcmus;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(Long id, String email, String password, boolean isEnabled, Collection<? extends GrantedAuthority> authorities) {
+    public UserPrincipal(Long id, String email, String password, boolean isEnabled, boolean hcmus, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.isEnabled = isEnabled;
+        this.hcmus = hcmus;
         this.authorities = authorities;
     }
 
@@ -38,6 +40,7 @@ public class UserPrincipal implements UserDetails {
                 user.getEmail(),
                 user.getPassword(),
                 user.isEnabled(),
+                user.isHcmus(),
                 authorities
         );
     }
@@ -85,4 +88,7 @@ public class UserPrincipal implements UserDetails {
         return authorities;
     }
 
+    public boolean isHcmus() {
+        return hcmus;
+    }
 }
