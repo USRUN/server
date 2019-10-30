@@ -1,5 +1,6 @@
 package com.usrun.backend.controller;
 
+import com.usrun.backend.config.ErrorCode;
 import com.usrun.backend.exception.ResourceNotFoundException;
 import com.usrun.backend.model.User;
 import com.usrun.backend.payload.CodeResponse;
@@ -15,12 +16,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.mail.MessagingException;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
@@ -77,5 +81,38 @@ public class UserController {
         Instant birthday = new Date(birthdayNum).toInstant();
         User user = userService.updateUser(userPrincipal.getId(), name, deviceToken, gender, birthday, weight, height);
         return ResponseEntity.ok(new CodeResponse(user));
+    }
+
+    @PostMapping("/user/verifyStudentHcmus")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> verifyStudentHcmus(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestParam("otp") String otp) {
+        boolean verified = userService.verifyOTP(userPrincipal.getId(), otp);
+
+        if (verified) {
+            User user = userRepository.findById(userPrincipal.getId()).get();
+            user.setHcmus(true);
+            userRepository.save(user);
+        }
+
+        return verified ?
+                ResponseEntity.ok(new CodeResponse(0)) :
+                new ResponseEntity<>(new CodeResponse(ErrorCode.OTP_INVALID), HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping("/user/resendOTP")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> resendOTP(@CurrentUser UserPrincipal userPrincipal) throws MessagingException {
+        if (userPrincipal.isHcmus()) {
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_VERIFIED), HttpStatus.BAD_REQUEST);
+        }
+
+        if (!userPrincipal.getEmail().endsWith("@student.hcmus.edu.vn")) {
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_IS_NOT_STUDENT_EMAIL), HttpStatus.BAD_REQUEST);
+        }
+
+        userService.sendEmailOTP(userPrincipal.getId(), userPrincipal.getEmail());
+        return ResponseEntity.ok(new CodeResponse(0));
     }
 }

@@ -13,9 +13,14 @@ import com.usrun.backend.repository.RoleRepository;
 import com.usrun.backend.repository.UserRepository;
 import com.usrun.backend.security.TokenProvider;
 import com.usrun.backend.security.oauth2.OAuth2UserDetailsService;
+import com.usrun.backend.service.UserService;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,11 +30,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.mail.MessagingException;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.net.URI;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/user")
@@ -41,6 +48,9 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -100,12 +110,11 @@ public class AuthController {
             @Email @NotBlank @RequestParam("email") String email,
             @NotBlank @Size(max = 50) @RequestParam("password") String password,
             @NotBlank @Size(max = 50) @RequestParam("name") String name
-    ) {
+    ) throws MessagingException {
         if (userRepository.existsByEmail(email)) {
             return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_IS_USED), HttpStatus.BAD_REQUEST);
         }
 
-        // Creating user's account
         User user = new User();
         user.setName(name);
         user.setEmail(email);
@@ -120,6 +129,10 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         User result = userRepository.save(user);
+
+        if(email.endsWith("@student.hcmus.edu.vn")) {
+            userService.sendEmailOTP(result.getId(), email);
+        }
 
         String jwt = tokenProvider.createTokenUserId(result.getId());
 

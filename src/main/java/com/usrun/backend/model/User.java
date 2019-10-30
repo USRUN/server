@@ -70,6 +70,8 @@ public class User extends DateAudit {
     @JsonProperty("isActive")
     private boolean isEnabled = true;
 
+    private boolean hcmus = false;
+
     @JsonIgnore
     @ManyToMany
     @JoinTable(name = "user_roles",

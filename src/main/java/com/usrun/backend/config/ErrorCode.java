@@ -33,6 +33,8 @@ public interface ErrorCode {
     int USER_RESET_PASSWORD_FAIL = 2022;
     int USER_EMAIL_NOT_FOUND = 2023;
     int USER_EMAIL_IS_SOCIAL = 2024;
+    int USER_EMAIL_VERIFIED = 2025; // new
+    int USER_EMAIL_IS_NOT_STUDENT_EMAIL = 2026; // new
 
 
     int TEAM_NOT_FOUND = 3000;
