@@ -41,3 +41,9 @@ app:
         - profile
 server:
   port: ${PORT:8080}
+
+amazon:
+  endpointUrl: ${AMAZON_S3_ENDPOINT_URL}
+  accessKey: ${AMAZON_S3_ACCESS_KEY}
+  secretKey: ${AMAZON_S3_SECRET_KEY}
+  bucketName: ${AMAZON_BUCKET_NAME}

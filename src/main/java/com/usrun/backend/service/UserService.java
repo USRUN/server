@@ -37,9 +37,13 @@ public class UserService {
     @Autowired
     private TemplateEngine templateEngine;
 
+    @Autowired
+    private AmazonClient amazonClient;
+
     public User updateUser(Long userId, String name,
                            String deviceToken, Integer gender,
-                           Instant birthday, Double weight, Double height) {
+                           Instant birthday, Double weight, Double height,
+                           String base64Image) {
         User user = userRepository.findById(userId).get();
 
         if (name != null) user.setName(name);
@@ -58,6 +62,10 @@ public class UserService {
         if (birthday != null) user.setBirthday(birthday);
         if (weight != null) user.setWeight(weight);
         if (height != null) user.setHeight(height);
+        if (base64Image != null) {
+            String fileUrl = amazonClient.uploadFile(base64Image, "avatar-" + userId);
+            if (fileUrl != null) user.setImg(fileUrl);
+        }
 
         return userRepository.save(user);
     }

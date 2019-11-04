@@ -19,13 +19,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
-import javax.validation.constraints.Email;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.time.Instant;
@@ -60,9 +57,11 @@ public class UserController {
             @RequestParam(name = "key", required = false) String key,
             @Min(0) @RequestParam(name = "offset", defaultValue = "0") Integer offset,
             @Min(1) @RequestParam(name = "count", defaultValue = "30") Integer count) {
+
         Pageable pageable = PageRequest.of(offset, count);
         List<User> users = userRepository.findUserIsEnable('%' + key + '%', pageable);
         return new ResponseEntity<>(new CodeResponse(users), HttpStatus.OK);
+
     }
 
     @PostMapping("/user/update")
@@ -70,16 +69,20 @@ public class UserController {
     public ResponseEntity<?> updateUser(
             @CurrentUser UserPrincipal userPrincipal,
 //            @Email @Size(max = 50) @RequestParam(name = "email", required = false) String email,
-//            @Size(max = 50) @RequestParam(name = "img", required = false) String img,
+            @RequestBody(required = false) String base64Image,
             @Size(max = 50) @RequestParam(name = "name", required = false) String name,
-            @RequestParam(name = "gender", required = false) Integer gender,
-            @RequestParam(name = "birthday", required = false) Long birthdayNum,
-            @RequestParam(name = "weight", required = false) Double weight,
-            @RequestParam(name = "height", required = false) Double height,
+            @Min(0) @Max(1) @RequestParam(name = "gender", required = false) Integer gender,
+            @Min(1) @RequestParam(name = "birthday", required = false) Long birthdayNum,
+            @Min(1) @RequestParam(name = "weight", required = false) Double weight,
+            @Min(1) @RequestParam(name = "height", required = false) Double height,
             @RequestParam(name = "deviceToken", required = false) String deviceToken
     ) {
-        Instant birthday = new Date(birthdayNum).toInstant();
-        User user = userService.updateUser(userPrincipal.getId(), name, deviceToken, gender, birthday, weight, height);
+
+        Instant birthday = null;
+        if(birthdayNum != null)
+            birthday = new Date(birthdayNum).toInstant();
+
+        User user = userService.updateUser(userPrincipal.getId(), name, deviceToken, gender, birthday, weight, height, base64Image);
         return ResponseEntity.ok(new CodeResponse(user));
     }
 
