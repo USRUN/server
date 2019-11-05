@@ -115,6 +115,10 @@ public class UserController {
             return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_IS_NOT_STUDENT_EMAIL), HttpStatus.BAD_REQUEST);
         }
 
+        if(!userService.expireOTP(userPrincipal.getId())) {
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.OTP_SENT), HttpStatus.BAD_REQUEST);
+        }
+
         userService.sendEmailOTP(userPrincipal.getId(), userPrincipal.getEmail());
         return ResponseEntity.ok(new CodeResponse(0));
     }

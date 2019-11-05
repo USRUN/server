@@ -11,6 +11,7 @@ public interface ErrorCode {
     int IMAGE_INVALID = 1003;
     int OTP_INVALID = 1004;
     int OTP_EXPIRED = 1005;
+    int OTP_SENT = 1006;
 
     int USER_NOT_FOUND = 2000;
     int USER_CAN_NOT_JOIN = 2001;
