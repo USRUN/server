@@ -1,0 +1,50 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/usrun?useSSL=false&serverTimezone=UTC&useLegacyDateTimeCode=false&useUnicode=yes&characterEncoding=utf8&characterResultSets=utf8}
+    username: ${DB_USERNAME:root}
+    password: ${DB_USERNAME:123456}
+    initialization-mode: always
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+    hibernate:
+      ddl-auto: create
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: true
+    time-zone: UTC
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:anhhuy980413@gmail.com}
+    password: ${MAIL_PASSWORD:123456}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+          starttls:
+            enable: true
+
+
+app:
+  auth:
+    tokenSecret: ${TOKEN_SECRET:USRUN1620}
+    tokenExpirationMs: ${TOKEN_EXPIRATION:604800000}
+  oauth2:
+    google:
+      clientId: ${GOOGLE_CLIENT_ID:945368106119-ln2tvce7hakg96no6htgj10d0eh9vv4u.apps.googleusercontent.com}
+      clientSecret: ${GOOGLE_CLIENT_SECRET:u82xYAYw082gGV2BsubN11zC}
+      scopes:
+        - email
+        - profile
+server:
+  port: ${PORT:8080}
+amazon:
+  endpointUrl: ${AMAZON_S3_ENDPOINT_URL}
+  accessKey: ${AMAZON_S3_ACCESS_KEY}
+  secretKey: ${AMAZON_S3_SECRET_KEY}
+  bucketName: ${AMAZON_BUCKET_NAME}

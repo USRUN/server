@@ -20,4 +20,8 @@ public class CodeResponse {
         this.code = 0;
         this.data = data;
     }
+    public CodeResponse(int code, Object data){
+        this.code = code;
+        this.data = data;
+    }
 }

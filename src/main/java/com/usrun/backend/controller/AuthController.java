@@ -26,6 +26,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -110,38 +112,44 @@ public class AuthController {
             @Email @NotBlank @RequestParam("email") String email,
             @NotBlank @Size(max = 50) @RequestParam("password") String password,
             @NotBlank @Size(max = 50) @RequestParam("name") String name
-    ) throws MessagingException {
-        if (userRepository.existsByEmail(email)) {
-            return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_IS_USED), HttpStatus.BAD_REQUEST);
+    ){
+        try {
+
+            if (userRepository.existsByEmail(email)) {
+                return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_IS_USED), HttpStatus.BAD_REQUEST);
+            }
+
+            User user = new User();
+            user.setName(name);
+            user.setEmail(email);
+            user.setPassword(password);
+            user.setType(AuthType.local);
+
+            Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+                    .orElseThrow(() -> new AppException("User Role not set."));
+
+            user.setRoles(Collections.singleton(userRole));
+
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+            User result = userRepository.save(user);
+
+            if (email.endsWith("@student.hcmus.edu.vn")) {
+                userService.sendEmailOTP(result.getId(), email);
+            }
+
+            String jwt = tokenProvider.createTokenUserId(result.getId());
+
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentContextPath().path("/user/info")
+                    .buildAndExpand(result.getId()).toUri();
+
+            return ResponseEntity.created(location)
+                    .body(new UserInfoResponse(result, jwt));
+        }catch (Exception ex){
+            System.out.println("hello" + ex);
+            return null;
         }
-
-        User user = new User();
-        user.setName(name);
-        user.setEmail(email);
-        user.setPassword(password);
-        user.setType(AuthType.local);
-
-        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-                .orElseThrow(() -> new AppException("User Role not set."));
-
-        user.setRoles(Collections.singleton(userRole));
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        User result = userRepository.save(user);
-
-        if(email.endsWith("@student.hcmus.edu.vn")) {
-            userService.sendEmailOTP(result.getId(), email);
-        }
-
-        String jwt = tokenProvider.createTokenUserId(result.getId());
-
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentContextPath().path("/user/info")
-                .buildAndExpand(result.getId()).toUri();
-
-        return ResponseEntity.created(location)
-                .body(new UserInfoResponse(result, jwt));
     }
 
 }
