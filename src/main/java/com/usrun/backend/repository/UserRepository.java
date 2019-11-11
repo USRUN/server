@@ -24,4 +24,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     @Query(value = "SELECT u FROM User u WHERE u.isEnabled = TRUE AND (u.name LIKE :keyword OR u.email LIKE :keyword OR u.code LIKE :keyword)")
     List<User> findUserIsEnable(String keyword, Pageable pageable);
+
+    Boolean existsByCode(String code);
 }
