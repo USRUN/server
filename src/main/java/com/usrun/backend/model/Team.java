@@ -61,4 +61,7 @@ public class Team extends DateAudit {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> users = new HashSet<>();
+
+    @OneToOne(mappedBy = "team")
+    private User user;
 }

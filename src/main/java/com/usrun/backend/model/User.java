@@ -87,6 +87,11 @@ public class User extends DateAudit {
     @ManyToMany(mappedBy = "users")
     private Set<Event> events = new HashSet<>();
 
+    @JsonIgnore
+    @OneToOne
+    @JoinColumn(name = "team_id", referencedColumnName = "id")
+    private Team team;
+
     public User() {}
 
     public User(@NotBlank @Size(max = 50) String name, @NotBlank @Size(max = 50) @Email String email, @NotBlank @Size(max = 100) String password, @NotNull @Size(max = 20) AuthType type, String openId) {
