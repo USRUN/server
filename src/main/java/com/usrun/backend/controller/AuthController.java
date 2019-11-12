@@ -3,10 +3,10 @@ package com.usrun.backend.controller;
 import com.usrun.backend.config.ErrorCode;
 import com.usrun.backend.exception.AppException;
 import com.usrun.backend.exception.OAuth2AuthenticationProcessingException;
-import com.usrun.backend.model.type.AuthType;
 import com.usrun.backend.model.Role;
 import com.usrun.backend.model.RoleName;
 import com.usrun.backend.model.User;
+import com.usrun.backend.model.type.AuthType;
 import com.usrun.backend.payload.CodeResponse;
 import com.usrun.backend.payload.UserInfoResponse;
 import com.usrun.backend.repository.RoleRepository;
@@ -14,20 +14,20 @@ import com.usrun.backend.repository.UserRepository;
 import com.usrun.backend.security.TokenProvider;
 import com.usrun.backend.security.oauth2.OAuth2UserDetailsService;
 import com.usrun.backend.service.UserService;
-import org.redisson.api.RBucket;
-import org.redisson.api.RedissonClient;
+import com.usrun.backend.utility.UniqueIDGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.mail.MessagingException;
@@ -36,7 +36,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.net.URI;
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/user")
@@ -63,6 +62,9 @@ public class AuthController {
 
     @Autowired
     private OAuth2UserDetailsService oAuth2UserDetailsService;
+
+    @Autowired
+    private UniqueIDGenerator uniqueIDGenerator;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(
@@ -127,6 +129,8 @@ public class AuthController {
         user.setRoles(Collections.singleton(userRole));
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        uniqueIDGenerator.generateID(user);
 
         User result = userRepository.save(user);
 
