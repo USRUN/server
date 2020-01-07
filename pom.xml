@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.usrun</groupId>
-    <artifactId>backend</artifactId>
+    <artifactId>usrun-core</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>usrun-backend</name>
+    <name>usrun</name>
     <description>USRUN</description>
 
     <properties>
