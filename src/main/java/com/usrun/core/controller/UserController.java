@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
+@RequestMapping("/user")
 public class UserController {
     @Autowired
     private UserRepository userRepository;
@@ -37,7 +38,7 @@ public class UserController {
     @Autowired
     private TokenProvider tokenProvider;
 
-    @GetMapping("/user/info")
+    @GetMapping("/info")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getCurrentUser(@CurrentUser UserPrincipal userPrincipal) {
         User user = userRepository.findById(userPrincipal.getId())
@@ -48,7 +49,7 @@ public class UserController {
         return new ResponseEntity<>(new UserInfoResponse(user, jwt), HttpStatus.OK);
     }
 
-    @GetMapping("/user/filter")
+    @GetMapping("/filter")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> findUser(
             @RequestParam(name = "key", required = false) String key,
@@ -61,7 +62,7 @@ public class UserController {
 
     }
 
-    @PostMapping("/user/update")
+    @PostMapping("/update")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> updateUser(
             @CurrentUser UserPrincipal userPrincipal,
@@ -74,7 +75,6 @@ public class UserController {
             @Min(1) @RequestParam(name = "height", required = false) Double height,
             @RequestParam(name = "deviceToken", required = false) String deviceToken
     ) {
-
         Instant birthday = null;
         if(birthdayNum != null)
             birthday = new Date(birthdayNum).toInstant();
@@ -83,7 +83,7 @@ public class UserController {
         return ResponseEntity.ok(new CodeResponse(user));
     }
 
-    @PostMapping("/user/verifyStudentHcmus")
+    @PostMapping("/verifyStudentHcmus")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> verifyStudentHcmus(
             @CurrentUser UserPrincipal userPrincipal,
@@ -101,7 +101,7 @@ public class UserController {
                 new ResponseEntity<>(new CodeResponse(ErrorCode.OTP_INVALID), HttpStatus.BAD_REQUEST);
     }
 
-    @PostMapping("/user/resendOTP")
+    @PostMapping("/resendOTP")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> resendOTP(@CurrentUser UserPrincipal userPrincipal) throws MessagingException {
         if (userPrincipal.isHcmus()) {
