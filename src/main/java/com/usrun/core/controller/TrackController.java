@@ -1,7 +1,11 @@
 package com.usrun.core.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.TrackException;
+import com.usrun.core.model.track.Location;
 import com.usrun.core.model.track.Point;
 import com.usrun.core.model.track.Track;
 import com.usrun.core.payload.CodeResponse;
@@ -17,6 +21,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.lang.reflect.Type;
+import java.util.List;
+
 /**
  * @author phuctt4
  */
@@ -27,6 +34,9 @@ public class TrackController {
 
     @Autowired
     private TrackService trackService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('USER')")
@@ -44,17 +54,25 @@ public class TrackController {
     public ResponseEntity<?> track(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestParam(name = "trackid") Long trackId,
-            @RequestParam(name = "lat") Float latitude,
-            @RequestParam(name = "long") Float longitude
-    ) {
+            @RequestParam(name = "locations") String locationsInput
+            ) throws JsonProcessingException {
         Long userId = userPrincipal.getId();
-        Point point = null;
+
+        List<Location> locations = objectMapper.readValue(locationsInput, new TypeReference<List<Location>>() {
+            @Override
+            public Type getType() {
+                return super.getType();
+            }
+        });
+
+        List<Point> points = null;
+        
         try {
-            point = trackService.track(userId, trackId, latitude, longitude);
+            points = trackService.track(userId, trackId, locations);
         } catch (TrackException exp) {
             return new ResponseEntity<>(new CodeResponse(exp.getErrorCode()), HttpStatus.BAD_REQUEST);
         }
-        return ResponseEntity.ok(point);
+        return ResponseEntity.ok(points);
     }
 
 }

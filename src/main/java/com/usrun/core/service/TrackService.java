@@ -2,6 +2,7 @@ package com.usrun.core.service;
 
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.TrackException;
+import com.usrun.core.model.track.Location;
 import com.usrun.core.model.track.Point;
 import com.usrun.core.model.track.Track;
 import com.usrun.core.repository.PointRepository;
@@ -15,7 +16,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author phuctt4
@@ -51,7 +56,7 @@ public class TrackService {
         return track;
     }
 
-    public Point track(Long userId, Long trackId, Float latitude, Float longitude) {
+    public List<Point> track(Long userId, Long trackId, List<Location> locations) {
         RBucket<Track> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyTrack(trackId));
         Track track = rBucket.get();
         if(track == null) {
@@ -60,10 +65,14 @@ public class TrackService {
             throw new TrackException(msg, ErrorCode.TRACK_NOT_FOUND);
         } else {
             if(track.getUserId() == userId) {
-                Point point = new Point(trackId, latitude, longitude);
-                pointRepository.save(point);
-                LOGGER.info("Save: {}", point.toString());
-                return point;
+                List<Point> points = locations
+                        .stream()
+                        .map(location -> new Point(trackId, location.getLatitude(), location.getLongitude(), location.getTime()))
+                        .collect(Collectors.toList());
+                locations.forEach(location -> points.add(new Point(trackId, location.getLatitude(), location.getLongitude(), location.getTime())));
+                pointRepository.saveAll(points);
+                LOGGER.info("Save: {}", points.toString());
+                return points;
             } else {
                 String msg = "Track does not belong to " + userId;
                 LOGGER.error(msg);

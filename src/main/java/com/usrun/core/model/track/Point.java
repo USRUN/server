@@ -34,4 +34,11 @@ public class Point {
         this.longitude = longitude;
         this.time = new Date();
     }
+
+    public Point(Long trackId, Float latitude, Float longitude, Date time) {
+        this.trackId = trackId;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.time = time;
+    }
 }
