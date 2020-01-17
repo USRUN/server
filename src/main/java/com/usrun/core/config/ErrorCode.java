@@ -57,4 +57,7 @@ public interface ErrorCode {
     int LEADER_BOARD_NOT_SUPPORT = 7002;
     int LEADER_BOARD_ACCESS_DENIED = 7003;
     int LEADER_BOARD_DELETE_FAIL = 7004;
+
+    int TRACK_NOT_FOUND = 8000;
+    int TRACK_NOT_BELONG_TO_USER = 8001;
 }

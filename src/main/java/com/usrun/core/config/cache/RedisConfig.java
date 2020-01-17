@@ -1,8 +1,9 @@
-package com.usrun.core.config;
+package com.usrun.core.config.cache;
 
+import com.usrun.core.config.AppProperties;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
-import org.redisson.client.codec.StringCodec;
+import org.redisson.codec.KryoCodec;
 import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +22,9 @@ public class RedisConfig {
                 .setTimeout(10000000)
                 .setAddress(appProperties.getRedisUrl())
                 .setConnectionPoolSize(10).setConnectionMinimumIdleSize(10);
-        config.setCodec(StringCodec.INSTANCE);
+//        config.setCodec(StringCodec.INSTANCE);
+        KryoCodec kryoCodec = new KryoCodecWithDefaultSerializer();
+        config.setCodec(kryoCodec);
         return Redisson.create(config);
     }
 }

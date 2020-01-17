@@ -3,6 +3,7 @@ package com.usrun.core.service;
 import com.usrun.core.model.User;
 import com.usrun.core.model.type.Gender;
 import com.usrun.core.repository.UserRepository;
+import com.usrun.core.utility.CacheKeyGenerator;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,9 @@ public class UserService {
     @Autowired
     private AmazonClient amazonClient;
 
+    @Autowired
+    private CacheKeyGenerator cacheKeyGenerator;
+
     public User updateUser(Long userId, String name,
                            String deviceToken, Integer gender,
                            Instant birthday, Double weight, Double height,
@@ -70,18 +74,18 @@ public class UserService {
 
     public String generateAndSaveOTP(Long userId) {
         String otp = new DecimalFormat("000000").format(new Random().nextInt(999999));
-        RBucket<String> rOtp = redissonClient.getBucket("users:otp:" + userId);
+        RBucket<String> rOtp = redissonClient.getBucket(cacheKeyGenerator.keyVerifyOtp(userId));
         rOtp.set(otp, 5, TimeUnit.MINUTES);
         return otp;
     }
 
     public Boolean verifyOTP(Long userId, String otp) {
-        RBucket<String> rOtp = redissonClient.getBucket("users:otp:" + userId);
+        RBucket<String> rOtp = redissonClient.getBucket(cacheKeyGenerator.keyVerifyOtp(userId));
         return otp.equals(rOtp.getAndDelete());
     }
 
     public Boolean expireOTP(Long userId) {
-        RBucket<String> rOtp = redissonClient.getBucket("users:otp:" + userId);
+        RBucket<String> rOtp = redissonClient.getBucket(cacheKeyGenerator.keyVerifyOtp(userId));
         return rOtp.remainTimeToLive() < 0;
     }
 

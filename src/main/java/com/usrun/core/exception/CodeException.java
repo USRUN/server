@@ -8,6 +8,11 @@ public class CodeException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
+    public CodeException(String message, int errorCode) {
+        super(message);
+        this.errorCode = errorCode;
+    }
+
     public int getErrorCode() {
         return errorCode;
     }

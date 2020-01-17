@@ -3,11 +3,13 @@ package com.usrun.core.utility;
 import com.usrun.core.model.User;
 import com.usrun.core.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.UUID;
 
-@Service
+@Component
 public class UniqueIDGenerator {
 
     @Autowired
@@ -40,5 +42,9 @@ public class UniqueIDGenerator {
         }
 
         toGrantID.setCode(resultIDBuffer.toString());
+    }
+
+    public Long generateTrackId(Long userId) {
+        return Long.parseLong(Long.toString(new Date().getTime() / 1000) + userId);
     }
 }
