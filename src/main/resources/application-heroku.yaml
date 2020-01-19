@@ -9,8 +9,8 @@ spring:
       host: ${DBN_URL}
       port: ${DBN_PORT:27017}
       database: ${DBN_NAME}
-      password: ${DBN_USERNAME}
-      username: ${DBN_PASSWORD}
+      username: ${DBN_USERNAME}
+      password: ${DBN_PASSWORD}
   jpa:
     properties:
       hibernate:
