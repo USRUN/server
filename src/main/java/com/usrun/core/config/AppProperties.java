@@ -11,11 +11,6 @@ import java.util.List;
 public class AppProperties {
     private final Auth auth = new Auth();
     private final OAuth2 oauth2 = new OAuth2();
-    private String redisUrl;
-
-    public void setRedisUrl(String redisUrl) {
-        this.redisUrl = redisUrl;
-    }
 
     @Getter
     @Setter

@@ -1,26 +1,33 @@
 package com.usrun.core.config.cache;
 
-import com.usrun.core.config.AppProperties;
+import lombok.Getter;
+import lombok.Setter;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.codec.KryoCodec;
 import org.redisson.config.Config;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+@Getter
+@Setter
 @Configuration
+@ConfigurationProperties(prefix = "redis")
 public class RedisConfig {
 
-    @Autowired
-    private AppProperties appProperties;
+    private String url;
+    private String username;
+    private String password;
 
     @Bean
     public RedissonClient redissonClient() {
         Config config = new Config();
         config.useSingleServer()
                 .setTimeout(10000000)
-                .setAddress(appProperties.getRedisUrl())
+                .setAddress(url)
+                .setClientName(username)
+                .setPassword(password)
                 .setConnectionPoolSize(10).setConnectionMinimumIdleSize(10);
 //        config.setCodec(StringCodec.INSTANCE);
         KryoCodec kryoCodec = new KryoCodecWithDefaultSerializer();
