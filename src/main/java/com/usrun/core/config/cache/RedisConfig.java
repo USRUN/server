@@ -42,6 +42,8 @@ public class RedisConfig {
         config.useSingleServer()
                 .setTimeout(10000000)
                 .setAddress(url)
+                .setClientName(username)
+                .setPassword(password)
                 .setConnectionPoolSize(10).setConnectionMinimumIdleSize(10);
 //        config.setCodec(StringCodec.INSTANCE);
         KryoCodec kryoCodec = new KryoCodecWithDefaultSerializer();
