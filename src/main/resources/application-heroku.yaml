@@ -43,7 +43,11 @@ app:
       scopes:
         - email
         - profile
-  redisUrl: ${REDIS_URL:redis://127.0.0.1:6379}
+
+redis:
+  url: ${REDIS_URL:redis://127.0.0.1:6379}
+  username: ${REDIS_USERNAME}
+  password: ${REDIS_PASSWORD}
 
 server:
   port: ${PORT:8080}
