@@ -18,7 +18,6 @@ import org.springframework.context.annotation.Profile;
 public class RedisConfig {
 
     private String url;
-    private String username;
     private String password;
 
     @Bean
@@ -42,7 +41,6 @@ public class RedisConfig {
         config.useSingleServer()
                 .setTimeout(10000000)
                 .setAddress(url)
-                .setClientName(username)
                 .setPassword(password)
                 .setConnectionPoolSize(10).setConnectionMinimumIdleSize(10);
 //        config.setCodec(StringCodec.INSTANCE);
