@@ -1,14 +1,22 @@
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_USERNAME}
+    url: ${DBR_URL}
+    username: ${DBR_USERNAME}
+    password: ${DBR_USERNAME}
+    initialization-mode: ${DBR_INIT}
+  data:
+    mongodb:
+      host: ${DBN_URL}
+      port: ${DBN_PORT:27017}
+      database: ${DBN_NAME}
+      password: ${DBN_USERNAME}
+      username: ${DBN_PASSWORD}
   jpa:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${DBR_DLL_AUTO}
   jackson:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
@@ -39,6 +47,8 @@ app:
       scopes:
         - email
         - profile
+  redisUrl: ${REDIS_URL:redis://127.0.0.1:6379}
+
 server:
   port: ${PORT:8080}
 

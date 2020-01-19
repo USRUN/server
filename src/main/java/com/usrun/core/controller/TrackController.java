@@ -3,12 +3,12 @@ package com.usrun.core.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.TrackException;
 import com.usrun.core.model.track.Location;
 import com.usrun.core.model.track.Point;
 import com.usrun.core.model.track.Track;
 import com.usrun.core.payload.CodeResponse;
+import com.usrun.core.payload.dto.TrackDTO;
 import com.usrun.core.security.CurrentUser;
 import com.usrun.core.security.UserPrincipal;
 import com.usrun.core.service.TrackService;
@@ -46,7 +46,7 @@ public class TrackController {
     ) {
         Long userId = userPrincipal.getId();
         Track track = trackService.createTrack(userId, description);
-        return ResponseEntity.ok(track);
+        return ResponseEntity.ok(new CodeResponse(track));
     }
 
     @PostMapping("/point")
@@ -72,7 +72,25 @@ public class TrackController {
         } catch (TrackException exp) {
             return new ResponseEntity<>(new CodeResponse(exp.getErrorCode()), HttpStatus.BAD_REQUEST);
         }
-        return ResponseEntity.ok(points);
+        return ResponseEntity.ok(new CodeResponse(points));
+    }
+
+    @PostMapping("/gettrack")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getTrack(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestParam(name = "trackid") Long trackId
+    ) {
+        Long userId = userPrincipal.getId();
+
+        TrackDTO dto = null;
+
+        try {
+            dto = trackService.getTrack(userId, trackId);
+        } catch (TrackException exp) {
+            return new ResponseEntity<>(new CodeResponse(exp.getErrorCode()), HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.ok(new CodeResponse(dto));
     }
 
 }

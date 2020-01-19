@@ -5,6 +5,7 @@ import com.usrun.core.exception.TrackException;
 import com.usrun.core.model.track.Location;
 import com.usrun.core.model.track.Point;
 import com.usrun.core.model.track.Track;
+import com.usrun.core.payload.dto.TrackDTO;
 import com.usrun.core.repository.PointRepository;
 import com.usrun.core.repository.TrackRepository;
 import com.usrun.core.utility.CacheKeyGenerator;
@@ -16,11 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author phuctt4
@@ -73,6 +71,25 @@ public class TrackService {
                 pointRepository.saveAll(points);
                 LOGGER.info("Save: {}", points.toString());
                 return points;
+            } else {
+                String msg = "Track does not belong to " + userId;
+                LOGGER.error(msg);
+                throw new TrackException("Track does not belong to " + userId, ErrorCode.TRACK_NOT_BELONG_TO_USER);
+            }
+        }
+    }
+
+    public TrackDTO getTrack(Long userId, Long trackId) {
+        Track track = trackRepository.findById(trackId).orElse(null);
+        if(track == null) {
+            String msg = "Track not found: " + trackId;
+            LOGGER.error(msg);
+            throw new TrackException(msg, ErrorCode.TRACK_NOT_FOUND);
+        } else {
+            if(track.getUserId() == userId) {
+                List<Point> points = pointRepository.findAllByTrackId(trackId);
+                LOGGER.info("Get Track ID: " + trackId);
+                return new TrackDTO(track, points);
             } else {
                 String msg = "Track does not belong to " + userId;
                 LOGGER.error(msg);
