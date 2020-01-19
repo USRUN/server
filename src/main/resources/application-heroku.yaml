@@ -6,11 +6,7 @@ spring:
     initialization-mode: ${DBR_INIT}
   data:
     mongodb:
-      host: ${DBN_URL}
-      port: ${DBN_PORT:27017}
-      database: ${DBN_NAME}
-      username: ${DBN_USERNAME}
-      password: ${DBN_PASSWORD}
+      uri: ${MONGODB_URI}
   jpa:
     properties:
       hibernate:
