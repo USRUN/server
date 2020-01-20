@@ -11,3 +11,5 @@ log/
 target/
 
 application-dev.yaml
+
+dump.rdb
