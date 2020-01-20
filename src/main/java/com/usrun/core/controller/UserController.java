@@ -10,6 +10,7 @@ import com.usrun.core.security.CurrentUser;
 import com.usrun.core.security.TokenProvider;
 import com.usrun.core.security.UserPrincipal;
 import com.usrun.core.service.UserService;
+import com.usrun.core.utility.CacheClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,6 +38,9 @@ public class UserController {
 
     @Autowired
     private TokenProvider tokenProvider;
+
+    @Autowired
+    private CacheClient cacheClient;
 
     @PostMapping("/info")
     @PreAuthorize("hasRole('USER')")
@@ -88,14 +92,9 @@ public class UserController {
     public ResponseEntity<?> verifyStudentHcmus(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestParam("otp") String otp) {
-        boolean verified = userService.verifyOTP(userPrincipal.getId(), otp);
 
-        if (verified) {
-            User user = userRepository.findById(userPrincipal.getId()).get();
-            user.setHcmus(true);
-            userRepository.save(user);
-        }
-
+        Long userId = userPrincipal.getId();
+        Boolean verified = userService.verifyOTP(userId, otp);
         return verified ?
                 ResponseEntity.ok(new CodeResponse(0)) :
                 new ResponseEntity<>(new CodeResponse(ErrorCode.OTP_INVALID), HttpStatus.BAD_REQUEST);
@@ -112,7 +111,7 @@ public class UserController {
             return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_IS_NOT_STUDENT_EMAIL), HttpStatus.BAD_REQUEST);
         }
 
-        if(!userService.expireOTP(userPrincipal.getId())) {
+        if(!cacheClient.expireOTP(userPrincipal.getId())) {
             return new ResponseEntity<>(new CodeResponse(ErrorCode.OTP_SENT), HttpStatus.BAD_REQUEST);
         }
 

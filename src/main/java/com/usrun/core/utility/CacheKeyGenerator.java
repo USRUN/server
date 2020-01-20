@@ -16,4 +16,12 @@ public class CacheKeyGenerator {
     public String keyTrack(Long trackId) {
         return "track:" + trackId;
     }
+
+    public String keyUser(Long userId) {
+        return "user:" + userId;
+    }
+
+    public String keyUserEmail(String email) {
+        return "users:email:" + email;
+    }
 }

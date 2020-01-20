@@ -78,9 +78,7 @@ public class AuthController {
 
         if (type == AuthType.local.ordinal()) {
             try {
-                user = userRepository.findByEmail(email).orElseThrow(
-                        () -> new Exception("Email not found")
-                );
+                user = userService.loadUser(email);
             } catch (Exception ex) {
                 return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_NOT_FOUND), HttpStatus.BAD_REQUEST);
             }
