@@ -4,6 +4,7 @@ import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.User;
 import com.usrun.core.repository.UserRepository;
+import com.usrun.core.utility.CacheClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,6 +19,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private CacheClient cacheClient;
 
     @Override
     @Transactional
@@ -38,9 +41,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Transactional
     public UserDetails loadUserById(Long id) {
-        User user = userRepository.findById(id).orElseThrow(
-                () -> new CodeException(ErrorCode.USER_NOT_FOUND)
-        );
+        User user = cacheClient.getUser(id);
+
+        if(user == null) {
+            user = userRepository.findById(id).orElseThrow(
+                    () -> new CodeException(ErrorCode.USER_NOT_FOUND)
+            );
+            cacheClient.setUser(user);
+        }
 
         if(!user.isEnabled())
             throw new CodeException(ErrorCode.USER_DOES_NOT_PERMISSION);

@@ -1,5 +1,6 @@
 package com.usrun.core.security.oauth2;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -17,6 +18,10 @@ import com.usrun.core.repository.RoleRepository;
 import com.usrun.core.repository.UserRepository;
 import com.usrun.core.security.oauth2.user.GoogleOAuth2UserInfo;
 import com.usrun.core.security.oauth2.user.OAuth2UserInfo;
+import com.usrun.core.utility.CacheClient;
+import com.usrun.core.utility.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,6 +36,8 @@ import java.util.Optional;
 @Service
 public class OAuth2UserDetailsService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2UserDetailsService.class);
+
     @Autowired
     private UserRepository userRepository;
 
@@ -42,6 +49,12 @@ public class OAuth2UserDetailsService {
 
     @Autowired
     private AppProperties appProperties;
+
+    @Autowired
+    private CacheClient cacheClient;
+
+    @Autowired
+    private ObjectUtils objectUtils;
 
     public User loadUser(String token, AuthType type) {
         OAuth2UserInfo oAuth2UserInfo = null;
@@ -108,12 +121,20 @@ public class OAuth2UserDetailsService {
                 .orElseThrow(() -> new ResourceNotFoundException("Role", "name", RoleName.ROLE_USER.name()));
 
         user.setRoles(Collections.singleton(userRole));
-        return userRepository.save(user);
+        userRepository.save(user);
+        cacheClient.setUser(user);
+
+        LOGGER.info("Register User: {}", objectUtils.toJsonString(user));
+
+        return user;
     }
 
     private User updateExistingUser(User existingUser, OAuth2UserInfo oAuth2UserInfo) {
         existingUser.setName(oAuth2UserInfo.getName());
         existingUser.setImg(oAuth2UserInfo.getImageUrl());
-        return userRepository.save(existingUser);
+        userRepository.save(existingUser);
+        cacheClient.setUser(existingUser);
+        LOGGER.info("Update User: {}", objectUtils.toJsonString(existingUser));
+        return existingUser;
     }
 }

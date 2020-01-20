@@ -2,6 +2,7 @@ package com.usrun.core.aspect;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.usrun.core.utility.ObjectUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.CodeSignature;
@@ -27,7 +28,7 @@ import java.util.Map;
 public class RequestResponseLogger {
 
        @Autowired
-       private ObjectMapper objectMapper;
+       private ObjectUtils objectUtils;
 
        @Pointcut("within(@org.springframework.web.bind.annotation.RestController *)")
        public void controller() {
@@ -68,22 +69,12 @@ public class RequestResponseLogger {
               for (int i = 0; i < joinPoint.getArgs().length; i++) {
                      map.put(signature.getParameterNames()[i], joinPoint.getArgs()[i]);
               }
-              try {
-                     return objectMapper.writeValueAsString(map);
-              } catch (JsonProcessingException e) {
-                     e.printStackTrace();
-                     return "";
-              }
+              return objectUtils.toJsonString(map);
        }
 
        private String getResponse(Object result) {
               ResponseEntity<?> responseEntity = (ResponseEntity<?>)result;
-              try {
-                     return objectMapper.writeValueAsString(responseEntity.getBody());
-              } catch (JsonProcessingException e) {
-                     e.printStackTrace();
-                     return "";
-              }
+              return objectUtils.toJsonString(responseEntity.getBody());
        }
 
        private String getBaseUrl(RequestMapping requestMapping, PostMapping postMapping) {

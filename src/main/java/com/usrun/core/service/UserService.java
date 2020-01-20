@@ -3,9 +3,7 @@ package com.usrun.core.service;
 import com.usrun.core.model.User;
 import com.usrun.core.model.type.Gender;
 import com.usrun.core.repository.UserRepository;
-import com.usrun.core.utility.CacheKeyGenerator;
-import org.redisson.api.RBucket;
-import org.redisson.api.RedissonClient;
+import com.usrun.core.utility.CacheClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -16,19 +14,16 @@ import org.thymeleaf.context.Context;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.text.DecimalFormat;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 import java.time.Instant;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private RedissonClient redissonClient;
 
     @Autowired
     private JavaMailSender javaMailSender;
@@ -40,7 +35,24 @@ public class UserService {
     private AmazonClient amazonClient;
 
     @Autowired
-    private CacheKeyGenerator cacheKeyGenerator;
+    private CacheClient cacheClient;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    public User loadUser(String email) throws Exception {
+        User user = cacheClient.getUser(email);
+        if(user == null) {
+            user = userRepository.findByEmail(email).orElseThrow(
+                    () -> new Exception("User Not Found")
+            );
+            cacheClient.setUser(user);
+        }
+        return user;
+//        return userRepository.findByEmail(email).orElseThrow(
+//                () -> new Exception("User Not Found")
+//        );
+    }
 
     public User updateUser(Long userId, String name,
                            String deviceToken, Integer gender,
@@ -69,29 +81,27 @@ public class UserService {
             if (fileUrl != null) user.setImg(fileUrl);
         }
 
-        return userRepository.save(user);
-    }
+        userRepository.save(user);
+        cacheClient.setUser(user);
 
-    public String generateAndSaveOTP(Long userId) {
-        String otp = new DecimalFormat("000000").format(new Random().nextInt(999999));
-        RBucket<String> rOtp = redissonClient.getBucket(cacheKeyGenerator.keyVerifyOtp(userId));
-        rOtp.set(otp, 5, TimeUnit.MINUTES);
-        return otp;
+        return user;
     }
 
     public Boolean verifyOTP(Long userId, String otp) {
-        RBucket<String> rOtp = redissonClient.getBucket(cacheKeyGenerator.keyVerifyOtp(userId));
-        return otp.equals(rOtp.getAndDelete());
-    }
+        boolean verified = cacheClient.verifyOTPFromCache(userId, otp);
 
-    public Boolean expireOTP(Long userId) {
-        RBucket<String> rOtp = redissonClient.getBucket(cacheKeyGenerator.keyVerifyOtp(userId));
-        return rOtp.remainTimeToLive() < 0;
+        if (verified) {
+            User user = userRepository.findById(userId).get();
+            user.setHcmus(true);
+            userRepository.save(user);
+            cacheClient.setUser(user);
+        }
+        return verified;
     }
 
     @Async("threadPoolEmailOtp")
     public void sendEmailOTP(Long userId, String email) throws MessagingException {
-        String otp = generateAndSaveOTP(userId);
+        String otp = cacheClient.generateAndSaveOTP(userId);
 
         Context context = new Context();
         context.setVariable("otp", otp);
