@@ -8,6 +8,7 @@ import com.usrun.core.model.track.Track;
 import com.usrun.core.payload.dto.TrackDTO;
 import com.usrun.core.repository.PointRepository;
 import com.usrun.core.repository.TrackRepository;
+import com.usrun.core.utility.CacheClient;
 import com.usrun.core.utility.CacheKeyGenerator;
 import com.usrun.core.utility.UniqueIDGenerator;
 import org.redisson.api.RBucket;
@@ -30,13 +31,7 @@ public class TrackService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TrackService.class);
 
     @Autowired
-    private RedissonClient redissonClient;
-
-    @Autowired
     private UniqueIDGenerator uniqueIDGenerator;
-
-    @Autowired
-    private CacheKeyGenerator cacheKeyGenerator;
 
     @Autowired
     private TrackRepository trackRepository;
@@ -44,19 +39,22 @@ public class TrackService {
     @Autowired
     private PointRepository pointRepository;
 
+    @Autowired
+    private CacheClient cacheClient;
+
     public Track createTrack(Long userId, String description) {
         Long trackId = uniqueIDGenerator.generateTrackId(userId);
         Track track = new Track(trackId, userId, description);
+
         trackRepository.save(track);
-        RBucket<Track> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyTrack(trackId));
-        rBucket.set(track);
+        cacheClient.setTrack(track);
+
         LOGGER.info(track.toString());
         return track;
     }
 
     public List<Point> track(Long userId, Long trackId, List<Location> locations) {
-        RBucket<Track> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyTrack(trackId));
-        Track track = rBucket.get();
+        Track track = cacheClient.getTrack(trackId);
         if(track == null) {
             String msg = "Track not found in cache: " + trackId;
             LOGGER.error(msg);

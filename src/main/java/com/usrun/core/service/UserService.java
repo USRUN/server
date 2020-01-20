@@ -1,34 +1,32 @@
 package com.usrun.core.service;
 
+import com.usrun.core.model.Role;
+import com.usrun.core.model.type.RoleType;
 import com.usrun.core.model.User;
+import com.usrun.core.model.type.AuthType;
 import com.usrun.core.model.type.Gender;
 import com.usrun.core.repository.UserRepository;
-import com.usrun.core.utility.CacheKeyGenerator;
-import org.redisson.api.RBucket;
-import org.redisson.api.RedissonClient;
+import com.usrun.core.utility.CacheClient;
+import com.usrun.core.utility.UniqueIDGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.text.DecimalFormat;
-import java.time.Instant;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
+import java.util.Collections;
+import java.util.Date;
 
 @Service
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private RedissonClient redissonClient;
 
     @Autowired
     private JavaMailSender javaMailSender;
@@ -40,13 +38,58 @@ public class UserService {
     private AmazonClient amazonClient;
 
     @Autowired
-    private CacheKeyGenerator cacheKeyGenerator;
+    private CacheClient cacheClient;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UniqueIDGenerator uniqueIDGenerator;
+
+    public User createUser(String name, String email, String password) {
+        User user = new User();
+        user.setName(name);
+        user.setEmail(email);
+        user.setType(AuthType.local);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setRoles(Collections.singleton(new Role(RoleType.ROLE_USER)));
+        uniqueIDGenerator.generateID(user);
+        user = userRepository.insert(user);
+        cacheClient.setUser(user);
+
+        if (email.endsWith("@student.hcmus.edu.vn")) {
+            try {
+                sendEmailOTP(user.getId(), email);
+            } catch (MessagingException e) {
+                e.printStackTrace();
+            }
+        }
+        return user;
+    }
+
+    public User loadUser(String email) throws Exception {
+        User user = cacheClient.getUser(email);
+        if (user == null) {
+            try {
+                user = userRepository.findUserByEmail(email);
+                if (user == null)
+                    throw new Exception("User Not Found");
+                cacheClient.setUser(user);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return user;
+//        return userRepository.findByEmail(email).orElseThrow(
+//                () -> new Exception("User Not Found")
+//        );
+    }
 
     public User updateUser(Long userId, String name,
                            String deviceToken, Integer gender,
-                           Instant birthday, Double weight, Double height,
+                           Date birthday, Double weight, Double height,
                            String base64Image) {
-        User user = userRepository.findById(userId).get();
+        User user = userRepository.findById(userId);
 
         if (name != null) user.setName(name);
         if (deviceToken != null) user.setDeviceToken(deviceToken);
@@ -69,29 +112,27 @@ public class UserService {
             if (fileUrl != null) user.setImg(fileUrl);
         }
 
-        return userRepository.save(user);
-    }
+        userRepository.update(user);
+        cacheClient.setUser(user);
 
-    public String generateAndSaveOTP(Long userId) {
-        String otp = new DecimalFormat("000000").format(new Random().nextInt(999999));
-        RBucket<String> rOtp = redissonClient.getBucket(cacheKeyGenerator.keyVerifyOtp(userId));
-        rOtp.set(otp, 5, TimeUnit.MINUTES);
-        return otp;
+        return user;
     }
 
     public Boolean verifyOTP(Long userId, String otp) {
-        RBucket<String> rOtp = redissonClient.getBucket(cacheKeyGenerator.keyVerifyOtp(userId));
-        return otp.equals(rOtp.getAndDelete());
-    }
+        boolean verified = cacheClient.verifyOTPFromCache(userId, otp);
 
-    public Boolean expireOTP(Long userId) {
-        RBucket<String> rOtp = redissonClient.getBucket(cacheKeyGenerator.keyVerifyOtp(userId));
-        return rOtp.remainTimeToLive() < 0;
+        if (verified) {
+            User user = userRepository.findById(userId);
+            user.setHcmus(true);
+            userRepository.update(user);
+            cacheClient.setUser(user);
+        }
+        return verified;
     }
 
     @Async("threadPoolEmailOtp")
     public void sendEmailOTP(Long userId, String email) throws MessagingException {
-        String otp = generateAndSaveOTP(userId);
+        String otp = cacheClient.generateAndSaveOTP(userId);
 
         Context context = new Context();
         context.setVariable("otp", otp);
