@@ -1,15 +1,11 @@
 package com.usrun.core.controller;
 
 import com.usrun.core.config.ErrorCode;
-import com.usrun.core.exception.AppException;
 import com.usrun.core.exception.OAuth2AuthenticationProcessingException;
-import com.usrun.core.model.Role;
-import com.usrun.core.model.RoleName;
 import com.usrun.core.model.User;
 import com.usrun.core.model.type.AuthType;
 import com.usrun.core.payload.CodeResponse;
 import com.usrun.core.payload.UserInfoResponse;
-import com.usrun.core.repository.RoleRepository;
 import com.usrun.core.repository.UserRepository;
 import com.usrun.core.security.TokenProvider;
 import com.usrun.core.security.oauth2.OAuth2UserDetailsService;
@@ -22,7 +18,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,12 +25,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.mail.MessagingException;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.net.URI;
-import java.util.Collections;
 
 @RestController
 @RequestMapping("/user")
@@ -52,19 +45,10 @@ public class AuthController {
     private UserService userService;
 
     @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private TokenProvider tokenProvider;
 
     @Autowired
     private OAuth2UserDetailsService oAuth2UserDetailsService;
-
-    @Autowired
-    private UniqueIDGenerator uniqueIDGenerator;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(
@@ -110,39 +94,20 @@ public class AuthController {
             @Email @NotBlank @RequestParam("email") String email,
             @NotBlank @Size(max = 50) @RequestParam("password") String password,
             @NotBlank @Size(max = 50) @RequestParam("name") String name
-    ) throws MessagingException {
-        if (userRepository.existsByEmail(email)) {
+    ) {
+        if (userRepository.findUserByEmail(email) != null) {
             return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_IS_USED), HttpStatus.BAD_REQUEST);
         }
 
-        User user = new User();
-        user.setName(name);
-        user.setEmail(email);
-        user.setPassword(password);
-        user.setType(AuthType.local);
+        User user = userService.createUser(name, email, password);
 
-        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-                .orElseThrow(() -> new AppException("User Role not set."));
-
-        user.setRoles(Collections.singleton(userRole));
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        uniqueIDGenerator.generateID(user);
-
-        User result = userRepository.save(user);
-
-        if(email.endsWith("@student.hcmus.edu.vn")) {
-            userService.sendEmailOTP(result.getId(), email);
-        }
-
-        String jwt = tokenProvider.createTokenUserId(result.getId());
+        String jwt = tokenProvider.createTokenUserId(user.getId());
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath().path("/user/info")
-                .buildAndExpand(result.getId()).toUri();
+                .buildAndExpand(user.getId()).toUri();
 
         return ResponseEntity.created(location)
-                .body(new UserInfoResponse(result, jwt));
+                .body(new UserInfoResponse(user, jwt));
     }
 }

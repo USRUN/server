@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -29,12 +30,12 @@ public class UserInfoResponse {
         private Instant dateUpdate;
         private int isActive;
         private String deviceToken;
-        private Instant birthday;
+        private Date birthday;
         private String phone;
         private Gender gender;
         private Double weight;
         private Double height;
-        private Instant lastLogin;
+        private Date lastLogin;
         private String accessToken;
         private String tokenType = "Bearer";
 
@@ -47,8 +48,6 @@ public class UserInfoResponse {
             this.img = user.getImg();
             this.name = user.getName();
             this.birthday = user.getBirthday();
-            this.dateAdd = user.getDateAdd();
-            this.dateUpdate = user.getDateUpdate();
             this.weight = user.getWeight();
             this.height = user.getHeight();
             this.gender = user.getGender();
