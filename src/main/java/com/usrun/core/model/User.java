@@ -54,6 +54,10 @@ public class User {
 
     private String nameSlug;
 
+    private Date dateAdd;
+
+    private Date dateUpdate;
+
     @JsonProperty("isActive")
     private boolean isEnabled = true;
 
@@ -61,7 +65,10 @@ public class User {
 
     private Set<Role> roles;
 
-    public User() {}
+    public User() {
+        this.dateUpdate = new Date();
+        this.dateAdd = new Date();
+    }
 
     public User( String name, @NotBlank @Size(max = 50) @Email String email, @NotBlank @Size(max = 100) String password, @NotNull @Size(max = 20) AuthType type, String openId) {
         this.name = name;
@@ -71,7 +78,7 @@ public class User {
         this.openId = openId;
     }
 
-    public User(Long id, String name, @Email String email, String password, AuthType type, String openId, String img, Date lastLogin, Double weight, Double height, Gender gender, Date birthday, String code, String deviceToken, String nameSlug, boolean isEnabled, boolean hcmus) {
+    public User(Long id, String name, @Email String email, String password, AuthType type, String openId, String img, Date lastLogin, Double weight, Double height, Gender gender, Date birthday, String code, String deviceToken, String nameSlug, boolean isEnabled, boolean hcmus, Date dateAdd, Date dateUpdate) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -89,5 +96,7 @@ public class User {
         this.nameSlug = nameSlug;
         this.isEnabled = isEnabled;
         this.hcmus = hcmus;
+        this.dateAdd = dateAdd;
+        this.dateUpdate = dateUpdate;
     }
 }

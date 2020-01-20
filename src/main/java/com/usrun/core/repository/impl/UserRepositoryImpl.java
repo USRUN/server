@@ -5,6 +5,7 @@ import com.usrun.core.model.User;
 import com.usrun.core.model.type.AuthType;
 import com.usrun.core.model.type.Gender;
 import com.usrun.core.model.type.RoleType;
+import com.usrun.core.payload.dto.UserFilterDTO;
 import com.usrun.core.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -38,9 +40,9 @@ public class UserRepositoryImpl implements UserRepository {
         namedParameterJdbcTemplate.update(
                 "INSERT INTO users (name, email, password, type, " +
                         "open_id, img, last_login, weight, height, gender, " +
-                        "birthday, code, device_token, name_slug, is_enabled, hcmus) values (" +
+                        "birthday, code, device_token, name_slug, is_enabled, hcmus, date_add, date_update) values (" +
                         ":name, :email, :password, :type, :open_id, :img, :last_login, :weight, :height, " +
-                        ":gender, :birthday, :code, :device_token, :name_slug, :is_enabled, :hcmus)",
+                        ":gender, :birthday, :code, :device_token, :name_slug, :is_enabled, :hcmus, date_add, date_update)",
                 map,
                 holder,
                 new String[]{"GENERATED_ID"}
@@ -64,13 +66,15 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User update(User user) {
+        user.setDateUpdate(new Date());
         MapSqlParameterSource map = getMapUser(user);
         namedParameterJdbcTemplate.update(
                 "UPDATE users SET name = :name, email = :email, password = :password, type = :type, " +
                         "open_id = :open_id, img = :img , last_login = :last_login, " +
                         "weight = :weight, height = :height, gender = :gender, " +
                         "birthday = :birthday, code = :code, device_token = :device_token, " +
-                        "name_slug = :name_slug, is_enabled = :is_enabled, hcmus := hcmus WHERE id = :id",
+                        "name_slug = :name_slug, is_enabled = :is_enabled, " +
+                        "hcmus := hcmus, date_update = :date_update WHERE id = :id",
                 map
         );
         return user;
@@ -91,8 +95,18 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public List<User> findUserIsEnable(String keyword, Pageable pageable) {
-        return null;
+    public List<UserFilterDTO> findUserIsEnable(String keyword, Pageable pageable) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("keyword", keyword);
+        params.addValue("size", pageable.getPageSize());
+        params.addValue("offset", pageable.getOffset());
+        String sql = "SELECT u.* " +
+                "FROM users u " +
+                "WHERE u.is_enabled = TRUE " +
+                "AND (u.name LIKE :keyword OR u.email LIKE :keyword OR u.code LIKE :keyword) " +
+                "LIMIT :size " +
+                "OFFSET :offset";
+        return getUserFilterDTO(sql, params);
     }
 
     @Override
@@ -103,10 +117,10 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     private User getUser(String sql, MapSqlParameterSource params) {
-        Optional<User> optionalUser = namedParameterJdbcTemplate.queryForObject(
+        Optional<User> optionalUser = namedParameterJdbcTemplate.query(
                 sql,
                 params,
-                (rs, i) -> Optional.of(new User(
+                (rs, i) -> new User(
                         rs.getLong("id"),
                         rs.getString("name"),
                         rs.getString("email"),
@@ -123,9 +137,10 @@ public class UserRepositoryImpl implements UserRepository {
                         rs.getString("device_token"),
                         rs.getString("name_slug"),
                         rs.getBoolean("is_enabled"),
-                        rs.getBoolean("hcmus")
-                ))
-        );
+                        rs.getBoolean("hcmus"),
+                        rs.getDate("date_add"),
+                        rs.getDate("date_update")
+                )).stream().findFirst();
         if(optionalUser.isPresent()) {
             User user = optionalUser.get();
             List<Role> list = namedParameterJdbcTemplate.query("SELECT role_id FROM user_roles WHERE user_id = :userId",
@@ -145,19 +160,38 @@ public class UserRepositoryImpl implements UserRepository {
         map.addValue("name", user.getName());
         map.addValue("email", user.getEmail());
         map.addValue("password", user.getPassword());
-        map.addValue("type", user.getType().toValue());
+        map.addValue("type", user.getType() == null ? null : user.getType().toValue());
         map.addValue("open_id", user.getOpenId());
         map.addValue("img", user.getImg());
         map.addValue("last_login", user.getLastLogin());
         map.addValue("weight", user.getWeight());
         map.addValue("height", user.getHeight());
-        map.addValue("gender", user.getGender().toValue());
+        map.addValue("gender", user.getGender() == null ? null : user.getGender().toValue());
         map.addValue("birthday", user.getBirthday());
         map.addValue("code", user.getCode());
         map.addValue("device_token", user.getDeviceToken());
         map.addValue("name_slug", user.getNameSlug());
         map.addValue("is_enabled", user.isEnabled());
         map.addValue("hcmus", user.isHcmus());
+        map.addValue("date_add", user.getDateAdd());
+        map.addValue("date_update", user.getDateUpdate());
         return map;
+    }
+
+    private List<UserFilterDTO> getUserFilterDTO(String sql, MapSqlParameterSource params) {
+        List<UserFilterDTO> userFilterDTOS = namedParameterJdbcTemplate.query(
+                sql,
+                params,
+                (rs, i) -> new UserFilterDTO(
+                        rs.getLong("id"),
+                        rs.getString("name"),
+                        rs.getString("email"),
+                        rs.getString("code"),
+                        Gender.fromInt(rs.getInt("gender")),
+                        rs.getDate("birthday"),
+                        rs.getString("name_slug")
+                )
+        );
+        return userFilterDTOS;
     }
 }

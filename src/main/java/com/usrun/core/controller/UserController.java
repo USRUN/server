@@ -5,6 +5,7 @@ import com.usrun.core.exception.ResourceNotFoundException;
 import com.usrun.core.model.User;
 import com.usrun.core.payload.CodeResponse;
 import com.usrun.core.payload.UserInfoResponse;
+import com.usrun.core.payload.dto.UserFilterDTO;
 import com.usrun.core.repository.UserRepository;
 import com.usrun.core.security.CurrentUser;
 import com.usrun.core.security.TokenProvider;
@@ -62,7 +63,7 @@ public class UserController {
             @Min(1) @RequestParam(name = "count", defaultValue = "30") Integer count) {
 
         Pageable pageable = PageRequest.of(offset, count);
-        List<User> users = userRepository.findUserIsEnable('%' + key + '%', pageable);
+        List<UserFilterDTO> users = userRepository.findUserIsEnable('%' + key + '%', pageable);
         return new ResponseEntity<>(new CodeResponse(users), HttpStatus.OK);
 
     }

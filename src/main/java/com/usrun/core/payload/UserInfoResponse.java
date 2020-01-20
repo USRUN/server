@@ -26,8 +26,8 @@ public class UserInfoResponse {
         private String img;
         private String name;
         private String nameSlug;
-        private Instant dateAdd;
-        private Instant dateUpdate;
+        private Date dateAdd;
+        private Date dateUpdate;
         private int isActive;
         private String deviceToken;
         private Date birthday;
@@ -54,6 +54,8 @@ public class UserInfoResponse {
             this.lastLogin = user.getLastLogin();
             this.isActive = user.isEnabled() ? 1 : 0;
             this.deviceToken = user.getDeviceToken();
+            this.dateAdd = user.getDateAdd();
+            this.dateUpdate = user.getDateUpdate();
         }
     }
 
