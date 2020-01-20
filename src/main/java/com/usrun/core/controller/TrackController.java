@@ -42,7 +42,7 @@ public class TrackController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> createTrack(
             @CurrentUser UserPrincipal userPrincipal,
-            @RequestParam(name = "description", required = false) String description
+            @RequestParam(name = "description", required = false, defaultValue = "") String description
     ) {
         Long userId = userPrincipal.getId();
         Track track = trackService.createTrack(userId, description);
