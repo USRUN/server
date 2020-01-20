@@ -38,7 +38,7 @@ public class UserController {
     @Autowired
     private TokenProvider tokenProvider;
 
-    @GetMapping("/info")
+    @PostMapping("/info")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getCurrentUser(@CurrentUser UserPrincipal userPrincipal) {
         User user = userRepository.findById(userPrincipal.getId())
@@ -49,7 +49,7 @@ public class UserController {
         return new ResponseEntity<>(new UserInfoResponse(user, jwt), HttpStatus.OK);
     }
 
-    @GetMapping("/filter")
+    @PostMapping("/filter")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> findUser(
             @RequestParam(name = "key", required = false) String key,
