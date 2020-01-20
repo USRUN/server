@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
+import java.util.Date;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -23,34 +23,35 @@ public class CustomUserDetailsService implements UserDetailsService {
     private CacheClient cacheClient;
 
     @Override
-    @Transactional
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new CodeException(ErrorCode.USER_EMAIL_NOT_FOUND)
-                );
+        User user = cacheClient.getUser(email);
+        if (user == null) {
+            user = userRepository.findUserByEmail(email);
+            if (user == null)
+                throw new CodeException(ErrorCode.USER_EMAIL_NOT_FOUND);
+        }
 
-        if(!user.isEnabled())
+        if (!user.isEnabled())
             new CodeException(ErrorCode.USER_DOES_NOT_PERMISSION);
 
-        user.setLastLogin(Instant.now());
-        userRepository.save(user);
+        user.setLastLogin(new Date());
+        userRepository.update(user);
+        cacheClient.setUser(user);
 
         return UserPrincipal.create(user);
     }
 
-    @Transactional
     public UserDetails loadUserById(Long id) {
         User user = cacheClient.getUser(id);
 
-        if(user == null) {
-            user = userRepository.findById(id).orElseThrow(
-                    () -> new CodeException(ErrorCode.USER_NOT_FOUND)
-            );
+        if (user == null) {
+            user = userRepository.findById(id);
+            if (user == null)
+                throw new CodeException(ErrorCode.USER_NOT_FOUND);
             cacheClient.setUser(user);
         }
 
-        if(!user.isEnabled())
+        if (!user.isEnabled())
             throw new CodeException(ErrorCode.USER_DOES_NOT_PERMISSION);
 
         return UserPrincipal.create(user);

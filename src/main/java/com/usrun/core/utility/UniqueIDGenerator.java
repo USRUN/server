@@ -30,13 +30,13 @@ public class UniqueIDGenerator {
             codeLength= 1;
         }
 
-        if(userRepository.existsByCode("N84afb591-")){
+        if(userRepository.findUserByCode("N84afb591-") != null){
             System.out.println("code existed");
         }
 
         resultIDBuffer.append(UUID.randomUUID().toString().replace("-", ""), 0, randomLength);
 
-        while (userRepository.existsByEmail(resultIDBuffer.toString())){
+        while (userRepository.findUserByEmail(resultIDBuffer.toString()) != null){
             resultIDBuffer.delete(codeLength,codeLength + randomLength);
             resultIDBuffer.append(UUID.randomUUID().toString().replace("-", ""), 0, randomLength);
         }

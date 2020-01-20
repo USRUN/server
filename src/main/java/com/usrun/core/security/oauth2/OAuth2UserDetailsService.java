@@ -1,6 +1,5 @@
 package com.usrun.core.security.oauth2;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -9,12 +8,10 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.usrun.core.config.AppProperties;
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.OAuth2AuthenticationProcessingException;
-import com.usrun.core.exception.ResourceNotFoundException;
-import com.usrun.core.model.type.AuthType;
 import com.usrun.core.model.Role;
-import com.usrun.core.model.RoleName;
+import com.usrun.core.model.type.AuthType;
+import com.usrun.core.model.type.RoleType;
 import com.usrun.core.model.User;
-import com.usrun.core.repository.RoleRepository;
 import com.usrun.core.repository.UserRepository;
 import com.usrun.core.security.oauth2.user.GoogleOAuth2UserInfo;
 import com.usrun.core.security.oauth2.user.OAuth2UserInfo;
@@ -31,7 +28,6 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
-import java.util.Optional;
 
 @Service
 public class OAuth2UserDetailsService {
@@ -40,9 +36,6 @@ public class OAuth2UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -90,11 +83,9 @@ public class OAuth2UserDetailsService {
             throw new OAuth2AuthenticationProcessingException("Email not found from OAuth2 provider", ErrorCode.USER_CREATE_FAIL);
         }
 
-        Optional<User> userOptional = userRepository.findByEmail(oAuth2UserInfo.getEmail());
-        User user;
+        User user = userRepository.findUserByEmail(oAuth2UserInfo.getEmail());
 
-        if(userOptional.isPresent()) {
-            user = userOptional.get();
+        if(user != null) {
             if(!user.getType().equals(oAuth2UserInfo.getType())) {
                 throw new OAuth2AuthenticationProcessingException("Looks like you're signed up with " +
                         user.getType() + " account. Please use your " + user.getType() +
@@ -117,11 +108,8 @@ public class OAuth2UserDetailsService {
         user.setImg(oAuth2UserInfo.getImageUrl());
         user.setPassword(passwordEncoder.encode(""));
 
-        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-                .orElseThrow(() -> new ResourceNotFoundException("Role", "name", RoleName.ROLE_USER.name()));
-
-        user.setRoles(Collections.singleton(userRole));
-        userRepository.save(user);
+        user.setRoles(Collections.singleton(new Role(RoleType.ROLE_USER)));
+        userRepository.insert(user);
         cacheClient.setUser(user);
 
         LOGGER.info("Register User: {}", objectUtils.toJsonString(user));
@@ -132,7 +120,7 @@ public class OAuth2UserDetailsService {
     private User updateExistingUser(User existingUser, OAuth2UserInfo oAuth2UserInfo) {
         existingUser.setName(oAuth2UserInfo.getName());
         existingUser.setImg(oAuth2UserInfo.getImageUrl());
-        userRepository.save(existingUser);
+        userRepository.update(existingUser);
         cacheClient.setUser(existingUser);
         LOGGER.info("Update User: {}", objectUtils.toJsonString(existingUser));
         return existingUser;

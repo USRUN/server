@@ -4,24 +4,23 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import java.util.HashMap;
 
-public enum Gender {
-    MALE(0),
-    FEMALE(1);
+public enum RoleType {
+    ROLE_USER(1);
 
     private int value;
-    private static final HashMap<Integer, Gender> returnMap = new HashMap<>();
+    private static final HashMap<Integer, RoleType> returnMap = new HashMap<>();
 
     static {
-        for (Gender gender : Gender.values()) {
-            returnMap.put(gender.value, gender);
+        for (RoleType role : RoleType.values()) {
+            returnMap.put(role.value, role);
         }
     }
 
-    Gender(int value) {
+    RoleType(int value) {
         this.value = value;
     }
 
-    public static Gender fromInt(int iValue) {
+    public static RoleType fromInt(int iValue) {
         return returnMap.get(iValue);
     }
 
