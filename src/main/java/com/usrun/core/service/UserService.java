@@ -67,7 +67,22 @@ public class UserService {
         return user;
     }
 
-    public User loadUser(String email) throws Exception {
+    public User loadUser(Long userId) {
+        User user = cacheClient.getUser(userId);
+        if (user == null) {
+            try {
+                user = userRepository.findById(userId);
+                if (user == null)
+                    throw new Exception("User Not Found");
+                cacheClient.setUser(user);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return user;
+    }
+
+    public User loadUser(String email) {
         User user = cacheClient.getUser(email);
         if (user == null) {
             try {
