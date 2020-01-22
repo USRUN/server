@@ -46,12 +46,9 @@ public class UserController {
     @PostMapping("/info")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getCurrentUser(@CurrentUser UserPrincipal userPrincipal) {
-        User user = userRepository.findById(userPrincipal.getId());
-        if (user == null)
-            throw new ResourceNotFoundException("User", "id", userPrincipal.getId());
-
+        Long userId = userPrincipal.getId();
+        User user = userService.loadUser(userId);
         String jwt = tokenProvider.createTokenUserId(user.getId());
-
         return new ResponseEntity<>(new UserInfoResponse(user, jwt), HttpStatus.OK);
     }
 
