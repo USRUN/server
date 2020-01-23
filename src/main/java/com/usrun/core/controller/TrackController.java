@@ -54,7 +54,9 @@ public class TrackController {
     public ResponseEntity<?> track(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestParam(name = "trackid") Long trackId,
-            @RequestParam(name = "locations") String locationsInput
+            @RequestParam(name = "locations") String locationsInput,
+            @RequestParam(name = "time") Long time,
+            @RequestParam(name = "sig") String sig
             ) throws JsonProcessingException {
         Long userId = userPrincipal.getId();
 
@@ -68,7 +70,7 @@ public class TrackController {
         List<Point> points = null;
         
         try {
-            points = trackService.track(userId, trackId, locations);
+            points = trackService.track(userId, trackId, locations, time, sig);
         } catch (TrackException exp) {
             return new ResponseEntity<>(new CodeResponse(exp.getErrorCode()), HttpStatus.BAD_REQUEST);
         }
