@@ -1,0 +1,18 @@
+@startuml
+
+activate Client
+
+Client -> UserController: findUser(key, offset, count)
+activate UserController
+
+UserController -> UserRepository: findUserIsEnable(key, pageable)
+activate UserRepository
+deactivate UserRepository
+
+UserController -> Client: return response(users)
+
+deactivate UserController
+
+deactivate Client
+
+@enduml
