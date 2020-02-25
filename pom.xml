@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.usrun</groupId>
     <artifactId>usrun-core</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>usrun</name>
     <description>USRUN</description>
 
@@ -142,6 +142,11 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>./conf</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
