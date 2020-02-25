@@ -75,6 +75,14 @@ public class TrackService {
             throw new TrackException(msg, ErrorCode.TRACK_SIG_INVALID);
         }
 
+        if(!cacheClient.getTrackSig(trackId, sig)) {
+            cacheClient.setTrackSig(trackId, sig);
+        } else {
+            String msg = String.format("[%s] This track existed", trackId);
+            LOGGER.error(msg);
+            throw new TrackException(msg, ErrorCode.TRACK_SIG_INVALID);
+        }
+
         Track track = cacheClient.getTrack(trackId);
         if (track == null) {
             String msg = String.format("[%s] Track not found in cache", trackId);

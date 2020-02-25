@@ -47,14 +47,13 @@ public class CacheClient {
         String keyUserEmail = cacheKeyGenerator.keyUserEmail(user.getEmail());
 
         RBucket<User> rUser = redissonClient.getBucket(key);
-        rUser.set(user);
+        rUser.set(user, 14, TimeUnit.DAYS);
 
         RBucket<Long> rUserEmail = redissonClient.getBucket(keyUserEmail);
-        rUserEmail.set(user.getId());
+        rUserEmail.set(user.getId(), 14, TimeUnit.DAYS);
         return user;
     }
 
-    @Transactional
     public User getUser(Long userId) {
         String key = cacheKeyGenerator.keyUser(userId);
         RBucket<User> rBucket = redissonClient.getBucket(key);
@@ -76,7 +75,7 @@ public class CacheClient {
 
     public Track setTrack(Track track) {
         RBucket<Track> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyTrack(track.getTrackId()));
-        rBucket.set(track);
+        rBucket.set(track, 1, TimeUnit.DAYS);
         return track;
     }
 
@@ -84,5 +83,15 @@ public class CacheClient {
         RBucket<Track> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyTrack(trackId));
         Track track = rBucket.get();
         return track;
+    }
+
+    public void setTrackSig(Long trackId, String sig) {
+        RBucket<Boolean> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyTrackSig(trackId, sig));
+        rBucket.set(true, 1, TimeUnit.HOURS);
+    }
+
+    public boolean getTrackSig(Long trackId, String sig) {
+        RBucket<Boolean> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyTrackSig(trackId, sig));
+        return rBucket.get() == null ? false : true;
     }
 }

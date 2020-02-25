@@ -19,15 +19,13 @@ public class UserInfoResponse {
     @Setter
     public static class Data {
         private Long userId;
-        private String openId;
         private int type;
         private String code;
         private String email;
-        private String img;
+        private String avatar;
         private String name;
-        private String nameSlug;
-        private Date dateAdd;
-        private Date dateUpdate;
+        private Date createTime;
+        private Date updateTime;
         private int isActive;
         private String deviceToken;
         private Date birthday;
@@ -43,9 +41,8 @@ public class UserInfoResponse {
             this.accessToken = accessToken;
             this.type = user.getType().ordinal();
             this.userId = user.getId();
-            this.openId = user.getOpenId();
             this.email = user.getEmail();
-            this.img = user.getImg();
+            this.avatar = user.getAvatar();
             this.name = user.getName();
             this.birthday = user.getBirthday();
             this.weight = user.getWeight();
@@ -54,8 +51,8 @@ public class UserInfoResponse {
             this.lastLogin = user.getLastLogin();
             this.isActive = user.isEnabled() ? 1 : 0;
             this.deviceToken = user.getDeviceToken();
-            this.dateAdd = user.getDateAdd();
-            this.dateUpdate = user.getDateUpdate();
+            this.createTime = user.getCreateTime();
+            this.updateTime = user.getUpdateTime();
         }
     }
 

@@ -24,4 +24,8 @@ public class CacheKeyGenerator {
     public String keyUserEmail(String email) {
         return "users:email:" + email;
     }
+
+    public String keyTrackSig(Long trackId, String sig) {
+        return "track:sig:" + trackId + sig;
+    }
 }
