@@ -53,6 +53,8 @@ public class UserService {
         user.setType(AuthType.local);
         user.setPassword(passwordEncoder.encode(password));
         user.setRoles(Collections.singleton(new Role(RoleType.ROLE_USER)));
+        user.setCreateTime(new Date());
+        user.setUpdateTime(new Date());
         uniqueIDGenerator.generateID(user);
         user = userRepository.insert(user);
         cacheClient.setUser(user);
@@ -124,7 +126,7 @@ public class UserService {
         if (height != null) user.setHeight(height);
         if (base64Image != null) {
             String fileUrl = amazonClient.uploadFile(base64Image, "avatar-" + userId);
-            if (fileUrl != null) user.setImg(fileUrl);
+            if (fileUrl != null) user.setAvatar(fileUrl);
         }
 
         userRepository.update(user);

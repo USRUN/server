@@ -21,22 +21,7 @@ public class RedisConfig {
     private String password;
 
     @Bean
-    @Profile("dev")
-    public RedissonClient redissonClientDev() {
-        Config config = new Config();
-        config.useSingleServer()
-                .setTimeout(10000000)
-                .setAddress(url)
-                .setConnectionPoolSize(10).setConnectionMinimumIdleSize(10);
-//        config.setCodec(StringCodec.INSTANCE);
-        KryoCodec kryoCodec = new KryoCodecWithDefaultSerializer();
-        config.setCodec(kryoCodec);
-        return Redisson.create(config);
-    }
-
-    @Bean
-    @Profile("!dev")
-    public RedissonClient redissonClientPro() {
+    public RedissonClient redissonClient() {
         Config config = new Config();
         config.useSingleServer()
                 .setTimeout(10000000)

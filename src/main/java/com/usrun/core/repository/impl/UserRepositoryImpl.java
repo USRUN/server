@@ -38,11 +38,11 @@ public class UserRepositoryImpl implements UserRepository {
         MapSqlParameterSource map = getMapUser(user);
         final KeyHolder holder = new GeneratedKeyHolder();
         namedParameterJdbcTemplate.update(
-                "INSERT INTO users (name, email, password, type, " +
-                        "open_id, img, last_login, weight, height, gender, " +
-                        "birthday, code, device_token, name_slug, is_enabled, hcmus, date_add, date_update) values (" +
-                        ":name, :email, :password, :type, :open_id, :img, :last_login, :weight, :height, " +
-                        ":gender, :birthday, :code, :device_token, :name_slug, :is_enabled, :hcmus, date_add, date_update)",
+                "INSERT INTO user (displayName, email, password, userType, " +
+                        "avatar, lastLogin, weight, height, gender, " +
+                        "birthday, userCode, deviceToken, isEnabled, hcmus, createTime, updateTime) values (" +
+                        ":displayName, :email, :password, :userType, :avatar, :lastLogin, :weight, :height, " +
+                        ":gender, :birthday, :userCode, :deviceToken, :isEnabled, :hcmus, :createTime, :updateTime)",
                 map,
                 holder,
                 new String[]{"GENERATED_ID"}
@@ -58,7 +58,7 @@ public class UserRepositoryImpl implements UserRepository {
             return paramsRole;
         }).toArray(MapSqlParameterSource[]::new);
         namedParameterJdbcTemplate.batchUpdate(
-                "INSERT INTO user_roles (user_id, role_id) values (:userId, :roleId)",
+                "INSERT INTO userRole (userId, roleId) values (:userId, :roleId)",
                 paramsRoles
         );
         return user;
@@ -66,15 +66,15 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User update(User user) {
-        user.setDateUpdate(new Date());
+        user.setUpdateTime(new Date());
         MapSqlParameterSource map = getMapUser(user);
         namedParameterJdbcTemplate.update(
-                "UPDATE users SET name = :name, email = :email, password = :password, type = :type, " +
-                        "open_id = :open_id, img = :img , last_login = :last_login, " +
+                "UPDATE user SET displayName = :displayName, email = :email, password = :password, userType = :userType, " +
+                        "avatar = :avatar , lastLogin = :lastLogin, " +
                         "weight = :weight, height = :height, gender = :gender, " +
-                        "birthday = :birthday, code = :code, device_token = :device_token, " +
-                        "name_slug = :name_slug, is_enabled = :is_enabled, " +
-                        "hcmus := hcmus, date_update = :date_update WHERE id = :id",
+                        "birthday = :birthday, userCode = :userCode, deviceToken = :deviceToken, " +
+                        "isEnabled = :isEnabled, " +
+                        "hcmus := hcmus, updateTime = :updateTime WHERE userId = :userId",
                 map
         );
         return user;
@@ -82,15 +82,15 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User findById(Long userId) {
-        MapSqlParameterSource params = new MapSqlParameterSource("id", userId);
-        String sql = "SELECT * FROM users WHERE id = :id";
+        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+        String sql = "SELECT * FROM user WHERE userId = :userId";
         return getUser(sql, params);
     }
 
     @Override
     public User findUserByEmail(String email) {
         MapSqlParameterSource params = new MapSqlParameterSource("email", email);
-        String sql = "SELECT * FROM users WHERE email = :email";
+        String sql = "SELECT * FROM user WHERE email = :email";
         return getUser(sql, params);
     }
 
@@ -101,9 +101,9 @@ public class UserRepositoryImpl implements UserRepository {
         params.addValue("size", pageable.getPageSize());
         params.addValue("offset", pageable.getOffset());
         String sql = "SELECT u.* " +
-                "FROM users u " +
-                "WHERE u.is_enabled = TRUE " +
-                "AND (u.name LIKE :keyword OR u.email LIKE :keyword OR u.code LIKE :keyword) " +
+                "FROM user u " +
+                "WHERE u.isEnabled = TRUE " +
+                "AND (u.displayName LIKE :keyword OR u.email LIKE :keyword OR u.userCode LIKE :keyword) " +
                 "LIMIT :size " +
                 "OFFSET :offset";
         return getUserFilterDTO(sql, params);
@@ -111,8 +111,8 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User findUserByCode(String code) {
-        MapSqlParameterSource params = new MapSqlParameterSource("code", code);
-        String sql = "SELECT * FROM users WHERE code = :code";
+        MapSqlParameterSource params = new MapSqlParameterSource("userCode", code);
+        String sql = "SELECT * FROM user WHERE userCode = :userCode";
         return getUser(sql, params);
     }
 
@@ -121,31 +121,29 @@ public class UserRepositoryImpl implements UserRepository {
                 sql,
                 params,
                 (rs, i) -> new User(
-                        rs.getLong("id"),
-                        rs.getString("name"),
+                        rs.getLong("userId"),
+                        rs.getString("displayName"),
                         rs.getString("email"),
                         rs.getString("password"),
-                        AuthType.fromInt(rs.getInt("type")),
-                        rs.getString("open_id"),
-                        rs.getString("img"),
-                        rs.getDate("last_login"),
+                        AuthType.fromInt(rs.getInt("userType")),
+                        rs.getString("avatar"),
+                        rs.getDate("lastLogin"),
                         rs.getDouble("weight"),
                         rs.getDouble("height"),
                         Gender.fromInt(rs.getInt("gender")),
                         rs.getDate("birthday"),
-                        rs.getString("code"),
-                        rs.getString("device_token"),
-                        rs.getString("name_slug"),
-                        rs.getBoolean("is_enabled"),
+                        rs.getString("userCode"),
+                        rs.getString("deviceToken"),
+                        rs.getBoolean("isEnabled"),
                         rs.getBoolean("hcmus"),
-                        rs.getDate("date_add"),
-                        rs.getDate("date_update")
+                        rs.getDate("createTime"),
+                        rs.getDate("updateTime")
                 )).stream().findFirst();
         if(optionalUser.isPresent()) {
             User user = optionalUser.get();
-            List<Role> list = namedParameterJdbcTemplate.query("SELECT role_id FROM user_roles WHERE user_id = :userId",
+            List<Role> list = namedParameterJdbcTemplate.query("SELECT userId FROM userRole WHERE userId = :userId",
                     new MapSqlParameterSource("userId", user.getId()),
-                    (resultSet, i) -> new Role(RoleType.fromInt(resultSet.getInt("role_id"))));
+                    (resultSet, i) -> new Role(RoleType.fromInt(resultSet.getInt("roleId"))));
             Set<Role> roles = list.stream().collect(Collectors.toSet());
             user.setRoles(roles);
             return user;
@@ -156,25 +154,23 @@ public class UserRepositoryImpl implements UserRepository {
 
     private MapSqlParameterSource getMapUser(User user) {
         MapSqlParameterSource map = new MapSqlParameterSource();
-        map.addValue("id", user.getId());
-        map.addValue("name", user.getName());
+        map.addValue("userId", user.getId());
+        map.addValue("displayName", user.getName());
         map.addValue("email", user.getEmail());
         map.addValue("password", user.getPassword());
-        map.addValue("type", user.getType() == null ? null : user.getType().toValue());
-        map.addValue("open_id", user.getOpenId());
-        map.addValue("img", user.getImg());
-        map.addValue("last_login", user.getLastLogin());
+        map.addValue("userType", user.getType() == null ? null : user.getType().toValue());
+        map.addValue("avatar", user.getAvatar());
+        map.addValue("lastLogin", user.getLastLogin());
         map.addValue("weight", user.getWeight());
         map.addValue("height", user.getHeight());
         map.addValue("gender", user.getGender() == null ? null : user.getGender().toValue());
         map.addValue("birthday", user.getBirthday());
-        map.addValue("code", user.getCode());
-        map.addValue("device_token", user.getDeviceToken());
-        map.addValue("name_slug", user.getNameSlug());
-        map.addValue("is_enabled", user.isEnabled());
+        map.addValue("userCode", user.getCode());
+        map.addValue("deviceToken", user.getDeviceToken());
+        map.addValue("isEnabled", user.isEnabled());
         map.addValue("hcmus", user.isHcmus());
-        map.addValue("date_add", user.getDateAdd());
-        map.addValue("date_update", user.getDateUpdate());
+        map.addValue("createTime", user.getCreateTime());
+        map.addValue("updateTime", user.getUpdateTime());
         return map;
     }
 
@@ -183,13 +179,12 @@ public class UserRepositoryImpl implements UserRepository {
                 sql,
                 params,
                 (rs, i) -> new UserFilterDTO(
-                        rs.getLong("id"),
-                        rs.getString("name"),
+                        rs.getLong("userId"),
+                        rs.getString("displayName"),
                         rs.getString("email"),
-                        rs.getString("code"),
+                        rs.getString("userCode"),
                         Gender.fromInt(rs.getInt("gender")),
-                        rs.getDate("birthday"),
-                        rs.getString("name_slug")
+                        rs.getDate("birthday")
                 )
         );
         return userFilterDTOS;

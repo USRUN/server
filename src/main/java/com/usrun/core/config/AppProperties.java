@@ -11,6 +11,7 @@ import java.util.List;
 public class AppProperties {
     private final Auth auth = new Auth();
     private final OAuth2 oauth2 = new OAuth2();
+    private final Track track = new Track();
 
     @Getter
     @Setter
@@ -31,5 +32,12 @@ public class AppProperties {
             private String clientSecret;
             private List<String> scopes;
         }
+    }
+
+    @Getter
+    @Setter
+    public static final class Track {
+        private String key;
+        private Long timeInMicroseconds;
     }
 }

@@ -102,10 +102,9 @@ public class OAuth2UserDetailsService {
         User user = new User();
 
         user.setType(oAuth2UserInfo.getType());
-        user.setOpenId(oAuth2UserInfo.getId());
         user.setName(oAuth2UserInfo.getName());
         user.setEmail(oAuth2UserInfo.getEmail());
-        user.setImg(oAuth2UserInfo.getImageUrl());
+        user.setAvatar(oAuth2UserInfo.getImageUrl());
         user.setPassword(passwordEncoder.encode(""));
 
         user.setRoles(Collections.singleton(new Role(RoleType.ROLE_USER)));
@@ -119,7 +118,7 @@ public class OAuth2UserDetailsService {
 
     private User updateExistingUser(User existingUser, OAuth2UserInfo oAuth2UserInfo) {
         existingUser.setName(oAuth2UserInfo.getName());
-        existingUser.setImg(oAuth2UserInfo.getImageUrl());
+        existingUser.setAvatar(oAuth2UserInfo.getImageUrl());
         userRepository.update(existingUser);
         cacheClient.setUser(existingUser);
         LOGGER.info("Update User: {}", objectUtils.toJsonString(existingUser));
