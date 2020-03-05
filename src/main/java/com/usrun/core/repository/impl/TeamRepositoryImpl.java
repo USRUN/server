@@ -1,6 +1,9 @@
 package com.usrun.core.repository.impl;
 
 import com.usrun.core.model.Team;
+import com.usrun.core.model.junction.TeamMember;
+import com.usrun.core.model.type.TeamMemberType;
+import com.usrun.core.repository.TeamMemberRepository;
 import com.usrun.core.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -15,10 +18,15 @@ public class TeamRepositoryImpl implements TeamRepository {
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
+    @Autowired
+    private TeamMemberRepository teamMemberRepository;
+
     @Override
-    public Team insert(Team toInsert) {
+    public Team insert(Team toInsert, Long userId) {
         MapSqlParameterSource map = mapTeamObject(toInsert);
         final KeyHolder holder = new GeneratedKeyHolder();
+
+        // insert team into DB
         namedParameterJdbcTemplate.update(
                 "INSERT INTO usrun.team (privacy, totalMember, teamName, thumbnail, verified, deleted, createTime, location) " +
                         "values (" +
@@ -26,6 +34,12 @@ public class TeamRepositoryImpl implements TeamRepository {
                 map,
                 holder,
                 new String[]{"GENERATED_ID"});
+
+        toInsert.setId(holder.getKey().longValue());
+
+        // adding team creator as owner to DB
+        TeamMember owner = new TeamMember(toInsert.getId(),userId, TeamMemberType.OWNER,toInsert.getCreateTime());
+        teamMemberRepository.insert(owner);
 
         return toInsert;
     }

@@ -16,4 +16,11 @@ public class TeamMember {
     private Long userId;
     private TeamMemberType teamMemberType;
     private Date addTime;
+
+    public TeamMember(Long teamId, Long userId, TeamMemberType teamMemberType, Date addTime){
+        this.teamId = teamId;
+        this.userId = userId;
+        this.teamMemberType = teamMemberType;
+        this.addTime = addTime;
+    }
 }

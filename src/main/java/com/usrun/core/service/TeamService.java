@@ -1,7 +1,6 @@
  package com.usrun.core.service;
 
 import com.usrun.core.model.Team;
-import com.usrun.core.model.User;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserRepository;
 import org.slf4j.Logger;
@@ -10,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
+import java.util.Date;
+
+ @Service
 public class TeamService {
 
     private static final Logger logger = LoggerFactory.getLogger(TeamService.class);
@@ -26,10 +27,13 @@ public class TeamService {
 
     @Transactional
     public Team createTeam(
-            Long userId, String name, String img, String logo, Integer leagueId, String description
+            Long ownerId, String teamName, String thumbnail, int privacy, String location
     ) {
-        User user = userRepository.findById(userId);
-        return new Team();
+        Team toCreate = new Team(teamName,thumbnail,location,privacy,new Date());
+
+        toCreate = teamRepository.insert(toCreate,ownerId);
+
+        return toCreate;
     }
 }
 

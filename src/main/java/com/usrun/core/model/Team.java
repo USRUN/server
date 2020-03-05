@@ -30,4 +30,15 @@ public class Team {
     private Date createTime;
 
     private String location;
+
+    public Team(String teamName, String thumbnail, String location, int privacy,Date createTime){
+        this.teamName =teamName;
+        this.thumbnail = thumbnail;
+        this.location = location;
+        this.privacy = privacy;
+        this.totalMember = 1;
+        this.verified = false;
+        this.deleted = false;
+        this.createTime = createTime;
+    }
 }

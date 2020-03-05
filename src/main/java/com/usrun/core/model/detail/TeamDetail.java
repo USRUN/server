@@ -9,6 +9,4 @@ import org.springframework.data.annotation.Id;
 public class TeamDetail {
     @Id
     private Long id;
-
-
 }

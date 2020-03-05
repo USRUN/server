@@ -3,9 +3,9 @@ package com.usrun.core.repository;
 import com.usrun.core.model.Team;
 
 public interface TeamRepository {
-    Team insert(Team user);
+    Team insert(Team toInsert,Long ownerUserId);
 
-    Team update(Team user);
+    Team update(Team team);
 
     Team findTeamById(Long teamId);
 
