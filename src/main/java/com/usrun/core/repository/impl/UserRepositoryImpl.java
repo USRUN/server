@@ -141,7 +141,7 @@ public class UserRepositoryImpl implements UserRepository {
                 )).stream().findFirst();
         if(optionalUser.isPresent()) {
             User user = optionalUser.get();
-            List<Role> list = namedParameterJdbcTemplate.query("SELECT userId FROM userRole WHERE userId = :userId",
+            List<Role> list = namedParameterJdbcTemplate.query("SELECT roleId FROM userRole WHERE userId = :userId",
                     new MapSqlParameterSource("userId", user.getId()),
                     (resultSet, i) -> new Role(RoleType.fromInt(resultSet.getInt("roleId"))));
             Set<Role> roles = list.stream().collect(Collectors.toSet());
