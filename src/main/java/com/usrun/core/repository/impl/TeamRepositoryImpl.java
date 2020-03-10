@@ -1,10 +1,12 @@
 package com.usrun.core.repository.impl;
 
 import com.usrun.core.model.Team;
+import com.usrun.core.model.User;
 import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.repository.TeamMemberRepository;
 import com.usrun.core.repository.TeamRepository;
+import com.usrun.core.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -12,6 +14,9 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -22,6 +27,9 @@ public class TeamRepositoryImpl implements TeamRepository {
 
     @Autowired
     private TeamMemberRepository teamMemberRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public Team insert(Team toInsert, Long userId) {
@@ -70,17 +78,37 @@ public class TeamRepositoryImpl implements TeamRepository {
     }
 
     @Override
-    public boolean joinTeam(Long teamId) {
+    public boolean joinTeam(Long requestingId,Long teamId) {
+        TeamMember pendingMember = new TeamMember(teamId,requestingId,TeamMemberType.PENDING,new Date());
+        pendingMember = teamMemberRepository.insert(pendingMember);
+
+        if(pendingMember != null)
+            return true;
+
         return false;
     }
 
     @Override
-    public boolean getPendingList(Long teamId) {
-        return false;
+    public List<User> getMemberListByType(Long teamId,TeamMemberType toGet) {
+        List<TeamMember> pendingList = teamMemberRepository.filterByMemberType(toGet);
+        List<User> toReturn = Collections.emptyList();
+        pendingList.forEach(pending ->
+            toReturn.add(
+                    userRepository.findById(pending.getUserId())
+            )
+        );
+
+        return toReturn;
     }
 
     @Override
-    public boolean updatePendingList(Long teamId, int action) {
+    public boolean updateTeamMemberType(Long teamId, Long memberId, TeamMemberType toChangeInto) {
+        TeamMember toUpdate = teamMemberRepository.findById(teamId,memberId);
+        if(toUpdate != null){
+            toUpdate.setTeamMemberType(toChangeInto);
+            teamMemberRepository.update(toUpdate);
+            return true;
+        }
         return false;
     }
 

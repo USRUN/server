@@ -1,6 +1,10 @@
 package com.usrun.core.repository;
 
 import com.usrun.core.model.Team;
+import com.usrun.core.model.User;
+import com.usrun.core.model.type.TeamMemberType;
+
+import java.util.List;
 
 public interface TeamRepository {
     Team insert(Team toInsert,Long ownerUserId);
@@ -11,9 +15,9 @@ public interface TeamRepository {
 
     Team findTeamByName(String teamName);
 
-    boolean joinTeam(Long teamId);
+    boolean joinTeam(Long requestingId,Long teamId);
 
-    boolean getPendingList(Long teamId);
+    List<User> getMemberListByType(Long teamId, TeamMemberType toGet);
 
-    boolean updatePendingList(Long teamId, int action);
+    boolean updateTeamMemberType(Long teamId,Long memberId, TeamMemberType action);
 }

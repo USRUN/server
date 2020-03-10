@@ -1,8 +1,12 @@
  package com.usrun.core.service;
 
 import com.usrun.core.model.Team;
+import com.usrun.core.model.junction.TeamMember;
+import com.usrun.core.model.type.TeamMemberType;
+import com.usrun.core.repository.TeamMemberRepository;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserRepository;
+import com.usrun.core.security.UserPrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +22,9 @@ public class TeamService {
 
     @Autowired
     private TeamRepository teamRepository;
+
+    @Autowired
+    private TeamMemberRepository teamMemberRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -37,12 +44,31 @@ public class TeamService {
     }
 
     public boolean requestToJoinTeam(Long requestId, Long teamId){
-        Team toJoin = teamRepository.findTeamById(teamId);
-        if(toJoin == null)
+        return teamRepository.joinTeam(requestId,teamId);
+    }
+
+    public boolean approvePendingMember(Long requestId, Long teamId, Long pendingId){
+        TeamMember requestUser = teamMemberRepository.findById(teamId,requestId);
+
+        //check if it's the owner/admin who posted the request
+        if(requestUser.getTeamMemberType() != TeamMemberType.OWNER && requestUser.getTeamMemberType() != TeamMemberType.ADMIN){
             return false;
+        }
 
+        teamRepository.updateTeamMemberType(teamId,pendingId,TeamMemberType.MEMBER);
+        return true;
+    }
 
-        return false;
+    public boolean updateTeamAdmin(Long requestId, Long teamId, Long pendingId, TeamMemberType toChangeInto){
+        TeamMember requestUser = teamMemberRepository.findById(teamId,requestId);
+
+        //check if it's the owner who posted the request
+        if(requestUser.getTeamMemberType() != TeamMemberType.OWNER){
+            return false;
+        }
+
+        teamRepository.updateTeamMemberType(teamId,pendingId,toChangeInto);
+        return true;
     }
 }
 

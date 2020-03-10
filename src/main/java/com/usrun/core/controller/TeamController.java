@@ -33,10 +33,20 @@ public class TeamController {
         try {
             if(imageTeamRequest == null)
                 imageTeamRequest = new ImageTeamRequest();
-            Team team = teamService.createTeam(userPrincipal.getId(),name,imageTeamRequest.getImg(),privacy,location);
+            Team team = teamService.createTeam(userPrincipal.getId(),name,imageTeamRequest.getImg(),privacy,location,description);
             return new ResponseEntity<>(new CodeResponse(team), HttpStatus.CREATED);
         } catch (CodeException e) {
             return new ResponseEntity<>(new CodeResponse(e.getErrorCode()), HttpStatus.BAD_REQUEST);
         }
     }
+
+    @PostMapping("/join")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> joinTeam(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestParam("teamId") Long teamId){
+        teamService.requestToJoinTeam(userPrincipal.getId(),teamId);
+        return null;
+    }
+    
 }
