@@ -12,6 +12,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public class TeamRepositoryImpl implements TeamRepository {
 
@@ -28,9 +30,9 @@ public class TeamRepositoryImpl implements TeamRepository {
 
         // insert team into DB
         namedParameterJdbcTemplate.update(
-                "INSERT INTO usrun.team (privacy, totalMember, teamName, thumbnail, verified, deleted, createTime, location) " +
+                "INSERT INTO usrun.team (privacy, totalMember, teamName, thumbnail, verified, deleted, createTime, location,description) " +
                         "values (" +
-                        ":privacy, :totalMember, :teamName, :thumbnail, :verified, :deleted, :createTime, :location )",
+                        ":privacy, :totalMember, :teamName, :thumbnail, :verified, :deleted, :createTime, :location, :description )",
                 map,
                 holder,
                 new String[]{"GENERATED_ID"});
@@ -40,6 +42,8 @@ public class TeamRepositoryImpl implements TeamRepository {
         // adding team creator as owner to DB
         TeamMember owner = new TeamMember(toInsert.getId(),userId, TeamMemberType.OWNER,toInsert.getCreateTime());
         teamMemberRepository.insert(owner);
+
+        //inserting team details
 
         return toInsert;
     }
@@ -51,12 +55,18 @@ public class TeamRepositoryImpl implements TeamRepository {
 
     @Override
     public Team findTeamByName(String teamName) {
-        return null;
+        MapSqlParameterSource params = new MapSqlParameterSource("teamName",teamName);
+        String sql = "SELECT * FROM team WHERE `team`.teamId = :teamName";
+
+        return getTeam(sql,params);
     }
 
     @Override
     public Team findTeamById(Long teamId) {
-        return null;
+        MapSqlParameterSource params = new MapSqlParameterSource("teamId",teamId);
+        String sql = "SELECT * FROM team WHERE `team`.teamId = :teamId";
+
+        return getTeam(sql,params);
     }
 
     @Override
@@ -85,7 +95,33 @@ public class TeamRepositoryImpl implements TeamRepository {
         toReturn.addValue("createTime",toMap.getCreateTime());
         toReturn.addValue("deleted",toMap.isDeleted());
         toReturn.addValue("verified",toMap.isVerified());
+        toReturn.addValue("description",toMap.getDescription());
 
         return toReturn;
+    }
+
+    private Team getTeam(String sql, MapSqlParameterSource params) {
+        Optional<Team> toReturn = namedParameterJdbcTemplate.query(
+                sql,
+                params,
+                (rs, i) -> new Team(
+                        rs.getLong("teamId"),
+                        rs.getInt("privacy"),
+                        rs.getInt("totalMember"),
+                        rs.getString("teamName"),
+                        rs.getString("thumbnail"),
+                        rs.getBoolean("verified"),
+                        rs.getBoolean("deleted"),
+                        rs.getDate("createTime"),
+                        rs.getString("location"),
+                        rs.getString("description")
+                )).stream().findFirst();
+
+        if (toReturn.isPresent()) {
+            if (toReturn.get().isDeleted())
+                return null;
+            return toReturn.get();
+        }
+        return null;
     }
 }

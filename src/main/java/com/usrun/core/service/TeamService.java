@@ -27,13 +27,22 @@ public class TeamService {
 
     @Transactional
     public Team createTeam(
-            Long ownerId, String teamName, String thumbnail, int privacy, String location
+            Long ownerId, String teamName, String thumbnail, int privacy, String location, String description
     ) {
-        Team toCreate = new Team(teamName,thumbnail,location,privacy,new Date());
+        Team toCreate = new Team(teamName,thumbnail,location,privacy,new Date(),description);
 
         toCreate = teamRepository.insert(toCreate,ownerId);
 
         return toCreate;
+    }
+
+    public boolean requestToJoinTeam(Long requestId, Long teamId){
+        Team toJoin = teamRepository.findTeamById(teamId);
+        if(toJoin == null)
+            return false;
+
+
+        return false;
     }
 }
 

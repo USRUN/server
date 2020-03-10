@@ -31,7 +31,9 @@ public class Team {
 
     private String location;
 
-    public Team(String teamName, String thumbnail, String location, int privacy,Date createTime){
+    private String description;
+
+    public Team(String teamName, String thumbnail, String location, int privacy,Date createTime,String description){
         this.teamName =teamName;
         this.thumbnail = thumbnail;
         this.location = location;
@@ -40,5 +42,19 @@ public class Team {
         this.verified = false;
         this.deleted = false;
         this.createTime = createTime;
+        this.description = description;
+    }
+
+    public Team(Long id, int privacy, int totalMember, String teamName, String thumbnail, boolean verified, boolean deleted, Date createTime, String location, String description){
+        this.id = id;
+        this.teamName =teamName;
+        this.thumbnail = thumbnail;
+        this.location = location;
+        this.privacy = privacy;
+        this.totalMember = totalMember;
+        this.verified = verified;
+        this.deleted = deleted;
+        this.createTime = createTime;
+        this.description = description;
     }
 }
