@@ -48,7 +48,7 @@ public class TeamRepositoryImpl implements TeamRepository {
         toInsert.setId(holder.getKey().longValue());
 
         // adding team creator as owner to DB
-        TeamMember owner = new TeamMember(toInsert.getId(),userId, TeamMemberType.OWNER,toInsert.getCreateTime());
+        TeamMember owner = new TeamMember(toInsert.getId(),userId, TeamMemberType.OWNER.toValue(),toInsert.getCreateTime());
         teamMemberRepository.insert(owner);
 
         //inserting team details
@@ -57,8 +57,22 @@ public class TeamRepositoryImpl implements TeamRepository {
     }
 
     @Override
-    public Team update(Team user) {
-        return null;
+    public Team update(Team toUpdate) {
+
+        MapSqlParameterSource map = mapTeamObject(toUpdate);
+
+        namedParameterJdbcTemplate.update(
+                "UPDATE usrun.team (privacy, totalMember, teamName, thumbnail, verified, deleted, createTime, location,description) " +
+                "SET (" +
+                ":privacy, :totalMember, :teamName, :thumbnail, :verified, :deleted, :createTime, :location, :description )",
+                map);
+
+        return toUpdate;
+    }
+
+    @Override
+    public boolean delete(Team toDelete) {
+        return false;
     }
 
     @Override
@@ -79,7 +93,8 @@ public class TeamRepositoryImpl implements TeamRepository {
 
     @Override
     public boolean joinTeam(Long requestingId,Long teamId) {
-        TeamMember pendingMember = new TeamMember(teamId,requestingId,TeamMemberType.PENDING,new Date());
+        //TODO: 2ND JOIN = ?
+        TeamMember pendingMember = new TeamMember(teamId,requestingId,TeamMemberType.PENDING.toValue(),new Date());
         pendingMember = teamMemberRepository.insert(pendingMember);
 
         if(pendingMember != null)

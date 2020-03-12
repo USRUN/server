@@ -9,7 +9,9 @@ import java.util.List;
 public interface TeamRepository {
     Team insert(Team toInsert,Long ownerUserId);
 
-    Team update(Team team);
+    Team update(Team toUpdate);
+
+    boolean delete(Team toDelete);
 
     Team findTeamById(Long teamId);
 

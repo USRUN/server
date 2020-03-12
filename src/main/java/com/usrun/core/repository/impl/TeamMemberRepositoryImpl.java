@@ -62,7 +62,7 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
                 (rs,i) -> new TeamMember(
                         rs.getLong("teamId"),
                         rs.getLong("userId"),
-                        TeamMemberType.fromInt(rs.getInt("teamMemberType")),
+                        rs.getInt("teamMemberType"),
                         rs.getDate("addTime")));
         return toReturn;
     }
@@ -74,7 +74,7 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
                 (rs,i) -> new TeamMember(
                         rs.getLong("teamId"),
                         rs.getLong("userId"),
-                        TeamMemberType.fromInt(rs.getInt("teamMemberType")),
+                        rs.getInt("teamMemberType"),
                         rs.getDate("addTime"))).stream().findFirst();
 
         if(toReturn.isPresent())
@@ -88,7 +88,7 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
 
         toReturn.addValue("teamId", toMap.getTeamId());
         toReturn.addValue("userId",toMap.getUserId());
-        toReturn.addValue("teamMemberType",toMap.getTeamMemberType());
+        toReturn.addValue("teamMemberType",toMap.getTeamMemberType().toValue());
         toReturn.addValue("addTime",toMap.getAddTime());
 
         return toReturn;
