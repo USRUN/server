@@ -48,5 +48,5 @@ public class TeamController {
         teamService.requestToJoinTeam(userPrincipal.getId(),teamId);
         return null;
     }
-    
+
 }

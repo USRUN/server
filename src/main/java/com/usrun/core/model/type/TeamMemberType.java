@@ -13,11 +13,13 @@ public enum TeamMemberType {
 
 
     private int value;
-    private static final HashMap<Integer, TeamMemberType> returnMap = new HashMap<>();
+    private static final HashMap<Integer, TeamMemberType> returnMapInt = new HashMap<>();
+    private static final HashMap<String, TeamMemberType> returnMapString = new HashMap<>();
 
     static {
         for (TeamMemberType role : TeamMemberType.values()) {
-            returnMap.put(role.value, role);
+            returnMapInt.put(role.value, role);
+            returnMapString.put(role.name(), role);
         }
     }
     TeamMemberType(int value) {
@@ -25,7 +27,11 @@ public enum TeamMemberType {
     }
 
     public static TeamMemberType fromInt(int iValue) {
-        return returnMap.get(iValue);
+        return returnMapInt.get(iValue);
+    }
+
+    public static TeamMemberType fromString(String name) {
+        return returnMapString.get(name);
     }
 
     @JsonValue

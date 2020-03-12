@@ -63,7 +63,7 @@ public class TrackService {
         Long t = System.currentTimeMillis() - time;
         if (t > appProperties.getTrack().getTimeInMicroseconds()) {
             String msg = String.format("[%s] Track point has exceeded time: %s", trackId, t);
-            LOGGER.error(msg);
+            LOGGER.warn(msg);
             throw new TrackException(msg, ErrorCode.TRACK_TIMEOUT);
         }
 
@@ -71,7 +71,7 @@ public class TrackService {
 
         if(!hmac.equals(sig)) {
             String msg = String.format("[%s] Track signature invalid", trackId);
-            LOGGER.error(msg);
+            LOGGER.warn(msg);
             throw new TrackException(msg, ErrorCode.TRACK_SIG_INVALID);
         }
 
@@ -79,14 +79,14 @@ public class TrackService {
             cacheClient.setTrackSig(trackId, sig);
         } else {
             String msg = String.format("[%s] This track existed", trackId);
-            LOGGER.error(msg);
+            LOGGER.warn(msg);
             throw new TrackException(msg, ErrorCode.TRACK_SIG_INVALID);
         }
 
         Track track = cacheClient.getTrack(trackId);
         if (track == null) {
             String msg = String.format("[%s] Track not found in cache", trackId);
-            LOGGER.error(msg);
+            LOGGER.warn(msg);
             throw new TrackException(msg, ErrorCode.TRACK_NOT_FOUND);
         } else {
             if (track.getUserId() == userId) {
@@ -100,7 +100,7 @@ public class TrackService {
                 return points;
             } else {
                 String msg = String.format("[%s] Track does not belong to %s", trackId, userId);
-                LOGGER.error(msg);
+                LOGGER.warn(msg);
                 throw new TrackException(msg, ErrorCode.TRACK_NOT_BELONG_TO_USER);
             }
         }
@@ -120,7 +120,7 @@ public class TrackService {
         Track track = trackRepository.findById(trackId).orElse(null);
         if(track == null) {
             String msg = String.format("[%s] Track not found", trackId);
-            LOGGER.error(msg);
+            LOGGER.warn(msg);
             throw new TrackException(msg, ErrorCode.TRACK_NOT_FOUND);
         } else {
             if(track.getUserId() == userId) {
@@ -129,7 +129,7 @@ public class TrackService {
                 return new TrackDTO(track, points);
             } else {
                 String msg = String.format("[%s] Track does not belong to %s", trackId, userId);
-                LOGGER.error(msg);
+                LOGGER.warn(msg);
                 throw new TrackException(msg, ErrorCode.TRACK_NOT_BELONG_TO_USER);
             }
         }
