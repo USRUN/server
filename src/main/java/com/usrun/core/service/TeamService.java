@@ -1,5 +1,7 @@
- package com.usrun.core.service;
+package com.usrun.core.service;
 
+import com.usrun.core.config.ErrorCode;
+import com.usrun.core.exception.TeamException;
 import com.usrun.core.model.Team;
 import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
@@ -7,6 +9,7 @@ import com.usrun.core.repository.TeamMemberRepository;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserRepository;
 import com.usrun.core.security.UserPrincipal;
+import com.usrun.core.utility.CacheClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
- @Service
+@Service
 public class TeamService {
 
-    private static final Logger logger = LoggerFactory.getLogger(TeamService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TeamService.class);
 
     @Autowired
     private TeamRepository teamRepository;
@@ -32,43 +35,43 @@ public class TeamService {
     @Autowired
     private AmazonClient amazonClient;
 
+    @Autowired
+    private CacheClient cacheClient;
+
     @Transactional
     public Team createTeam(
             Long ownerId, String teamName, String thumbnail, int privacy, String location, String description
     ) {
-        Team toCreate = new Team(teamName,thumbnail,location,privacy,new Date(),description);
+        Team toCreate = new Team(teamName, thumbnail, location, privacy, new Date(), description);
 
-        toCreate = teamRepository.insert(toCreate,ownerId);
+        toCreate = teamRepository.insert(toCreate, ownerId);
+        cacheClient.setTeamMemberType(toCreate.getId(), ownerId, TeamMemberType.OWNER);
 
         return toCreate;
     }
 
-    public boolean requestToJoinTeam(Long requestId, Long teamId){
-        return teamRepository.joinTeam(requestId,teamId);
+    public boolean requestToJoinTeam(Long requestId, Long teamId) {
+        return teamRepository.joinTeam(requestId, teamId);
     }
 
-    public boolean approvePendingMember(Long requestId, Long teamId, Long pendingId){
-        TeamMember requestUser = teamMemberRepository.findById(teamId,requestId);
-
-        //check if it's the owner/admin who posted the request
-        if(requestUser.getTeamMemberType() != TeamMemberType.OWNER && requestUser.getTeamMemberType() != TeamMemberType.ADMIN){
-            return false;
-        }
-
-        teamRepository.updateTeamMemberType(teamId,pendingId,TeamMemberType.MEMBER);
+    public boolean updateTeamRole(Long teamId, Long pendingId, TeamMemberType toChangeInto) {
+        teamRepository.updateTeamMemberType(teamId, pendingId, toChangeInto);
+        cacheClient.setTeamMemberType(teamId, pendingId, toChangeInto);
         return true;
     }
 
-    public boolean updateTeamAdmin(Long requestId, Long teamId, Long pendingId, TeamMemberType toChangeInto){
-        TeamMember requestUser = teamMemberRepository.findById(teamId,requestId);
-
-        //check if it's the owner who posted the request
-        if(requestUser.getTeamMemberType() != TeamMemberType.OWNER){
-            return false;
+    public TeamMemberType loadTeamMemberType(long teamId, long userId) {
+        TeamMemberType teamMemberType = cacheClient.getTeamMemberType(teamId, userId);
+        if (teamMemberType == null) {
+            TeamMember teamMember = teamMemberRepository.findById(teamId, userId);
+            if (teamMember == null) {
+                String msg = String.format("User %s not belong to Team %s", userId, teamId);
+                LOGGER.warn(msg);
+                throw new TeamException(msg, ErrorCode.TEAM_USER_NOT_FOUND);
+            }
+            teamMemberType = teamMember.getTeamMemberType();
         }
-
-        teamRepository.updateTeamMemberType(teamId,pendingId,toChangeInto);
-        return true;
+        return teamMemberType;
     }
 }
 

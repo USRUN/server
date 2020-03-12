@@ -2,6 +2,7 @@ package com.usrun.core.utility;
 
 import com.usrun.core.model.User;
 import com.usrun.core.model.track.Track;
+import com.usrun.core.model.type.TeamMemberType;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,5 +94,15 @@ public class CacheClient {
     public boolean getTrackSig(Long trackId, String sig) {
         RBucket<Boolean> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyTrackSig(trackId, sig));
         return rBucket.get() == null ? false : true;
+    }
+
+    public TeamMemberType getTeamMemberType(long teamId, long userId) {
+        RBucket<Integer> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyTeamMemberType(teamId, userId));
+        return rBucket.get() == null ? null : TeamMemberType.fromInt(rBucket.get());
+    }
+
+    public void setTeamMemberType(long teamId, long userId, TeamMemberType teamMemberType) {
+        RBucket<Integer> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyTeamMemberType(teamId, userId));
+        rBucket.set(teamMemberType.toValue(), 14, TimeUnit.DAYS);
     }
 }
