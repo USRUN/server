@@ -1,11 +1,13 @@
 package com.usrun.core.controller;
 
 import com.usrun.core.config.ErrorCode;
-import com.usrun.core.exception.ResourceNotFoundException;
 import com.usrun.core.model.User;
 import com.usrun.core.payload.CodeResponse;
 import com.usrun.core.payload.UserInfoResponse;
 import com.usrun.core.payload.dto.UserFilterDTO;
+import com.usrun.core.payload.user.UserFilterRequest;
+import com.usrun.core.payload.user.UserUpdateRequest;
+import com.usrun.core.payload.user.VerifyStudentHcmusRequest;
 import com.usrun.core.repository.UserRepository;
 import com.usrun.core.security.CurrentUser;
 import com.usrun.core.security.TokenProvider;
@@ -24,7 +26,6 @@ import javax.mail.MessagingException;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
-import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -54,13 +55,10 @@ public class UserController {
 
     @PostMapping("/filter")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> findUser(
-            @RequestParam(name = "key", required = false) String key,
-            @Min(0) @RequestParam(name = "offset", defaultValue = "0") Integer offset,
-            @Min(1) @RequestParam(name = "count", defaultValue = "30") Integer count) {
+    public ResponseEntity<?> findUser(@RequestBody UserFilterRequest userFilterRequest) {
 
-        Pageable pageable = PageRequest.of(offset, count);
-        List<UserFilterDTO> users = userRepository.findUserIsEnable('%' + key + '%', pageable);
+        Pageable pageable = PageRequest.of(userFilterRequest.getOffset(), userFilterRequest.getCount());
+        List<UserFilterDTO> users = userRepository.findUserIsEnable('%' + userFilterRequest.getKey() + '%', pageable);
         return new ResponseEntity<>(new CodeResponse(users), HttpStatus.OK);
 
     }
@@ -69,20 +67,19 @@ public class UserController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> updateUser(
             @CurrentUser UserPrincipal userPrincipal,
-//            @Email @Size(max = 50) @RequestParam(name = "email", required = false) String email,
-            @RequestBody(required = false) String base64Image,
-            @Size(max = 50) @RequestParam(name = "name", required = false) String name,
-            @Min(0) @Max(1) @RequestParam(name = "gender", required = false) Integer gender,
-            @Min(1) @RequestParam(name = "birthday", required = false) Long birthdayNum,
-            @Min(1) @RequestParam(name = "weight", required = false) Double weight,
-            @Min(1) @RequestParam(name = "height", required = false) Double height,
-            @RequestParam(name = "deviceToken", required = false) String deviceToken
-    ) {
+            @RequestBody UserUpdateRequest userUpdateRequest
+            ) {
         Date birthday = null;
-        if (birthdayNum != null)
-            birthday = new Date(birthdayNum);
+        if (userUpdateRequest.getBirthdayNum() != null)
+            birthday = new Date(userUpdateRequest.getBirthdayNum());
 
-        User user = userService.updateUser(userPrincipal.getId(), name, deviceToken, gender, birthday, weight, height, base64Image);
+        User user = userService.updateUser(userPrincipal.getId(),
+                userUpdateRequest.getName(),
+                userUpdateRequest.getDeviceToken(),
+                userUpdateRequest.getGender(), birthday,
+                userUpdateRequest.getWeight(),
+                userUpdateRequest.getHeight(),
+                userUpdateRequest.getBase64Image());
         return ResponseEntity.ok(new CodeResponse(user));
     }
 
@@ -90,10 +87,10 @@ public class UserController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> verifyStudentHcmus(
             @CurrentUser UserPrincipal userPrincipal,
-            @RequestParam("otp") String otp) {
+            @RequestBody VerifyStudentHcmusRequest request) {
 
         Long userId = userPrincipal.getId();
-        Boolean verified = userService.verifyOTP(userId, otp);
+        Boolean verified = userService.verifyOTP(userId, request.getOtp());
         return verified ?
                 ResponseEntity.ok(new CodeResponse(0)) :
                 new ResponseEntity<>(new CodeResponse(ErrorCode.OTP_INVALID), HttpStatus.BAD_REQUEST);
