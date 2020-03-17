@@ -14,10 +14,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class TeamRepositoryImpl implements TeamRepository {
@@ -125,6 +123,18 @@ public class TeamRepositoryImpl implements TeamRepository {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public Set<Long> getTeamsByUser(long userId) {
+        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+        String sql = "SELECT teamId FROM team WHERE `teamMember`.userId = :userId";
+        List<Long> teams = namedParameterJdbcTemplate.query(
+                sql,
+                params,
+                (rs, i) -> new Long(rs.getLong("teamId"))
+        );
+        return teams.stream().collect(Collectors.toSet());
     }
 
     private MapSqlParameterSource mapTeamObject(Team toMap){

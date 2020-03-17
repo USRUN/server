@@ -5,6 +5,7 @@ import com.usrun.core.model.User;
 import com.usrun.core.model.type.TeamMemberType;
 
 import java.util.List;
+import java.util.Set;
 
 public interface TeamRepository {
     Team insert(Team toInsert,Long ownerUserId);
@@ -22,4 +23,6 @@ public interface TeamRepository {
     List<User> getMemberListByType(Long teamId, TeamMemberType toGet);
 
     boolean updateTeamMemberType(Long teamId,Long memberId, TeamMemberType action);
+
+    Set<Long> getTeamsByUser(long userId);
 }

@@ -60,6 +60,8 @@ public class User {
 
     private Set<Role> roles;
 
+    private Set<Long> teams;
+
     public User() {
         this.createTime = new Date();
         this.updateTime = new Date();

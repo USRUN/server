@@ -16,15 +16,19 @@ public class UserPrincipal implements UserDetails {
     private String password;
     private boolean isEnabled;
     private boolean hcmus;
+    private String avatar;
+    private String name;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(Long id, String email, String password, boolean isEnabled, boolean hcmus, Collection<? extends GrantedAuthority> authorities) {
+    public UserPrincipal(Long id, String email, String password, boolean isEnabled, boolean hcmus, String avatar, String name, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.isEnabled = isEnabled;
         this.hcmus = hcmus;
         this.authorities = authorities;
+        this.avatar = avatar;
+        this.name = name;
     }
 
     public static UserPrincipal create(User user) {
@@ -40,6 +44,8 @@ public class UserPrincipal implements UserDetails {
                 user.getPassword(),
                 user.isEnabled(),
                 user.isHcmus(),
+                user.getAvatar(),
+                user.getName(),
                 authorities
         );
     }
@@ -89,5 +95,13 @@ public class UserPrincipal implements UserDetails {
 
     public boolean isHcmus() {
         return hcmus;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public String getName() {
+        return name;
     }
 }

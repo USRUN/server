@@ -8,10 +8,12 @@ import java.util.List;
 
 @ConfigurationProperties(prefix = "app")
 @Getter
+@Setter
 public class AppProperties {
     private final Auth auth = new Auth();
     private final OAuth2 oauth2 = new OAuth2();
     private final Track track = new Track();
+    private int node;
 
     @Getter
     @Setter
