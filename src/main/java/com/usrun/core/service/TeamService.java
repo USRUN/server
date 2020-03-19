@@ -3,6 +3,7 @@ package com.usrun.core.service;
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.TeamException;
 import com.usrun.core.model.Team;
+import com.usrun.core.model.User;
 import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.repository.TeamMemberRepository;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.Set;
 
 @Service
 public class TeamService {
@@ -38,6 +40,9 @@ public class TeamService {
     @Autowired
     private CacheClient cacheClient;
 
+    @Autowired
+    private UserService userService;
+
     @Transactional
     public Team createTeam(
             Long ownerId, String teamName, String thumbnail, int privacy, String location, String description
@@ -47,20 +52,67 @@ public class TeamService {
         toCreate = teamRepository.insert(toCreate, ownerId);
         cacheClient.setTeamMemberType(toCreate.getId(), ownerId, TeamMemberType.OWNER);
 
+        addTeamToCache(toCreate.getId(),ownerId);
+
         return toCreate;
+    }
+
+    public void deleteTeam(Long ownerId, Long teamId) throws Exception {
+        Team toDelete = teamRepository.findTeamById(teamId);
+
+        if(toDelete == null){
+            throw new Exception("Team Not Found");
+        }
+
+        teamRepository.delete(toDelete);
+        removeTeamFromCache(teamId,ownerId);
+    }
+
+    private void addTeamToCache(Long teamId, Long userId){
+        User current = userService.loadUser(userId);
+        Set<Long> currentTeam = current.getTeams();
+
+        currentTeam.remove(teamId);
+
+        cacheClient.setUser(current);
+    }
+
+    private void removeTeamFromCache(Long teamId,Long userId){
+        User current = userService.loadUser(userId);
+        Set<Long> currentTeam = current.getTeams();
+
+        currentTeam.add(teamId);
+
+        cacheClient.setUser(current);
     }
 
     public boolean requestToJoinTeam(Long requestId, Long teamId) {
         return teamRepository.joinTeam(requestId, teamId);
     }
 
-    public boolean updateTeamRole(Long teamId, Long pendingId, TeamMemberType toChangeInto) {
-        teamRepository.updateTeamMemberType(teamId, pendingId, toChangeInto);
-        cacheClient.setTeamMemberType(teamId, pendingId, toChangeInto);
+    public boolean updateTeamRole(Long teamId, Long memberId, TeamMemberType toChangeInto) {
+        if(toChangeInto == TeamMemberType.OWNER){
+            return false;
+        }
+        if(toChangeInto == TeamMemberType.BLOCKED){
+            teamRepository.changeTotalMember(teamId,-1);
+            removeTeamFromCache(teamId,memberId);
+        }
+        if(toChangeInto == TeamMemberType.MEMBER){
+            teamRepository.changeTotalMember(teamId,1);
+            addTeamToCache(teamId,memberId);
+        }
+
+        teamRepository.updateTeamMemberType(teamId, memberId, toChangeInto);
+        cacheClient.setTeamMemberType(teamId, memberId, toChangeInto);
         return true;
     }
 
-    public TeamMemberType loadTeamMemberType(long teamId, long userId) {
+    public boolean cancelJoinTeam(Long requestId, Long teamId){
+        return teamRepository.cancelJoinTeam(requestId,teamId);
+    }
+
+    public TeamMemberType loadTeamMemberType(Long teamId, Long userId) {
         TeamMemberType teamMemberType = cacheClient.getTeamMemberType(teamId, userId);
         if (teamMemberType == null) {
             TeamMember teamMember = teamMemberRepository.findById(teamId, userId);
@@ -72,6 +124,19 @@ public class TeamService {
             teamMemberType = teamMember.getTeamMemberType();
         }
         return teamMemberType;
+    }
+
+    public Team updateTeam(Long teamId, String teamName, String thumbnail, int privacy, String location, String description){
+        Team toUpdate = teamRepository.findTeamById(teamId);
+        if(teamName != null) toUpdate.setTeamName(teamName);
+        if(thumbnail != null) toUpdate.setThumbnail(thumbnail);
+        if(privacy != toUpdate.getPrivacy()) toUpdate.setPrivacy(privacy);
+        if(location != null) toUpdate.setLocation(location);
+        if(description != null) toUpdate.setDescription(description);
+
+        teamRepository.update(toUpdate);
+
+        return toUpdate;
     }
 }
 

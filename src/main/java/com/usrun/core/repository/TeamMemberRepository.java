@@ -8,6 +8,7 @@ import java.util.List;
 public interface TeamMemberRepository {
     TeamMember insert(TeamMember toInsert);
     TeamMember update(TeamMember toUpdate);
+    boolean delete(TeamMember toDelete);
     TeamMember findById(Long teamId, Long userId);
-    List<TeamMember> filterByMemberType(TeamMemberType toFilter);
+    List<TeamMember> filterByMemberType(long teamId, TeamMemberType toFilter);
 }
