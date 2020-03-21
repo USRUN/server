@@ -4,6 +4,7 @@ import com.usrun.core.config.AppProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.net.NetworkInterface;
 import java.security.SecureRandom;
 import java.time.Instant;
@@ -38,7 +39,7 @@ public class SequenceGenerator {
     // Custom Epoch (January 1, 2015 Midnight UTC = 2015-01-01T00:00:00Z)
     private static final long CUSTOM_EPOCH = 1420070400000L;
 
-    private final int nodeId;
+    private int nodeId;
 
     private volatile long lastTimestamp = -1L;
     private volatile long sequence = 0L;
@@ -53,6 +54,10 @@ public class SequenceGenerator {
 
     // Let SequenceGenerator generate a nodeId
     public SequenceGenerator() {
+    }
+
+    @PostConstruct
+    private void init() {
         this.nodeId = appProperties.getNode();
     }
 

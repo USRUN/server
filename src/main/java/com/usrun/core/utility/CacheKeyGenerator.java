@@ -33,4 +33,12 @@ public class CacheKeyGenerator {
     public String keyTeamMemberType(long teamId, long userId) {
         return "team:role:" + teamId + ":" + userId;
     }
+
+    public String keyPost(long postId) {
+        return "post:" + postId;
+    }
+
+    public String keyPostSortedSet(long teamId) {
+        return "post:team:" + teamId;
+    }
 }

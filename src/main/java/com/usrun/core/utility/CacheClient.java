@@ -1,17 +1,20 @@
 package com.usrun.core.utility;
 
+import com.usrun.core.model.Post;
 import com.usrun.core.model.User;
 import com.usrun.core.model.track.Track;
 import com.usrun.core.model.type.TeamMemberType;
-import org.redisson.api.RBucket;
-import org.redisson.api.RedissonClient;
+import org.redisson.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author phuctt4
@@ -104,5 +107,24 @@ public class CacheClient {
     public void setTeamMemberType(long teamId, long userId, TeamMemberType teamMemberType) {
         RBucket<Integer> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyTeamMemberType(teamId, userId));
         rBucket.set(teamMemberType.toValue(), 14, TimeUnit.DAYS);
+    }
+
+    public void setPost(long postId, Post post) {
+        RBucket<Post> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyPost(postId));
+        post.getTeams().forEach(team -> {
+            RScoredSortedSet<Long> rSortedSet = redissonClient.getScoredSortedSet(cacheKeyGenerator.keyPostSortedSet(team));
+            rSortedSet.add(postId, postId);
+        });
+        rBucket.set(post, 2, TimeUnit.DAYS);
+    }
+
+    public Post getPost(long postId) {
+        RBucket<Post> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyPost(postId));
+        return rBucket.get();
+    }
+
+    public List<Long> getPostByTeam(long teamId, int count) {
+        RScoredSortedSet<Long> rSortedSet = redissonClient.getScoredSortedSet(cacheKeyGenerator.keyPostSortedSet(teamId));
+        return rSortedSet.valueRangeReversed(0, count - 1).stream().collect(Collectors.toList());
     }
 }
