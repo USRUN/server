@@ -20,6 +20,10 @@ public interface TeamRepository {
 
     boolean joinTeam(Long requestingId,Long teamId);
 
+    boolean cancelJoinTeam(Long requestingId, Long teamId);
+
+    int changeTotalMember(Long teamId, int changeAmount);
+
     List<User> getMemberListByType(Long teamId, TeamMemberType toGet);
 
     boolean updateTeamMemberType(Long teamId,Long memberId, TeamMemberType action);

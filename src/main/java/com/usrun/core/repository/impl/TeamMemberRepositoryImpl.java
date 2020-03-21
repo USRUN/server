@@ -42,6 +42,20 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
     }
 
     @Override
+    public boolean delete(TeamMember toDelete) {
+        int status = 0;
+        MapSqlParameterSource map = mapTeamMember(toDelete);
+        status = namedParameterJdbcTemplate.update(
+                "DELETE FROM teamMember" +
+                        "WHERE teamId = :teamId, userId= :userId",
+                map
+        );
+
+        return status != 0;
+    }
+
+
+    @Override
     public TeamMember findById(Long teamId,Long userId) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("teamId",teamId);
@@ -52,9 +66,10 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
     }
 
     @Override
-    public List<TeamMember> filterByMemberType(TeamMemberType toFilter) {
+    public List<TeamMember> filterByMemberType(long teamId, TeamMemberType toFilter) {
         MapSqlParameterSource params = new MapSqlParameterSource("teamMemberType",toFilter);
-        String sql = "SELECT * FROM teamMember WHERE teamMemberType = :teamMemberType";
+        params.addValue("teamId", teamId);
+        String sql = "SELECT * FROM teamMember WHERE teamId = :teamId teamMemberType = :teamMemberType";
 
         List<TeamMember> toReturn = namedParameterJdbcTemplate.query(
                 sql,

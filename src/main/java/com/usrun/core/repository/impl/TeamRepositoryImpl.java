@@ -70,7 +70,11 @@ public class TeamRepositoryImpl implements TeamRepository {
 
     @Override
     public boolean delete(Team toDelete) {
-        return false;
+        toDelete.setDeleted(true);
+
+        this.update(toDelete);
+
+        return true;
     }
 
     @Override
@@ -91,7 +95,6 @@ public class TeamRepositoryImpl implements TeamRepository {
 
     @Override
     public boolean joinTeam(Long requestingId,Long teamId) {
-        //TODO: 2ND JOIN = ?
         TeamMember pendingMember = new TeamMember(teamId,requestingId,TeamMemberType.PENDING.toValue(),new Date());
         pendingMember = teamMemberRepository.insert(pendingMember);
 
@@ -102,8 +105,29 @@ public class TeamRepositoryImpl implements TeamRepository {
     }
 
     @Override
+    public boolean cancelJoinTeam(Long requestingId, Long teamId){
+        TeamMember toDelete = teamMemberRepository.findById(teamId,requestingId);
+
+        return teamMemberRepository.delete(toDelete);
+    }
+
+    @Override
+    public int changeTotalMember(Long teamId, int changeAmount) {
+        Team toChange = this.findTeamById(teamId);
+        int newTotalMember = toChange.getTotalMember() + changeAmount;
+        if(newTotalMember < 2) return -1;
+
+        toChange.setTotalMember(toChange.getTotalMember() + changeAmount);
+        MapSqlParameterSource map = mapTeamObject(toChange);
+
+        this.update(toChange);
+
+        return newTotalMember;
+    }
+
+    @Override
     public List<User> getMemberListByType(Long teamId,TeamMemberType toGet) {
-        List<TeamMember> pendingList = teamMemberRepository.filterByMemberType(toGet);
+        List<TeamMember> pendingList = teamMemberRepository.filterByMemberType(teamId, toGet);
         List<User> toReturn = Collections.emptyList();
         pendingList.forEach(pending ->
             toReturn.add(
