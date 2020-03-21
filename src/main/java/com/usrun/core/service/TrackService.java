@@ -94,7 +94,6 @@ public class TrackService {
                         .stream()
                         .map(location -> new Point(trackId, location.getLatitude(), location.getLongitude(), location.getTime()))
                         .collect(Collectors.toList());
-                locations.forEach(location -> points.add(new Point(trackId, location.getLatitude(), location.getLongitude(), location.getTime())));
                 pointRepository.saveAll(points);
                 LOGGER.info("Save: {}", points.toString());
                 return points;
