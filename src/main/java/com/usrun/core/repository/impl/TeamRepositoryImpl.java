@@ -7,6 +7,8 @@ import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.repository.TeamMemberRepository;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -19,6 +21,8 @@ import java.util.stream.Collectors;
 
 @Repository
 public class TeamRepositoryImpl implements TeamRepository {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TeamRepository.class);
 
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -60,9 +64,8 @@ public class TeamRepositoryImpl implements TeamRepository {
         MapSqlParameterSource map = mapTeamObject(toUpdate);
 
         namedParameterJdbcTemplate.update(
-                "UPDATE usrun.team (privacy, totalMember, teamName, thumbnail, verified, deleted, createTime, location,description) " +
-                "SET (" +
-                ":privacy, :totalMember, :teamName, :thumbnail, :verified, :deleted, :createTime, :location, :description )",
+                "UPDATE usrun.team SET " +
+                "teamName = :teamName, thumbnail=:thumbnail, privacy = :privacy, location = :location, description = :description",
                 map);
 
         return toUpdate;
@@ -82,7 +85,7 @@ public class TeamRepositoryImpl implements TeamRepository {
         MapSqlParameterSource params = new MapSqlParameterSource("teamName",teamName);
         String sql = "SELECT * FROM team WHERE `team`.teamId = :teamName";
 
-        return getTeam(sql,params);
+        return getTeamSQLParamMap(sql,params);
     }
 
     @Override
@@ -90,7 +93,7 @@ public class TeamRepositoryImpl implements TeamRepository {
         MapSqlParameterSource params = new MapSqlParameterSource("teamId",teamId);
         String sql = "SELECT * FROM team WHERE `team`.teamId = :teamId";
 
-        return getTeam(sql,params);
+        return getTeamSQLParamMap(sql,params);
     }
 
     @Override
@@ -152,7 +155,7 @@ public class TeamRepositoryImpl implements TeamRepository {
     @Override
     public Set<Long> getTeamsByUser(long userId) {
         MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
-        String sql = "SELECT teamId FROM team WHERE `teamMember`.userId = :userId";
+        String sql = "SELECT teamId FROM usrun.team WHERE usrun.teamMember.userId = :userId";
         List<Long> teams = namedParameterJdbcTemplate.query(
                 sql,
                 params,
@@ -177,7 +180,7 @@ public class TeamRepositoryImpl implements TeamRepository {
         return toReturn;
     }
 
-    private Team getTeam(String sql, MapSqlParameterSource params) {
+    private Team getTeamSQLParamMap(String sql, MapSqlParameterSource params) {
         Optional<Team> toReturn = namedParameterJdbcTemplate.query(
                 sql,
                 params,
@@ -199,6 +202,7 @@ public class TeamRepositoryImpl implements TeamRepository {
                 return null;
             return toReturn.get();
         }
+        LOGGER.warn("Can't find team with {}",params);
         return null;
     }
 }

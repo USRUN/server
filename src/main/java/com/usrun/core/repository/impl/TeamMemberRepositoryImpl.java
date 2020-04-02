@@ -69,7 +69,24 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
     public List<TeamMember> filterByMemberType(long teamId, TeamMemberType toFilter) {
         MapSqlParameterSource params = new MapSqlParameterSource("teamMemberType",toFilter);
         params.addValue("teamId", teamId);
-        String sql = "SELECT * FROM teamMember WHERE teamId = :teamId teamMemberType = :teamMemberType";
+        String sql = "SELECT * FROM teamMember WHERE teamId = :teamId AND teamMemberType = :teamMemberType";
+
+        List<TeamMember> toReturn = namedParameterJdbcTemplate.query(
+                sql,
+                params,
+                (rs,i) -> new TeamMember(
+                        rs.getLong("teamId"),
+                        rs.getLong("userId"),
+                        rs.getInt("teamMemberType"),
+                        rs.getDate("addTime")));
+        return toReturn;
+    }
+
+    @Override
+    public List<TeamMember> getAllMemberOfTeam(long teamId){
+        MapSqlParameterSource params = new MapSqlParameterSource("teamId",teamId);
+
+        String sql = "SELECT * FROM teamMember WHERE teamId = :teamId";
 
         List<TeamMember> toReturn = namedParameterJdbcTemplate.query(
                 sql,

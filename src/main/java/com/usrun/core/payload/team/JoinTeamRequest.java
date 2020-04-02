@@ -1,4 +1,4 @@
-package com.usrun.core.payload;
+package com.usrun.core.payload.team;
 
 import lombok.Getter;
 import lombok.Setter;
