@@ -11,4 +11,5 @@ public interface TeamMemberRepository {
     boolean delete(TeamMember toDelete);
     TeamMember findById(Long teamId, Long userId);
     List<TeamMember> filterByMemberType(long teamId, TeamMemberType toFilter);
+    List<TeamMember> getAllMemberOfTeam(long teamId);
 }

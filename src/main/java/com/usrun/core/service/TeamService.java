@@ -14,11 +14,13 @@ import com.usrun.core.utility.CacheClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class TeamService {
@@ -65,14 +67,34 @@ public class TeamService {
         }
 
         teamRepository.delete(toDelete);
-        removeTeamFromCache(teamId,ownerId);
+
+        List<TeamMember> toRemove = teamMemberRepository.getAllMemberOfTeam(teamId);
+
+        toRemove.forEach((teamMember -> {
+            removeTeamFromCache(teamId,teamMember.getUserId());
+            teamMemberRepository.delete(teamMember);
+        }));
+    }
+
+    public Team getTeamById(Long teamId){
+        Team toGet = teamRepository.findTeamById(teamId);
+
+        if(toGet == null){
+           throw new DataRetrievalFailureException("Team not found");
+        }
+
+        return toGet;
     }
 
     private void addTeamToCache(Long teamId, Long userId){
         User current = userService.loadUser(userId);
         Set<Long> currentTeam = current.getTeams();
 
-        currentTeam.remove(teamId);
+        if(currentTeam == null){
+            currentTeam = new HashSet<Long>();
+        }
+
+        currentTeam.add(teamId);
 
         cacheClient.setUser(current);
     }
@@ -81,7 +103,7 @@ public class TeamService {
         User current = userService.loadUser(userId);
         Set<Long> currentTeam = current.getTeams();
 
-        currentTeam.add(teamId);
+        currentTeam.remove(teamId);
 
         cacheClient.setUser(current);
     }
@@ -128,6 +150,11 @@ public class TeamService {
 
     public Team updateTeam(Long teamId, String teamName, String thumbnail, int privacy, String location, String description){
         Team toUpdate = teamRepository.findTeamById(teamId);
+
+        if(toUpdate == null) {
+            throw new DataRetrievalFailureException("Team not found");
+        }
+
         if(teamName != null) toUpdate.setTeamName(teamName);
         if(thumbnail != null) toUpdate.setThumbnail(thumbnail);
         if(privacy != toUpdate.getPrivacy()) toUpdate.setPrivacy(privacy);
@@ -135,9 +162,11 @@ public class TeamService {
         if(description != null) toUpdate.setDescription(description);
 
         teamRepository.update(toUpdate);
+        LOGGER.info("Update team {}", teamId);
 
         return toUpdate;
     }
+
 }
 
 //    private Team updateTeam(

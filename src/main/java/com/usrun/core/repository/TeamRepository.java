@@ -29,4 +29,6 @@ public interface TeamRepository {
     boolean updateTeamMemberType(Long teamId,Long memberId, TeamMemberType action);
 
     Set<Long> getTeamsByUser(long userId);
+
+
 }
