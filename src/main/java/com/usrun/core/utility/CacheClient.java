@@ -123,8 +123,10 @@ public class CacheClient {
         return rBucket.get();
     }
 
-    public List<Long> getPostByTeam(long teamId, int count) {
+    public List<Long> getPostByTeam(long teamId, int count, int offset) {
         RScoredSortedSet<Long> rSortedSet = redissonClient.getScoredSortedSet(cacheKeyGenerator.keyPostSortedSet(teamId));
-        return rSortedSet.valueRangeReversed(0, count - 1).stream().collect(Collectors.toList());
+        int start = offset * count;
+        int stop = (offset + 1) * count - 1;
+        return rSortedSet.valueRangeReversed(start, stop).stream().collect(Collectors.toList());
     }
 }

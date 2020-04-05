@@ -16,9 +16,10 @@ import java.util.Set;
 @Setter
 @Document(collection = "Post")
 public class Post {
+
     @Getter
     @Setter
-    public class User {
+    static public class User {
         private long userId;
         private String avatar;
         private String name;

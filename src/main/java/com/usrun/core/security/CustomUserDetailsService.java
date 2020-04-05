@@ -4,6 +4,7 @@ import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.User;
 import com.usrun.core.repository.UserRepository;
+import com.usrun.core.service.UserService;
 import com.usrun.core.utility.CacheClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,16 +21,14 @@ public class CustomUserDetailsService implements UserDetailsService {
     private UserRepository userRepository;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private CacheClient cacheClient;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = cacheClient.getUser(email);
-        if (user == null) {
-            user = userRepository.findUserByEmail(email);
-            if (user == null)
-                throw new CodeException(ErrorCode.USER_EMAIL_NOT_FOUND);
-        }
+        User user = userService.loadUser(email);
 
         if (!user.isEnabled())
             new CodeException(ErrorCode.USER_DOES_NOT_PERMISSION);
@@ -42,14 +41,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     public UserDetails loadUserById(Long id) {
-        User user = cacheClient.getUser(id);
-
-        if (user == null) {
-            user = userRepository.findById(id);
-            if (user == null)
-                throw new CodeException(ErrorCode.USER_NOT_FOUND);
-            cacheClient.setUser(user);
-        }
+        User user = userService.loadUser(id);
 
         if (!user.isEnabled())
             throw new CodeException(ErrorCode.USER_DOES_NOT_PERMISSION);

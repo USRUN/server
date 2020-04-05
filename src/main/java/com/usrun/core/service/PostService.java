@@ -1,17 +1,21 @@
 package com.usrun.core.service;
 
 import com.usrun.core.config.ErrorCode;
+import com.usrun.core.exception.CodeException;
 import com.usrun.core.exception.PostException;
 import com.usrun.core.model.Post;
 import com.usrun.core.model.User;
 import com.usrun.core.repository.PostRepository;
+import com.usrun.core.utility.CacheClient;
 import com.usrun.core.utility.SequenceGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /**
@@ -31,6 +35,13 @@ public class PostService {
     @Autowired
     private SequenceGenerator sequenceGenerator;
 
+    @Autowired
+    private CacheClient cacheClient;
+
+    @Autowired
+    private AmazonClient amazonClient;
+
+
     public Post post(Post post) {
         long userId = post.getUser().getUserId();
         User user = userService.loadUser(userId);
@@ -46,9 +57,26 @@ public class PostService {
 
         long postId = sequenceGenerator.nextId();
         post.setPostId(postId);
+//        post.getImages().forEach(image -> amazonClient.uploadFile(image, "post-" + (indexImage++) +));
 
         postRepository.save(post);
+        cacheClient.setPost(postId, post);
 
         return post;
+    }
+
+    public Post loadPost(long postId) {
+        Post post = cacheClient.getPost(postId);
+        if(post == null) {
+            post = postRepository.findById(postId).orElseThrow(
+                    () -> new CodeException(ErrorCode.ACTIVITY_NOT_FOUND)
+            );
+        }
+        return post;
+    }
+
+    public List<Post> getPosts(long teamId, int count, int offset) {
+        List<Long> postIds = cacheClient.getPostByTeam(teamId, count , offset);
+        return postIds.stream().map(id -> loadPost(id)).collect(Collectors.toList());
     }
 }

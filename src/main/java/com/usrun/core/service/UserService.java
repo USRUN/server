@@ -1,5 +1,7 @@
 package com.usrun.core.service;
 
+import com.usrun.core.config.ErrorCode;
+import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.Role;
 import com.usrun.core.model.type.RoleType;
 import com.usrun.core.model.User;
@@ -80,7 +82,7 @@ public class UserService {
                 user = userRepository.findById(userId);
                 user.setTeams(teamRepository.getTeamsByUser(userId));
                 if (user == null)
-                    throw new Exception("User Not Found");
+                    throw new CodeException(ErrorCode.USER_NOT_FOUND);
                 cacheClient.setUser(user);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -94,8 +96,9 @@ public class UserService {
         if (user == null) {
             try {
                 user = userRepository.findUserByEmail(email);
+                user.setTeams(teamRepository.getTeamsByUser(user.getId()));
                 if (user == null)
-                    throw new Exception("User Not Found");
+                    throw new CodeException(ErrorCode.USER_EMAIL_NOT_FOUND);
                 cacheClient.setUser(user);
             } catch (Exception ex) {
                 ex.printStackTrace();

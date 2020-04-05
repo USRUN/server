@@ -39,26 +39,26 @@ public class TeamController {
             return new ResponseEntity<>(new CodeResponse(e.getErrorCode()), HttpStatus.BAD_REQUEST);
         }
     }
-
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('USER') && teamAuthorization.authorize(authentication,'OWNER',#teamInfoRequest.getTeamId())")
-    public ResponseEntity<?> updateTeam(
-            @CurrentUser UserPrincipal userPrincipal,
-            @RequestBody UpdateTeamRequest updateTeamRequest
-    ) {
-        try {
-            Team team = teamService.updateTeam(
-                    updateTeamRequest.getTeamId(),
-                    updateTeamRequest.getTeamName(),
-                    updateTeamRequest.getThumbnail(),
-                    updateTeamRequest.getPrivacy(),
-                    updateTeamRequest.getLocation(),
-                    updateTeamRequest.getDescription());
-            return new ResponseEntity<>(new CodeResponse(team), HttpStatus.OK);
-        } catch (CodeException e) {
-            return new ResponseEntity<>(new CodeResponse(e.getErrorCode()), HttpStatus.BAD_REQUEST);
-        }
-    }
+//
+//    @PostMapping("/create")
+//    @PreAuthorize("hasRole('USER') && teamAuthorization.authorize(authentication,'OWNER',#teamInfoRequest.getTeamId())")
+//    public ResponseEntity<?> updateTeam(
+//            @CurrentUser UserPrincipal userPrincipal,
+//            @RequestBody UpdateTeamRequest updateTeamRequest
+//    ) {
+//        try {
+//            Team team = teamService.updateTeam(
+//                    updateTeamRequest.getTeamId(),
+//                    updateTeamRequest.getTeamName(),
+//                    updateTeamRequest.getThumbnail(),
+//                    updateTeamRequest.getPrivacy(),
+//                    updateTeamRequest.getLocation(),
+//                    updateTeamRequest.getDescription());
+//            return new ResponseEntity<>(new CodeResponse(team), HttpStatus.OK);
+//        } catch (CodeException e) {
+//            return new ResponseEntity<>(new CodeResponse(e.getErrorCode()), HttpStatus.BAD_REQUEST);
+//        }
+//    }
 
     @PostMapping("/join")
     @PreAuthorize("hasRole('USER')")
