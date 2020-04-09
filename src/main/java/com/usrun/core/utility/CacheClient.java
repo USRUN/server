@@ -2,6 +2,7 @@ package com.usrun.core.utility;
 
 import com.usrun.core.model.Post;
 import com.usrun.core.model.User;
+import com.usrun.core.model.UserActivity;
 import com.usrun.core.model.track.Track;
 import com.usrun.core.model.type.TeamMemberType;
 import org.redisson.api.*;
@@ -109,22 +110,22 @@ public class CacheClient {
         rBucket.set(teamMemberType.toValue(), 14, TimeUnit.DAYS);
     }
 
-    public void setPost(long postId, Post post) {
-        RBucket<Post> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyPost(postId));
-        post.getTeams().forEach(team -> {
-            RScoredSortedSet<Long> rSortedSet = redissonClient.getScoredSortedSet(cacheKeyGenerator.keyPostSortedSet(team));
-            rSortedSet.add(postId, postId);
+    public void setActivity(User user, UserActivity activity) {
+        RBucket<UserActivity> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyActivity(activity.getUserActivityId()));
+        user.getTeams().forEach(team -> {
+            RScoredSortedSet<Long> rSortedSet = redissonClient.getScoredSortedSet(cacheKeyGenerator.keyActivitySortedSet(team));
+            rSortedSet.add(activity.getUserActivityId(), activity.getUserActivityId());
         });
-        rBucket.set(post, 2, TimeUnit.DAYS);
+        rBucket.set(activity, 2, TimeUnit.DAYS);
     }
 
-    public Post getPost(long postId) {
-        RBucket<Post> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyPost(postId));
+    public UserActivity getActivity(long activityId) {
+        RBucket<UserActivity> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyActivity(activityId));
         return rBucket.get();
     }
 
-    public List<Long> getPostByTeam(long teamId, int count, int offset) {
-        RScoredSortedSet<Long> rSortedSet = redissonClient.getScoredSortedSet(cacheKeyGenerator.keyPostSortedSet(teamId));
+    public List<Long> getActivityByTeam(long teamId, int count, int offset) {
+        RScoredSortedSet<Long> rSortedSet = redissonClient.getScoredSortedSet(cacheKeyGenerator.keyActivitySortedSet(teamId));
         int start = offset * count;
         int stop = (offset + 1) * count - 1;
         return rSortedSet.valueRangeReversed(start, stop).stream().collect(Collectors.toList());

@@ -5,12 +5,14 @@
  */
 package com.usrun.core.controller;
 
-import com.usrun.core.config.AppProperties;
 import com.usrun.core.config.ErrorCode;
-import com.usrun.core.dao.ActivityDAO;
+import com.usrun.core.exception.CodeException;
+import com.usrun.core.model.Post;
 import com.usrun.core.model.User;
 import com.usrun.core.model.UserActivity;
 import com.usrun.core.payload.CodeResponse;
+import com.usrun.core.payload.user.GetActivityRequest;
+import com.usrun.core.payload.user.GetActivitiesRequest;
 import com.usrun.core.payload.user.CreateActivityRequest;
 import com.usrun.core.payload.user.NumberActivityRequest;
 import com.usrun.core.payload.user.TimeRequest;
@@ -18,14 +20,19 @@ import com.usrun.core.repository.UserActivityRepository;
 import com.usrun.core.security.CurrentUser;
 import com.usrun.core.security.UserPrincipal;
 import com.usrun.core.service.ActivityService;
+import com.usrun.core.service.PostService;
+import com.usrun.core.service.UserService;
+import com.usrun.core.utility.CacheClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.Time;
 import java.util.Date;
@@ -34,7 +41,8 @@ import java.util.List;
 /**
  * @author anhhuy
  */
-@Controller
+@RestController
+@RequestMapping("/activity")
 public class ActivityController {
     @Autowired
     private UserActivityRepository userActivityRepository;
@@ -42,7 +50,16 @@ public class ActivityController {
     @Autowired
     private ActivityService activityService;
 
-    @RequestMapping("/getUserActivityByTimeWithSum")
+    @Autowired
+    private PostService postService;
+
+    @Autowired
+    private CacheClient cacheClient;
+
+    @Autowired
+    private UserService userService;
+
+    @PostMapping("/getUserActivityByTimeWithSum")
     public ResponseEntity<?> getUserActivityByTimeWithSum(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestBody TimeRequest timeRequest
@@ -71,7 +88,7 @@ public class ActivityController {
         return new ResponseEntity<>(new CodeResponse(valueSum), HttpStatus.OK);
     }
 
-    @RequestMapping("/createUserActivity")
+    @PostMapping("/createUserActivity")
     public ResponseEntity<?> createUserActivity(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestBody CreateActivityRequest paramActivity
@@ -79,20 +96,22 @@ public class ActivityController {
         Long userId = userPrincipal.getId();
         String sig = paramActivity.getSig();
         Long activityId = paramActivity.getUserActivityId();
-        System.out.println(activityId);
         String sigActivity = activityService.getSigActivity(activityId);
-        if(sig.equals(sigActivity)){
+
+        if (sig.equals(sigActivity)) {
             UserActivity userActivity = new UserActivity(paramActivity);
             userActivity.setUserId(userId);
             UserActivity result = userActivityRepository.insert(userActivity);
+            User user = userService.loadUser(userId);
+            cacheClient.setActivity(user, result);
             return new ResponseEntity<>(new CodeResponse(result), HttpStatus.OK);
-        }else{
+        } else {
             return new ResponseEntity<>(new CodeResponse(ErrorCode.ACTIVITY_ADD_FAIL), HttpStatus.BAD_REQUEST);
         }
     }
 
 
-    @RequestMapping("/getUserActivityByTime")
+    @PostMapping("/getUserActivityByTime")
     public ResponseEntity<?> getUserActivityByTime(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestBody TimeRequest timeRequest
@@ -102,7 +121,7 @@ public class ActivityController {
         return new ResponseEntity<>(new CodeResponse(allByTimeRangeAndUserId), HttpStatus.OK);
     }
 
-    @RequestMapping("/getNumberLastUserActivity")
+    @PostMapping("/getNumberLastUserActivity")
     public ResponseEntity<?> getNumberLastUserActivity(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestBody NumberActivityRequest numberActivityRequest
@@ -114,12 +133,35 @@ public class ActivityController {
 
     }
 
-    @RequestMapping("/hardCodeData")
+    @PostMapping("/hardCodeData")
     public ResponseEntity<?> hardCodeData(@CurrentUser UserPrincipal userPrincipal) {
         for (int i = 0; i < 20; i++) {
-            UserActivity userActivity = new UserActivity(100+i,i % 4 + 5, i % 4 * 10000l, new Time(i % 4 * 100000), 7.3, new Date());
+            UserActivity userActivity = new UserActivity(100 + i, i % 4 + 5, i % 4 * 10000l, new Time(i % 4 * 100000), 7.3, new Date());
             userActivityRepository.insert(userActivity);
         }
         return new ResponseEntity<>(ErrorCode.FIELD_REQUIRED, HttpStatus.OK);
     }
+
+    @PostMapping("/getActivity")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getActivity(
+            @RequestBody GetActivityRequest request
+    ) {
+        try {
+            UserActivity userActivity = activityService.loadActivity(request.getActivityId());
+            return ResponseEntity.ok(new CodeResponse(userActivity));
+        } catch (CodeException ex) {
+            return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/getActivitiesByTeam")
+    @PreAuthorize("hasRole('USER') && @teamAuthorization.authorize(authentication, 'MEMBER', #request.teamId)")
+    public ResponseEntity<?> getActivitiesByTeam(
+            @RequestBody GetActivitiesRequest request
+    ) {
+        List<UserActivity> activities = activityService.getActivitiesByTeam(request.getTeamId(), request.getCount(), request.getOffset());
+        return ResponseEntity.ok(new CodeResponse(activities));
+    }
+
 }

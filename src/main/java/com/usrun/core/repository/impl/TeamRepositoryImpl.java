@@ -155,7 +155,7 @@ public class TeamRepositoryImpl implements TeamRepository {
     @Override
     public Set<Long> getTeamsByUser(long userId) {
         MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
-        String sql = "SELECT teamId FROM usrun.team WHERE usrun.teamMember.userId = :userId";
+        String sql = "SELECT teamId FROM usrun.teamMember WHERE userId = :userId";
         List<Long> teams = namedParameterJdbcTemplate.query(
                 sql,
                 params,

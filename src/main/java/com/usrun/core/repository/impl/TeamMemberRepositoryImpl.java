@@ -25,7 +25,7 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
         MapSqlParameterSource map = mapTeamMember(toInsert);
         namedParameterJdbcTemplate.update(
                 "INSERT INTO teamMember(teamId,userId,teamMemberType,addTime)" +
-                " VALUES(:teamId,:userId,:teamMemberType,addTime)",
+                        " VALUES(:teamId,:userId,:teamMemberType,:addTime)",
                 map
         );
         return toInsert;
@@ -56,25 +56,25 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
 
 
     @Override
-    public TeamMember findById(Long teamId,Long userId) {
+    public TeamMember findById(Long teamId, Long userId) {
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("teamId",teamId);
-        params.addValue("userId",userId);
+        params.addValue("teamId", teamId);
+        params.addValue("userId", userId);
         String sql = "SELECT * FROM teamMember WHERE teamId = :teamId AND userId = :userId";
 
-        return getTeamMember(sql,params);
+        return getTeamMember(sql, params);
     }
 
     @Override
     public List<TeamMember> filterByMemberType(long teamId, TeamMemberType toFilter) {
-        MapSqlParameterSource params = new MapSqlParameterSource("teamMemberType",toFilter);
+        MapSqlParameterSource params = new MapSqlParameterSource("teamMemberType", toFilter);
         params.addValue("teamId", teamId);
         String sql = "SELECT * FROM teamMember WHERE teamId = :teamId AND teamMemberType = :teamMemberType";
 
         List<TeamMember> toReturn = namedParameterJdbcTemplate.query(
                 sql,
                 params,
-                (rs,i) -> new TeamMember(
+                (rs, i) -> new TeamMember(
                         rs.getLong("teamId"),
                         rs.getLong("userId"),
                         rs.getInt("teamMemberType"),
@@ -83,15 +83,15 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
     }
 
     @Override
-    public List<TeamMember> getAllMemberOfTeam(long teamId){
-        MapSqlParameterSource params = new MapSqlParameterSource("teamId",teamId);
+    public List<TeamMember> getAllMemberOfTeam(long teamId) {
+        MapSqlParameterSource params = new MapSqlParameterSource("teamId", teamId);
 
         String sql = "SELECT * FROM teamMember WHERE teamId = :teamId";
 
         List<TeamMember> toReturn = namedParameterJdbcTemplate.query(
                 sql,
                 params,
-                (rs,i) -> new TeamMember(
+                (rs, i) -> new TeamMember(
                         rs.getLong("teamId"),
                         rs.getLong("userId"),
                         rs.getInt("teamMemberType"),
@@ -99,29 +99,29 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
         return toReturn;
     }
 
-    private TeamMember getTeamMember(String sql, MapSqlParameterSource params){
+    private TeamMember getTeamMember(String sql, MapSqlParameterSource params) {
         Optional<TeamMember> toReturn = namedParameterJdbcTemplate.query(
                 sql,
                 params,
-                (rs,i) -> new TeamMember(
+                (rs, i) -> new TeamMember(
                         rs.getLong("teamId"),
                         rs.getLong("userId"),
                         rs.getInt("teamMemberType"),
                         rs.getDate("addTime"))).stream().findFirst();
 
-        if(toReturn.isPresent())
+        if (toReturn.isPresent())
             return toReturn.get();
         return null;
     }
 
-    private MapSqlParameterSource mapTeamMember(TeamMember toMap){
+    private MapSqlParameterSource mapTeamMember(TeamMember toMap) {
 
         MapSqlParameterSource toReturn = new MapSqlParameterSource();
 
         toReturn.addValue("teamId", toMap.getTeamId());
-        toReturn.addValue("userId",toMap.getUserId());
-        toReturn.addValue("teamMemberType",toMap.getTeamMemberType().toValue());
-        toReturn.addValue("addTime",toMap.getAddTime());
+        toReturn.addValue("userId", toMap.getUserId());
+        toReturn.addValue("teamMemberType", toMap.getTeamMemberType().toValue());
+        toReturn.addValue("addTime", toMap.getAddTime());
 
         return toReturn;
     }

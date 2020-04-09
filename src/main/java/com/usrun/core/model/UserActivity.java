@@ -7,7 +7,6 @@ package com.usrun.core.model;
 
 import java.sql.Time;
 import java.util.Date;
-import javax.persistence.*;
 
 import com.usrun.core.payload.user.CreateActivityRequest;
 import lombok.Getter;
@@ -19,11 +18,7 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-@Entity
-@Table(name = "userActivity")
 public class UserActivity{
-
-    @Id
     private long userActivityId;
     private long userId;
     private Date createTime;
@@ -45,6 +40,7 @@ public class UserActivity{
     private boolean processed;
     private int deleted;
     private int privacy;
+
     public UserActivity(long userActivityId, long userId, Date createTime, long totalDistance, Time totalTime, long totalStep, double avgPace, double avgHeart, double maxHeart, int calories, double elevGain, double elevMax, String photo, String title, String description, int totalLike, int totalComment, int totalShare, boolean processed, int deleted, int privacy) {
         this.userActivityId = userActivityId;
         this.userId = userId;
@@ -68,6 +64,7 @@ public class UserActivity{
         this.deleted = deleted;
         this.privacy = privacy;
     }
+
     public UserActivity(CreateActivityRequest createActivityRequest) {
         this.userActivityId = createActivityRequest.getUserActivityId();
         this.createTime = createActivityRequest.getCreateTime();
@@ -99,6 +96,7 @@ public class UserActivity{
         this.avgPace = avgPace;
         this.createTime = createTime;
     }
+
     public UserActivity(){
         this.totalDistance = 0l;
         this.totalTime = new Time(0l);

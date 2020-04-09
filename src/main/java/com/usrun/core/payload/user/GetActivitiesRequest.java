@@ -1,4 +1,4 @@
-package com.usrun.core.payload.post;
+package com.usrun.core.payload.user;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GetPostsRequest {
+public class GetActivitiesRequest {
     private long teamId;
     private int count = 30;
     private int offset = 0;

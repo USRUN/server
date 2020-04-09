@@ -1,8 +1,6 @@
 package com.usrun.core.service;
 
-import com.usrun.core.dao.ActivityDAO;
 import com.usrun.core.model.track.Point;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -11,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 @Service
 public class ActivityCalcService {
-    @Autowired
-    private ActivityDAO activityDAO;
 
     public static final long unitDistance = 1000l;
     private static final double R = 6371e3; //theo met

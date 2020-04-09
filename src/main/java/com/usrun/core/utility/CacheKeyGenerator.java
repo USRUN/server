@@ -34,11 +34,11 @@ public class CacheKeyGenerator {
         return "team:role:" + teamId + ":" + userId;
     }
 
-    public String keyPost(long postId) {
-        return "post:" + postId;
+    public String keyActivity(long activityId) {
+        return "activity:" + activityId;
     }
 
-    public String keyPostSortedSet(long teamId) {
-        return "post:team:" + teamId;
+    public String keyActivitySortedSet(long teamId) {
+        return "activities:team:" + teamId;
     }
 }

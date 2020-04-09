@@ -12,6 +12,7 @@ import com.usrun.core.repository.PointRepository;
 import com.usrun.core.repository.TrackRepository;
 import com.usrun.core.utility.CacheClient;
 import com.usrun.core.utility.CacheKeyGenerator;
+import com.usrun.core.utility.SequenceGenerator;
 import com.usrun.core.utility.UniqueIDGenerator;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
@@ -34,7 +35,7 @@ public class TrackService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TrackService.class);
 
     @Autowired
-    private UniqueIDGenerator uniqueIDGenerator;
+    private SequenceGenerator sequenceGenerator;
 
     @Autowired
     private TrackRepository trackRepository;
@@ -49,7 +50,7 @@ public class TrackService {
     private AppProperties appProperties;
 
     public Track createTrack(Long userId, String description) {
-        Long trackId = uniqueIDGenerator.generateTrackId(userId);
+        Long trackId = sequenceGenerator.nextId();
         Track track = new Track(trackId, userId, description);
 
         trackRepository.save(track);
