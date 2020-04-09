@@ -9,6 +9,7 @@ import java.sql.Time;
 import java.util.Date;
 import javax.persistence.*;
 
+import com.usrun.core.payload.user.CreateActivityRequest;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -69,7 +70,27 @@ public class UserActivity{
         this.deleted = deleted;
         this.privacy = privacy;
     }
-
+    public UserActivity(CreateActivityRequest createActivityRequest) {
+        this.createTime = createActivityRequest.getCreateTime();
+        this.totalDistance = createActivityRequest.getTotalDistance();
+        this.totalTime = createActivityRequest.getTotalTime();
+        this.totalStep = createActivityRequest.getTotalStep();
+        this.avgPace = createActivityRequest.getAvgPace();
+        this.avgHeart = createActivityRequest.getAvgHeart();
+        this.maxHeart = createActivityRequest.getMaxHeart();
+        this.calories = createActivityRequest.getCalories();
+        this.elevGain = createActivityRequest.getElevGain();
+        this.elevMax = createActivityRequest.getElevMax();
+        this.photo = createActivityRequest.getPhoto();
+        this.title = createActivityRequest.getTitle();
+        this.description = createActivityRequest.getDescription();
+        this.totalLike = createActivityRequest.getTotalLike();
+        this.totalComment = createActivityRequest.getTotalComment();
+        this.totalShare = createActivityRequest.getTotalShare();
+        this.processed = createActivityRequest.getProcessed();
+        this.deleted = createActivityRequest.getDeleted();
+        this.privacy = createActivityRequest.getPrivacy();
+    }
 
     public UserActivity(long userId, long totalDistance, Time totalTime, double avgPace, Date createTime) {
         this.userId = userId;

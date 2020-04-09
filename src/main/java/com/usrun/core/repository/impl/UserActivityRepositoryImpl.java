@@ -74,11 +74,12 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     }
 
     @Override
-    public List<UserActivity> findNumberActivityLast(long userId, int number) {
+    public List<UserActivity> findNumberActivityLast(long userId,Pageable pageable) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("userId", userId);
-        params.addValue("number", number);
-        String sql = "SELECT * FROM userActivity WHERE userId = :userId ORDER BY createTime DESC LIMIT :number";
+        params.addValue("size", pageable.getPageSize());
+        params.addValue("offset", pageable.getOffset());
+        String sql = "SELECT * FROM userActivity WHERE userId = :userId ORDER BY createTime DESC, userActivityId DESC LIMIT :size OFFSET :offset";
         List<UserActivity> userActivity = findUserActivity(sql, params);
         return userActivity;
     }

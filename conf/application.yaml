@@ -56,6 +56,8 @@ app:
   track:
     key: trackusrun1620
     time-in-microseconds: 60000
+  activity:
+    key: activityusrun1620
 redis:
   url: ${REDIS_URL:redis://128.199.159.72:6379}
   password: ${REDIS_PASSWORD:usrunadmin1620}
@@ -68,3 +70,4 @@ amazon:
   accessKey: AKIAZAQQP6WHFUSLGUSH
   secretKey: 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
   bucketName: usrun
+
