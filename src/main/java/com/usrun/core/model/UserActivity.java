@@ -24,9 +24,7 @@ import lombok.Setter;
 public class UserActivity{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long userActivityId;
-    @Column(name="userId")
     private long userId;
     private Date createTime;
     private long totalDistance;
@@ -71,6 +69,7 @@ public class UserActivity{
         this.privacy = privacy;
     }
     public UserActivity(CreateActivityRequest createActivityRequest) {
+        this.userActivityId = createActivityRequest.getUserActivityId();
         this.createTime = createActivityRequest.getCreateTime();
         this.totalDistance = createActivityRequest.getTotalDistance();
         this.totalTime = createActivityRequest.getTotalTime();
@@ -92,7 +91,8 @@ public class UserActivity{
         this.privacy = createActivityRequest.getPrivacy();
     }
 
-    public UserActivity(long userId, long totalDistance, Time totalTime, double avgPace, Date createTime) {
+    public UserActivity(long userActivityId, long userId, long totalDistance, Time totalTime, double avgPace, Date createTime) {
+        this.userActivityId = userActivityId;
         this.userId = userId;
         this.totalDistance = totalDistance;
         this.totalTime = totalTime;

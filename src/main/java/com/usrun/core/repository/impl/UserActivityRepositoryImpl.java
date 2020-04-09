@@ -32,12 +32,11 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     @Override
     public UserActivity insert(UserActivity userActivity) {
         MapSqlParameterSource map = getMapUserActivity(userActivity);
-        final KeyHolder holder = new GeneratedKeyHolder();
         namedParameterJdbcTemplate.update(
-                "INSERT INTO userActivity (userId, createTime, totalDistance, totalTime, " +
+                "INSERT INTO userActivity (userActivityId, userId, createTime, totalDistance, totalTime, " +
                         "totalStep, avgPace, avgHeart, maxHeart, calories, " +
                         "elevGain, elevMax, photo, title, description, totalLike, totalComment,totalShare, processed,deleted, privacy ) values (" +
-                        ":userId, :createTime, :totalDistance, :totalTime, :totalStep, :avgPace, :avgHeart, :maxHeart, " +
+                        ":userActivityId ,:userId, :createTime, :totalDistance, :totalTime, :totalStep, :avgPace, :avgHeart, :maxHeart, " +
                         ":calories, :elevGain, :elevMax, :photo, :title, :description, :totalLike, :totalComment, :totalShare, :processed, :deleted, :privacy)",
                 map
         );

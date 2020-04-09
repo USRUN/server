@@ -20,6 +20,7 @@ public class ActivityService {
     @Autowired
     private AppProperties appProperties;
     public String getSigActivity(Long recordId) {
+        System.out.println(recordId);
         StringBuffer buffer = new StringBuffer(Long.toString(recordId));
         return Hashing
                 .hmacSha256(appProperties.getActivity().getKey().getBytes())

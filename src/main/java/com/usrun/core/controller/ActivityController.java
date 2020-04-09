@@ -78,7 +78,8 @@ public class ActivityController {
     ) {
         Long userId = userPrincipal.getId();
         String sig = paramActivity.getSig();
-        Long activityId = paramActivity.getActivityId();
+        Long activityId = paramActivity.getUserActivityId();
+        System.out.println(activityId);
         String sigActivity = activityService.getSigActivity(activityId);
         if(sig.equals(sigActivity)){
             UserActivity userActivity = new UserActivity(paramActivity);
@@ -116,7 +117,7 @@ public class ActivityController {
     @RequestMapping("/hardCodeData")
     public ResponseEntity<?> hardCodeData(@CurrentUser UserPrincipal userPrincipal) {
         for (int i = 0; i < 20; i++) {
-            UserActivity userActivity = new UserActivity(i % 4 + 5, i % 4 * 10000l, new Time(i % 4 * 100000), 7.3, new Date());
+            UserActivity userActivity = new UserActivity(100+i,i % 4 + 5, i % 4 * 10000l, new Time(i % 4 * 100000), 7.3, new Date());
             userActivityRepository.insert(userActivity);
         }
         return new ResponseEntity<>(ErrorCode.FIELD_REQUIRED, HttpStatus.OK);
