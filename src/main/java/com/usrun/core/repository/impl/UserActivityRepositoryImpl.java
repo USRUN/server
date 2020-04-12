@@ -8,6 +8,7 @@ import com.usrun.core.model.type.Gender;
 import com.usrun.core.model.type.RoleType;
 import com.usrun.core.payload.dto.UserFilterDTO;
 import com.usrun.core.repository.UserActivityRepository;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -104,6 +105,13 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
                 sql,
                 params,
                 (rs, i) -> new Long(rs.getLong("userActivityId")));
+    }
+
+    @Override
+    public List<UserActivity> findByIds(List<Long> ids) {
+        MapSqlParameterSource params = new MapSqlParameterSource("ids", ids);
+        String sql = "SELECT * FROM userActivity WHERE userActivityId IN (:ids)";
+        return findUserActivity(sql, params);
     }
 
 

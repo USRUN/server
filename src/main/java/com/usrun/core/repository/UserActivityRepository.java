@@ -14,4 +14,5 @@ public interface UserActivityRepository {
     List<UserActivity> findNumberActivityLast(long userId, Pageable pageable);
     long countUserActivityByUser(long teamId);
     List<Long> findByTeamId(long teamId, long limit);
+    List<UserActivity> findByIds(List<Long> ids);
 }

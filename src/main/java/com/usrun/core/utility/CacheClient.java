@@ -118,7 +118,7 @@ public class CacheClient {
         rBucket.set(teamMemberType.toValue(), 14, TimeUnit.DAYS);
     }
 
-    public void setActivity(User user, UserActivity activity) {
+    public void setActivityCreated(User user, UserActivity activity) {
         RBatch rBatch = redissonClient.createBatch();
         RBucketAsync<UserActivity> rBucket = rBatch.getBucket(cacheKeyGenerator.keyActivity(activity.getUserActivityId()));
         user.getTeams().forEach(team -> {
@@ -127,6 +127,19 @@ public class CacheClient {
             rBatch.getAtomicLong(cacheKeyGenerator.keyActivityCountByTeam(team)).addAndGetAsync(1);
         });
         rBucket.setAsync(activity, 2, TimeUnit.DAYS);
+        rBatch.execute();
+    }
+
+    public void setActivity(UserActivity userActivity) {
+        RBucket<UserActivity> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyActivity(userActivity.getUserActivityId()));
+        rBucket.set(userActivity, 2, TimeUnit.DAYS);
+    }
+
+    public void setActivities(List<UserActivity> userActivities) {
+        RBatch rBatch = redissonClient.createBatch();
+        userActivities.forEach(userActivity ->
+                rBatch.getBucket(cacheKeyGenerator.keyActivity(userActivity.getUserActivityId()))
+                        .setAsync(userActivity, 2, TimeUnit.DAYS));
         rBatch.execute();
     }
 
