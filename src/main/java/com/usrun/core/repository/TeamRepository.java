@@ -30,5 +30,6 @@ public interface TeamRepository {
 
     Set<Long> getTeamsByUser(long userId);
 
+    List<Team> findAllTeam();
 
 }

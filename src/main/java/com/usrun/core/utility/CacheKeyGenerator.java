@@ -41,4 +41,8 @@ public class CacheKeyGenerator {
     public String keyActivitySortedSet(long teamId) {
         return "activities:team:" + teamId;
     }
+
+    public String keyActivityCountByTeam(long teamId) {
+        return "activities:team:count:" + teamId;
+    }
 }
