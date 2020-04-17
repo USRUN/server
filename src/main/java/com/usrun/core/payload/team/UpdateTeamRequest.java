@@ -16,6 +16,8 @@ public class UpdateTeamRequest {
 
     private String thumbnail;
 
+    private String banner;
+
     private String location;
 
     private String description;

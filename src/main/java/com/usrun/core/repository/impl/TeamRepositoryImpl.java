@@ -40,7 +40,7 @@ public class TeamRepositoryImpl implements TeamRepository {
 
         // insert team into DB
         namedParameterJdbcTemplate.update(
-                "INSERT INTO usrun.team (privacy, totalMember, teamName, thumbnail, verified, deleted, createTime, location,description) " +
+                "INSERT INTO team (privacy, totalMember, teamName, thumbnail, verified, deleted, createTime, location,description) " +
                         "values (" +
                         ":privacy, :totalMember, :teamName, :thumbnail, :verified, :deleted, :createTime, :location, :description )",
                 map,
@@ -64,8 +64,8 @@ public class TeamRepositoryImpl implements TeamRepository {
         MapSqlParameterSource map = mapTeamObject(toUpdate);
 
         namedParameterJdbcTemplate.update(
-                "UPDATE usrun.team SET " +
-                "teamName = :teamName, thumbnail=:thumbnail, privacy = :privacy, location = :location, description = :description",
+                "UPDATE team SET " +
+                "teamName = :teamName, thumbnail=:thumbnail, banner=:banner, privacy = :privacy, location = :location, description = :description",
                 map);
 
         return toUpdate;
@@ -155,7 +155,7 @@ public class TeamRepositoryImpl implements TeamRepository {
     @Override
     public Set<Long> getTeamsByUser(long userId) {
         MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
-        String sql = "SELECT teamId FROM usrun.team WHERE usrun.teamMember.userId = :userId";
+        String sql = "SELECT teamId FROM teamMember WHERE teamMember.userId = :userId";
         List<Long> teams = namedParameterJdbcTemplate.query(
                 sql,
                 params,
@@ -170,6 +170,7 @@ public class TeamRepositoryImpl implements TeamRepository {
         toReturn.addValue("teamName",toMap.getTeamName());
         toReturn.addValue("privacy",toMap.getPrivacy());
         toReturn.addValue("thumbnail",toMap.getThumbnail());
+        toReturn.addValue("banner", toMap.getBanner());
         toReturn.addValue("location",toMap.getLocation());
         toReturn.addValue("totalMember",toMap.getTotalMember());
         toReturn.addValue("createTime",toMap.getCreateTime());
@@ -190,6 +191,7 @@ public class TeamRepositoryImpl implements TeamRepository {
                         rs.getInt("totalMember"),
                         rs.getString("teamName"),
                         rs.getString("thumbnail"),
+                        rs.getString("banner"),
                         rs.getBoolean("verified"),
                         rs.getBoolean("deleted"),
                         rs.getDate("createTime"),

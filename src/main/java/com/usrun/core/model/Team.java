@@ -21,6 +21,8 @@ public class Team {
 
     private String teamName;
 
+    private String banner;
+
     private String thumbnail;
 
     private boolean verified;
@@ -45,7 +47,7 @@ public class Team {
         this.description = description;
     }
 
-    public Team(Long id, int privacy, int totalMember, String teamName, String thumbnail, boolean verified, boolean deleted, Date createTime, String location, String description){
+    public Team(Long id, int privacy, int totalMember, String teamName, String thumbnail,String banner, boolean verified, boolean deleted, Date createTime, String location, String description){
         this.id = id;
         this.teamName =teamName;
         this.thumbnail = thumbnail;

@@ -59,22 +59,22 @@ public class TeamService {
         return toCreate;
     }
 
-    public void deleteTeam(Long ownerId, Long teamId) throws Exception {
-        Team toDelete = teamRepository.findTeamById(teamId);
-
-        if(toDelete == null){
-            throw new Exception("Team Not Found");
-        }
-
-        teamRepository.delete(toDelete);
-
-        List<TeamMember> toRemove = teamMemberRepository.getAllMemberOfTeam(teamId);
-
-        toRemove.forEach((teamMember -> {
-            removeTeamFromCache(teamId,teamMember.getUserId());
-            teamMemberRepository.delete(teamMember);
-        }));
-    }
+//    public void deleteTeam(Long ownerId, Long teamId) throws Exception {
+//        Team toDelete = teamRepository.findTeamById(teamId);
+//
+//        if(toDelete == null){
+//            throw new Exception("Team Not Found");
+//        }
+//
+//        teamRepository.delete(toDelete);
+//
+//        List<TeamMember> toRemove = teamMemberRepository.getAllMemberOfTeam(teamId);
+//
+//        toRemove.forEach((teamMember -> {
+//            removeTeamFromCache(teamId,teamMember.getUserId());
+//            teamMemberRepository.delete(teamMember);
+//        }));
+//    }
 
     public Team getTeamById(Long teamId){
         Team toGet = teamRepository.findTeamById(teamId);
@@ -96,6 +96,8 @@ public class TeamService {
 
         currentTeam.add(teamId);
 
+        current.setTeams(currentTeam);
+
         cacheClient.setUser(current);
     }
 
@@ -104,6 +106,8 @@ public class TeamService {
         Set<Long> currentTeam = current.getTeams();
 
         currentTeam.remove(teamId);
+
+        current.setTeams(currentTeam);
 
         cacheClient.setUser(current);
     }
@@ -148,7 +152,7 @@ public class TeamService {
         return teamMemberType;
     }
 
-    public Team updateTeam(Long teamId, String teamName, String thumbnail, int privacy, String location, String description){
+    public Team updateTeam(Long teamId, String teamName, String thumbnail,String banner, int privacy, String location, String description){
         Team toUpdate = teamRepository.findTeamById(teamId);
 
         if(toUpdate == null) {
@@ -157,6 +161,7 @@ public class TeamService {
 
         if(teamName != null) toUpdate.setTeamName(teamName);
         if(thumbnail != null) toUpdate.setThumbnail(thumbnail);
+        if(banner != null) toUpdate.setBanner(banner);
         if(privacy != toUpdate.getPrivacy()) toUpdate.setPrivacy(privacy);
         if(location != null) toUpdate.setLocation(location);
         if(description != null) toUpdate.setDescription(description);

@@ -75,6 +75,7 @@ public class TeamController {
                     updateTeamRequest.getTeamId(),
                     updateTeamRequest.getTeamName(),
                     updateTeamRequest.getThumbnail(),
+                    updateTeamRequest.getBanner(),
                     updateTeamRequest.getPrivacy(),
                     updateTeamRequest.getLocation(),
                     updateTeamRequest.getDescription());
