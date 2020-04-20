@@ -7,15 +7,19 @@ package com.usrun.core.controller;
 
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
+import com.usrun.core.model.Love;
 import com.usrun.core.model.Post;
 import com.usrun.core.model.User;
 import com.usrun.core.model.UserActivity;
 import com.usrun.core.payload.CodeResponse;
+import com.usrun.core.payload.activity.ConditionRequest;
+import com.usrun.core.payload.activity.LoveRequest;
 import com.usrun.core.payload.user.GetActivityRequest;
 import com.usrun.core.payload.user.GetActivitiesRequest;
 import com.usrun.core.payload.user.CreateActivityRequest;
 import com.usrun.core.payload.user.NumberActivityRequest;
 import com.usrun.core.payload.user.TimeRequest;
+import com.usrun.core.repository.LoveRepository;
 import com.usrun.core.repository.UserActivityRepository;
 import com.usrun.core.security.CurrentUser;
 import com.usrun.core.security.UserPrincipal;
@@ -36,6 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.Time;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -46,6 +51,9 @@ import java.util.List;
 public class ActivityController {
     @Autowired
     private UserActivityRepository userActivityRepository;
+
+    @Autowired
+    private LoveRepository loveRepository;
 
     @Autowired
     private ActivityService activityService;
@@ -120,6 +128,15 @@ public class ActivityController {
         List<UserActivity> allByTimeRangeAndUserId = userActivityRepository.findAllByTimeRangeAndUserId(userId, timeRequest.getFromTime(), timeRequest.getToTime());
         return new ResponseEntity<>(new CodeResponse(allByTimeRangeAndUserId), HttpStatus.OK);
     }
+    @PostMapping("/getUserActivityByTimeWithCondition")
+    public ResponseEntity<?> getUserActivityByTimeWithCondition(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody ConditionRequest conditionRequest
+    ) {
+        Long userId = userPrincipal.getId();
+        List<UserActivity> allByTimeRangeAndUserId = userActivityRepository.findAllByTimeRangeAndUserIdWithCondition(userId, conditionRequest.getFromTime(), conditionRequest.getToTime(),conditionRequest.getDistance(), conditionRequest.getPace(), conditionRequest.getElevation());
+        return new ResponseEntity<>(new CodeResponse(allByTimeRangeAndUserId), HttpStatus.OK);
+    }
 
     @PostMapping("/getNumberLastUserActivity")
     public ResponseEntity<?> getNumberLastUserActivity(
@@ -164,4 +181,44 @@ public class ActivityController {
         return ResponseEntity.ok(new CodeResponse(activities));
     }
 
+    @PostMapping("/loveActivity")
+    public  ResponseEntity<?> loveActivity(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody LoveRequest request
+    ){
+        Long userId = userPrincipal.getId();
+        Love loveObject = new Love(request.getActivityId(), userId);
+        Love insert = loveRepository.insert(loveObject);
+        return new ResponseEntity<>(new CodeResponse(insert), HttpStatus.OK);
+    }
+
+    @PostMapping("/getUserLoveActivity")
+    public  ResponseEntity<?> getUserLoveActivity(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody LoveRequest request
+    ){
+        List<Long> numberLoveOfActivity = loveRepository.getNumberLoveOfActivity(request.getActivityId());
+        return new ResponseEntity<>(new CodeResponse(numberLoveOfActivity), HttpStatus.OK);
+    }
+
+    @PostMapping("/isLoveActivity")
+    public  ResponseEntity<?> isLoveActivity(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody LoveRequest request
+    ){
+        Long userId = userPrincipal.getId();
+        boolean userLoveActivity = loveRepository.isUserLoveActivity(userId, request.getActivityId());
+        return new ResponseEntity<>(new CodeResponse(userLoveActivity), HttpStatus.OK);
+    }
+
+    @PostMapping("/removeLoveActivity")
+    public  ResponseEntity<?> removeLoveActivity(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody LoveRequest request
+    ){
+        Long userId = userPrincipal.getId();
+        Love loveObject = new Love(request.getActivityId(), userId);
+        boolean remove = loveRepository.delete(loveObject);
+        return new ResponseEntity<>(new CodeResponse(remove), HttpStatus.OK);
+    }
 }

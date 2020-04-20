@@ -73,6 +73,21 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     }
 
     @Override
+    public List<UserActivity> findAllByTimeRangeAndUserIdWithCondition(long userId, Date timeFrom, Date timeTo, long distance, double pace, double elev) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
+        params.addValue("timeFrom", timeFrom);
+        params.addValue("timeTo",timeTo);
+        params.addValue("totalDistance", distance);
+        params.addValue("avgPace",pace);
+        params.addValue("elevGain",elev);
+        String sql = "SELECT * FROM userActivity WHERE userId = :userId AND createTime >= :timeFrom AND createTime <= :timeTo" +
+                "AND totalDistance >= :distance AND avgPace <= :pace AND elevGain >= elev ";
+        List<UserActivity> userActivity = findUserActivity(sql, params);
+        return userActivity;
+    }
+
+    @Override
     public List<UserActivity> findNumberActivityLast(long userId,Pageable pageable) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("userId", userId);
@@ -141,22 +156,6 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
         map.addValue("deleted", userActivity.getDeleted());
         map.addValue("privacy", userActivity.getPrivacy());
         return map;
-    }
-
-    private List<UserFilterDTO> getUserFilterDTO(String sql, MapSqlParameterSource params) {
-        List<UserFilterDTO> userFilterDTOS = namedParameterJdbcTemplate.query(
-                sql,
-                params,
-                (rs, i) -> new UserFilterDTO(
-                        rs.getLong("userId"),
-                        rs.getString("displayName"),
-                        rs.getString("email"),
-                        rs.getString("userCode"),
-                        Gender.fromInt(rs.getInt("gender")),
-                        rs.getDate("birthday")
-                )
-        );
-        return userFilterDTOS;
     }
 
 }
