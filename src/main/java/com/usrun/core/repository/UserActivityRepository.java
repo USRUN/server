@@ -13,4 +13,7 @@ public interface UserActivityRepository {
     List<UserActivity> findAllByTimeRangeAndUserId(long userId, Date timeFrom, Date timeTo);
     List<UserActivity> findAllByTimeRangeAndUserIdWithCondition(long userId, Date timeFrom, Date timeTo,long distance, double pace, double elev);
     List<UserActivity> findNumberActivityLast(long userId, Pageable pageable);
+    long countUserActivityByUser(long teamId);
+    List<Long> findByTeamId(long teamId, long limit);
+    List<UserActivity> findByIds(List<Long> ids);
 }

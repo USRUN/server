@@ -1,19 +1,21 @@
 package com.usrun.core.utility;
 
 import com.usrun.core.model.Post;
+import com.usrun.core.model.Team;
 import com.usrun.core.model.User;
 import com.usrun.core.model.UserActivity;
 import com.usrun.core.model.track.Track;
 import com.usrun.core.model.type.TeamMemberType;
+import com.usrun.core.payload.dto.TeamActivityCountDTO;
+import com.usrun.core.repository.TeamRepository;
+import com.usrun.core.repository.UserActivityRepository;
 import org.redisson.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -29,6 +31,12 @@ public class CacheClient {
 
     @Autowired
     private CacheKeyGenerator cacheKeyGenerator;
+
+    @Autowired
+    private TeamRepository teamRepository;
+
+    @Autowired
+    private UserActivityRepository userActivityRepository;
 
     public String generateAndSaveOTP(Long userId) {
         String otp = new DecimalFormat("000000").format(new Random().nextInt(999999));
@@ -110,13 +118,29 @@ public class CacheClient {
         rBucket.set(teamMemberType.toValue(), 14, TimeUnit.DAYS);
     }
 
-    public void setActivity(User user, UserActivity activity) {
-        RBucket<UserActivity> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyActivity(activity.getUserActivityId()));
+    public void setActivityCreated(User user, UserActivity activity) {
+        RBatch rBatch = redissonClient.createBatch();
+        RBucketAsync<UserActivity> rBucket = rBatch.getBucket(cacheKeyGenerator.keyActivity(activity.getUserActivityId()));
         user.getTeams().forEach(team -> {
-            RScoredSortedSet<Long> rSortedSet = redissonClient.getScoredSortedSet(cacheKeyGenerator.keyActivitySortedSet(team));
-            rSortedSet.add(activity.getUserActivityId(), activity.getUserActivityId());
+            RScoredSortedSetAsync<Long> rSortedSet = rBatch.getScoredSortedSet(cacheKeyGenerator.keyActivitySortedSet(team));
+            rSortedSet.addAsync(activity.getUserActivityId(), activity.getUserActivityId());
+            rBatch.getAtomicLong(cacheKeyGenerator.keyActivityCountByTeam(team)).addAndGetAsync(1);
         });
-        rBucket.set(activity, 2, TimeUnit.DAYS);
+        rBucket.setAsync(activity, 2, TimeUnit.DAYS);
+        rBatch.execute();
+    }
+
+    public void setActivity(UserActivity userActivity) {
+        RBucket<UserActivity> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyActivity(userActivity.getUserActivityId()));
+        rBucket.set(userActivity, 2, TimeUnit.DAYS);
+    }
+
+    public void setActivities(List<UserActivity> userActivities) {
+        RBatch rBatch = redissonClient.createBatch();
+        userActivities.forEach(userActivity ->
+                rBatch.getBucket(cacheKeyGenerator.keyActivity(userActivity.getUserActivityId()))
+                        .setAsync(userActivity, 2, TimeUnit.DAYS));
+        rBatch.execute();
     }
 
     public UserActivity getActivity(long activityId) {
@@ -124,10 +148,46 @@ public class CacheClient {
         return rBucket.get();
     }
 
-    public List<Long> getActivityByTeam(long teamId, int count, int offset) {
-        RScoredSortedSet<Long> rSortedSet = redissonClient.getScoredSortedSet(cacheKeyGenerator.keyActivitySortedSet(teamId));
+    public List<UserActivity> getActivities(List<Long> activityIds) {
+        RBatch rBatch = redissonClient.createBatch();
+        activityIds.forEach(activityId -> rBatch.getBucket(cacheKeyGenerator.keyActivity(activityId)).getAsync());
+        return (List<UserActivity>)rBatch.execute().getResponses();
+    }
+
+    public List<?> getActivitiesByTeam(long teamId, int count, int offset) {
+        RBatch rBatch = redissonClient.createBatch();
+        RAtomicLongAsync rCount = rBatch.getAtomicLong(cacheKeyGenerator.keyActivityCountByTeam(teamId));
+        RScoredSortedSetAsync<Long> rSortedSet = rBatch.getScoredSortedSet(cacheKeyGenerator.keyActivitySortedSet(teamId));
         int start = offset * count;
         int stop = (offset + 1) * count - 1;
-        return rSortedSet.valueRangeReversed(start, stop).stream().collect(Collectors.toList());
+        rCount.getAsync();
+        rSortedSet.sizeAsync();
+        rSortedSet.valueRangeReversedAsync(start, stop);
+        return rBatch.execute().getResponses();
+    }
+
+    public void setActivitiesByTeam(long teamId, List<Long> userActivityIds) {
+        RScoredSortedSet<Long> rSortedSet = redissonClient.getScoredSortedSet(cacheKeyGenerator.keyActivitySortedSet(teamId));
+        Map<Long, Double> map = new HashMap<>();
+        userActivityIds.forEach(id -> map.put(id, id.doubleValue()));
+        rSortedSet.addAll(map);
+    }
+
+    public void incCountActivityByTeam(long teamId) {
+        RAtomicLong rCount = redissonClient.getAtomicLong(cacheKeyGenerator.keyActivityCountByTeam(teamId));
+        rCount.addAndGet(1L);
+    }
+
+    public void decCountActivityByTeam(long teamId) {
+        RAtomicLong rCount = redissonClient.getAtomicLong(cacheKeyGenerator.keyActivityCountByTeam(teamId));
+        rCount.addAndGet(-1L);
+    }
+
+    public void setCountAllActivityByTeam(List<TeamActivityCountDTO> teamActivityCountDTOS) {
+        RBatch rBatch = redissonClient.createBatch();
+        teamActivityCountDTOS.forEach(dto ->
+                rBatch.getAtomicLong(cacheKeyGenerator
+                        .keyActivityCountByTeam(dto.getTeamId())).setAsync(dto.getCount()));
+        rBatch.execute();
     }
 }

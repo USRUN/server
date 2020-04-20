@@ -111,7 +111,7 @@ public class ActivityController {
             userActivity.setUserId(userId);
             UserActivity result = userActivityRepository.insert(userActivity);
             User user = userService.loadUser(userId);
-            cacheClient.setActivity(user, result);
+            cacheClient.setActivityCreated(user, result);
             return new ResponseEntity<>(new CodeResponse(result), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new CodeResponse(ErrorCode.ACTIVITY_ADD_FAIL), HttpStatus.BAD_REQUEST);

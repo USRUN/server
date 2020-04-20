@@ -8,6 +8,7 @@ import com.usrun.core.model.type.Gender;
 import com.usrun.core.model.type.RoleType;
 import com.usrun.core.payload.dto.UserFilterDTO;
 import com.usrun.core.repository.UserActivityRepository;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -45,11 +46,11 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
 
 
     @Override
-    public UserActivity findById(long id){
+    public UserActivity findById(long id) {
         MapSqlParameterSource params = new MapSqlParameterSource("userActivityId", id);
         String sql = "SELECT * FROM userActivity WHERE userActivityId = :userActivityId";
         List<UserActivity> userActivity = findUserActivity(sql, params);
-        if(userActivity.size()>0) return userActivity.get(0);
+        if (userActivity.size() > 0) return userActivity.get(0);
         else return null;
     }
 
@@ -66,7 +67,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("userId", userId);
         params.addValue("timeFrom", timeFrom);
-        params.addValue("timeTo",timeTo);
+        params.addValue("timeTo", timeTo);
         String sql = "SELECT * FROM userActivity WHERE userId = :userId AND createTime >= :timeFrom AND createTime <= :timeTo ";
         List<UserActivity> userActivity = findUserActivity(sql, params);
         return userActivity;
@@ -98,6 +99,36 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
         return userActivity;
     }
 
+    @Override
+    public long countUserActivityByUser(long teamId) {
+        MapSqlParameterSource params = new MapSqlParameterSource("teamId", teamId);
+        String sql = "SELECT count(*) FROM userActivity ua, teamMember tm WHERE tm.teamId = :teamId AND tm.userId = ua.userId";
+        return namedParameterJdbcTemplate.queryForObject(sql, params, Long.class);
+    }
+
+    @Override
+    public List<Long> findByTeamId(long teamId, long limit) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("teamId", teamId);
+        params.addValue("limit", limit);
+        String sql = "SELECT userActivityId " +
+                "FROM userActivity ua, teamMember tm " +
+                "WHERE tm.teamId = :teamId AND tm.userId = ua.userId " +
+                "ORDER BY userActivityId " +
+                "DESC LIMIT :limit";
+        return namedParameterJdbcTemplate.query(
+                sql,
+                params,
+                (rs, i) -> new Long(rs.getLong("userActivityId")));
+    }
+
+    @Override
+    public List<UserActivity> findByIds(List<Long> ids) {
+        MapSqlParameterSource params = new MapSqlParameterSource("ids", ids);
+        String sql = "SELECT * FROM userActivity WHERE userActivityId IN (:ids)";
+        return findUserActivity(sql, params);
+    }
+
 
     private List<UserActivity> findUserActivity(String sql, MapSqlParameterSource params) {
         List<UserActivity> listUserActivity = namedParameterJdbcTemplate.query(
@@ -125,7 +156,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
                         rs.getInt("deleted"),
                         rs.getInt("privacy")
                 ));
-        if (listUserActivity != null && listUserActivity.size() >0) {
+        if (listUserActivity != null && listUserActivity.size() > 0) {
             return listUserActivity;
         } else {
             return null;

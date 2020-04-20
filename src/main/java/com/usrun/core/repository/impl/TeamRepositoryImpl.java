@@ -164,6 +164,13 @@ public class TeamRepositoryImpl implements TeamRepository {
         return teams.stream().collect(Collectors.toSet());
     }
 
+    @Override
+    public List<Team> findAllTeam() {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        String sql = "SELECT * FROM team";
+        return getTeamsSQLParamMap(sql, params);
+    }
+
     private MapSqlParameterSource mapTeamObject(Team toMap){
         MapSqlParameterSource toReturn = new MapSqlParameterSource();
 
@@ -180,8 +187,8 @@ public class TeamRepositoryImpl implements TeamRepository {
         return toReturn;
     }
 
-    private Team getTeamSQLParamMap(String sql, MapSqlParameterSource params) {
-        Optional<Team> toReturn = namedParameterJdbcTemplate.query(
+    private List<Team> getTeamsSQLParamMap(String sql, MapSqlParameterSource params) {
+        return namedParameterJdbcTemplate.query(
                 sql,
                 params,
                 (rs, i) -> new Team(
@@ -195,7 +202,11 @@ public class TeamRepositoryImpl implements TeamRepository {
                         rs.getDate("createTime"),
                         rs.getString("location"),
                         rs.getString("description")
-                )).stream().findFirst();
+                ));
+    }
+
+    private Team getTeamSQLParamMap(String sql, MapSqlParameterSource params) {
+        Optional<Team> toReturn = getTeamsSQLParamMap(sql, params).stream().findFirst();
 
         if (toReturn.isPresent()) {
             if (toReturn.get().isDeleted())

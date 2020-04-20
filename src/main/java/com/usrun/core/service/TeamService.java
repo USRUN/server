@@ -88,13 +88,12 @@ public class TeamService {
 
     private void addTeamToCache(Long teamId, Long userId){
         User current = userService.loadUser(userId);
-        Set<Long> currentTeam = current.getTeams();
 
-        if(currentTeam == null){
-            currentTeam = new HashSet<Long>();
+        if(current.getTeams() == null){
+            current.setTeams(new HashSet<>());
         }
 
-        currentTeam.add(teamId);
+        current.getTeams().add(teamId);
 
         cacheClient.setUser(current);
     }
