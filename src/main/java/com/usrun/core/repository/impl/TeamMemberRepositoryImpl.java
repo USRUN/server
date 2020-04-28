@@ -25,7 +25,7 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
         MapSqlParameterSource map = mapTeamMember(toInsert);
         namedParameterJdbcTemplate.update(
                 "INSERT INTO teamMember(teamId,userId,teamMemberType,addTime)" +
-                " VALUES(:teamId,:userId,:teamMemberType,addTime)",
+                " VALUES(:teamId,:userId,:teamMemberType,:addTime)",
                 map
         );
         return toInsert;
@@ -46,8 +46,8 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
         int status = 0;
         MapSqlParameterSource map = mapTeamMember(toDelete);
         status = namedParameterJdbcTemplate.update(
-                "DELETE FROM teamMember" +
-                        "WHERE teamId = :teamId, userId= :userId",
+                "DELETE FROM teamMember " +
+                        "WHERE teamId = :teamId AND userId= :userId",
                 map
         );
 

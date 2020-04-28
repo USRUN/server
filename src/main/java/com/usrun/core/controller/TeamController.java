@@ -32,11 +32,10 @@ public class TeamController {
         try {
             Team team = teamService.createTeam(
                     userPrincipal.getId(),
-                    createTeamRequest.getTeamName(),
-                    createTeamRequest.getThumbnail(),
                     createTeamRequest.getPrivacy(),
-                    createTeamRequest.getLocation(),
-                    createTeamRequest.getDescription());
+                    createTeamRequest.getTeamName(),
+                    createTeamRequest.getDistrict(),
+                    createTeamRequest.getProvince());
             return new ResponseEntity<>(new CodeResponse(team), HttpStatus.CREATED);
         } catch (DuplicateKeyException e) {
             return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_EXISTED), HttpStatus.BAD_REQUEST);
@@ -77,7 +76,8 @@ public class TeamController {
                     updateTeamRequest.getThumbnail(),
                     updateTeamRequest.getBanner(),
                     updateTeamRequest.getPrivacy(),
-                    updateTeamRequest.getLocation(),
+                    updateTeamRequest.getDistrict(),
+                    updateTeamRequest.getProvince(),
                     updateTeamRequest.getDescription());
         } catch (DataRetrievalFailureException e) {
             return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_NOT_FOUND), HttpStatus.BAD_REQUEST);

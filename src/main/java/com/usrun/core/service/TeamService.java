@@ -47,9 +47,9 @@ public class TeamService {
 
     @Transactional
     public Team createTeam(
-            Long ownerId, String teamName, String thumbnail, int privacy, String location, String description
+            Long ownerId, int privacy, String teamName, String district, String province
     ) {
-        Team toCreate = new Team(teamName, thumbnail, location, privacy, new Date(), description);
+        Team toCreate = new Team(privacy, teamName, district, province, new Date());
 
         toCreate = teamRepository.insert(toCreate, ownerId);
         cacheClient.setTeamMemberType(toCreate.getId(), ownerId, TeamMemberType.OWNER);
@@ -59,22 +59,23 @@ public class TeamService {
         return toCreate;
     }
 
-//    public void deleteTeam(Long ownerId, Long teamId) throws Exception {
-//        Team toDelete = teamRepository.findTeamById(teamId);
-//
-//        if(toDelete == null){
-//            throw new Exception("Team Not Found");
-//        }
-//
-//        teamRepository.delete(toDelete);
-//
-//        List<TeamMember> toRemove = teamMemberRepository.getAllMemberOfTeam(teamId);
-//
-//        toRemove.forEach((teamMember -> {
-//            removeTeamFromCache(teamId,teamMember.getUserId());
-//            teamMemberRepository.delete(teamMember);
-//        }));
-//    }
+    public void deleteTeam(Long teamId) throws Exception {
+        Team toDelete = teamRepository.findTeamById(teamId);
+
+        if(toDelete == null){
+            throw new DataRetrievalFailureException("Team not found");
+        }
+
+        if(!teamRepository.delete(toDelete)){
+            throw new Exception("Can't delete team");
+        }
+        List<TeamMember> toRemove = teamMemberRepository.getAllMemberOfTeam(teamId);
+
+        toRemove.forEach((teamMember -> {
+            removeTeamFromCache(teamId,teamMember.getUserId());
+            teamMemberRepository.delete(teamMember);
+        }));
+    }
 
     public Team getTeamById(Long teamId){
         Team toGet = teamRepository.findTeamById(teamId);
@@ -152,7 +153,7 @@ public class TeamService {
         return teamMemberType;
     }
 
-    public Team updateTeam(Long teamId, String teamName, String thumbnail,String banner, int privacy, String location, String description){
+    public Team updateTeam(Long teamId, String teamName, String thumbnail,String banner, int privacy, String district, String province, String description){
         Team toUpdate = teamRepository.findTeamById(teamId);
 
         if(toUpdate == null) {
@@ -163,7 +164,8 @@ public class TeamService {
         if(thumbnail != null) toUpdate.setThumbnail(thumbnail);
         if(banner != null) toUpdate.setBanner(banner);
         if(privacy != toUpdate.getPrivacy()) toUpdate.setPrivacy(privacy);
-        if(location != null) toUpdate.setLocation(location);
+        if(province != null) toUpdate.setProvince(province);
+        if(district != null) toUpdate.setDistrict(district);
         if(description != null) toUpdate.setDescription(description);
 
         teamRepository.update(toUpdate);

@@ -30,5 +30,5 @@ public interface TeamRepository {
 
     Set<Long> getTeamsByUser(long userId);
 
-
+    Set<Long> getTeamSuggestionByUserLocation(String district, String province, int howMany, Set<Long> toExclude);
 }

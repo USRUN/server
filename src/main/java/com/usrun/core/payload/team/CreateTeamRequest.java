@@ -8,13 +8,13 @@ import java.util.Date;
 @Getter
 @Setter
 public class CreateTeamRequest {
+    // OwnerId is assumed to be the current user
+
     private int privacy;
 
     private String teamName;
 
-    private String thumbnail;
+    private String district;
 
-    private String location;
-
-    private String description;
+    private String province;
 }
