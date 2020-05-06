@@ -1,5 +1,6 @@
 package com.usrun.core.payload.user;
 
+import com.usrun.core.payload.TrackRequest;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,5 +29,6 @@ public class CreateActivityRequest {
     private  Boolean processed;
     private Integer deleted;
     private  Integer privacy ;
+    private TrackRequest trackRequest;
     private String sig;
 }

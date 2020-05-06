@@ -2,9 +2,9 @@ spring:
   main:
     allow-bean-definition-overriding: true
   datasource:
-    url: ${DB_URL:jdbc:mysql://127.0.0.1:3306/usrun?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&useLegacyDateTimeCode=false&useUnicode=yes&characterEncoding=utf8&characterResultSets=utf8}
+    url: ${DB_URL:jdbc:mysql://128.199.159.72:3306/usrun?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&useLegacyDateTimeCode=false&useUnicode=yes&characterEncoding=utf8&characterResultSets=utf8}
     username: ${DB_USERNAME:root}
-    password: ${DB_USERNAME:123456}
+    password: ${DB_USERNAME:weareusrun1620}
   data:
     mongodb:
       host: 128.199.159.72
@@ -55,7 +55,7 @@ app:
         - profile
   track:
     key: trackusrun1620
-    time-in-microseconds: 60000
+    time-in-microseconds: 86400000
   activity:
     key: activityusrun1620
 redis:
