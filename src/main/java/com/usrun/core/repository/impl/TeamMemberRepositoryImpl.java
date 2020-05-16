@@ -35,7 +35,7 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
     public TeamMember update(TeamMember toUpdate) {
         MapSqlParameterSource map = mapTeamMember(toUpdate);
         namedParameterJdbcTemplate.update(
-                "UPDATE teamMember SET teamId = :teamId,userId= :userId,teamMemberType= :teamMemberType",
+                "UPDATE IGNORE teamMember SET teamId = :teamId,userId= :userId,teamMemberType= :teamMemberType",
                 map
         );
         return toUpdate;

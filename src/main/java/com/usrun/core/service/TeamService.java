@@ -9,14 +9,11 @@ import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.repository.TeamMemberRepository;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserRepository;
-import com.usrun.core.security.UserPrincipal;
 import com.usrun.core.utility.CacheClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,9 +29,6 @@ public class TeamService {
 
     @Autowired
     private TeamMemberRepository teamMemberRepository;
-
-    @Autowired
-    private UserRepository userRepository;
 
     @Autowired
     private AmazonClient amazonClient;
@@ -161,8 +155,14 @@ public class TeamService {
         }
 
         if(teamName != null) toUpdate.setTeamName(teamName);
-        if(thumbnail != null) toUpdate.setThumbnail(thumbnail);
-        if(banner != null) toUpdate.setBanner(banner);
+        if(thumbnail != null) {
+            String thumbnailURL = amazonClient.uploadFile(thumbnail, "team-" + teamId + "-thumbnail");
+            toUpdate.setThumbnail(thumbnailURL);
+        }
+        if(banner != null) {
+            String bannerURL = amazonClient.uploadFile(banner, "team-" + teamId + "-banner");
+            toUpdate.setBanner(bannerURL);
+        }
         if(privacy != toUpdate.getPrivacy()) toUpdate.setPrivacy(privacy);
         if(province != null) toUpdate.setProvince(province);
         if(district != null) toUpdate.setDistrict(district);
@@ -172,6 +172,23 @@ public class TeamService {
         LOGGER.info("Update team {}", teamId);
 
         return toUpdate;
+    }
+
+    public Set<Team> getTeamSuggestion(Long currentUserId, String district, String province, int howMany){
+        Set<Team> toReturn = new HashSet<>(Collections.emptySet());
+        Set<Long> toExclude = userService.loadUser(currentUserId).getTeams();
+        toReturn =  teamRepository.getTeamSuggestionByUserLocation(district,province,howMany,toExclude);
+        return toReturn;
+    }
+
+    public Set<Team> findTeamWithNameContains(String searchString){
+        Set<Team> toGet = teamRepository.findTeamWithNameContains(searchString);
+
+        if(toGet == null){
+            throw new DataRetrievalFailureException("Team not found");
+        }
+
+        return toGet;
     }
 
 }

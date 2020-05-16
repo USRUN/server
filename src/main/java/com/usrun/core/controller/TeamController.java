@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Set;
+
 @RestController
 @RequestMapping("/team")
 public class TeamController {
@@ -41,26 +43,6 @@ public class TeamController {
             return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_EXISTED), HttpStatus.BAD_REQUEST);
         }
     }
-//
-//    @PostMapping("/create")
-//    @PreAuthorize("hasRole('USER') && teamAuthorization.authorize(authentication,'OWNER',#teamInfoRequest.getTeamId())")
-//    public ResponseEntity<?> updateTeam(
-//            @CurrentUser UserPrincipal userPrincipal,
-//            @RequestBody UpdateTeamRequest updateTeamRequest
-//    ) {
-//        try {
-//            Team team = teamService.updateTeam(
-//                    updateTeamRequest.getTeamId(),
-//                    updateTeamRequest.getTeamName(),
-//                    updateTeamRequest.getThumbnail(),
-//                    updateTeamRequest.getPrivacy(),
-//                    updateTeamRequest.getLocation(),
-//                    updateTeamRequest.getDescription());
-//            return new ResponseEntity<>(new CodeResponse(team), HttpStatus.OK);
-//        } catch (CodeException e) {
-//            return new ResponseEntity<>(new CodeResponse(e.getErrorCode()), HttpStatus.BAD_REQUEST);
-//        }
-//    }
 
     @PostMapping("/update")
     @PreAuthorize("hasRole('USER') && @teamAuthorization.authorize(authentication,'OWNER',#updateTeamRequest.getTeamId())")
@@ -116,7 +98,6 @@ public class TeamController {
     @PostMapping("/changeMemberType")
     @PreAuthorize("hasRole('USER') && @teamAuthorization.authorize(authentication,'ADMIN',#updateMemberRequest.getTeamId())")
     public ResponseEntity<?> changeMemberType(
-            @CurrentUser UserPrincipal userPrincipal,
             @RequestBody UpdateMemberRequest updateMemberRequest){
         try{
             teamService.updateTeamRole(
@@ -133,7 +114,7 @@ public class TeamController {
     @PostMapping("/getTeamById")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getTeamById(
-            @RequestBody GetTeamOfUserRequest getTeamRequest
+            @RequestBody GetTeamByIdRequest getTeamRequest
     ){
         Team toGet = null;
         try {
@@ -141,6 +122,29 @@ public class TeamController {
         } catch (DataRetrievalFailureException e){
             return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
+        return new ResponseEntity<>(new CodeResponse(toGet),HttpStatus.OK);
+    }
+
+    @PostMapping("/getTeamSuggestion")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getTeamSuggestion(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody SuggestTeamRequest suggestTeamRequest
+    ){
+        Set<Team> toGet = teamService.getTeamSuggestion(
+                userPrincipal.getId(),
+                suggestTeamRequest.getDistrict(),
+                suggestTeamRequest.getProvince(),
+                suggestTeamRequest.getHowMany());
+        return new ResponseEntity<>(new CodeResponse(toGet),HttpStatus.OK);
+    }
+
+    @PostMapping("/findTeam")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> findTeamWithNameContains(
+            @RequestBody FindTeamRequest findTeamRequest
+    ){
+        Set<Team> toGet = teamService.findTeamWithNameContains(findTeamRequest.getTeamName());
         return new ResponseEntity<>(new CodeResponse(toGet),HttpStatus.OK);
     }
 }

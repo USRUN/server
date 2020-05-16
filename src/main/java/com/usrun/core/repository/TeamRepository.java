@@ -28,7 +28,9 @@ public interface TeamRepository {
 
     boolean updateTeamMemberType(Long teamId,Long memberId, TeamMemberType action);
 
+    Set<Team> findTeamWithNameContains(String searchString);
+
     Set<Long> getTeamsByUser(long userId);
 
-    Set<Long> getTeamSuggestionByUserLocation(String district, String province, int howMany, Set<Long> toExclude);
+    Set<Team> getTeamSuggestionByUserLocation(String district, String province, int howMany, Set<Long> toExclude);
 }
