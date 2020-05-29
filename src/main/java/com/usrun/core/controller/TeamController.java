@@ -2,6 +2,7 @@ package com.usrun.core.controller;
 
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.model.Team;
+import com.usrun.core.model.User;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.*;
 import com.usrun.core.payload.team.*;
@@ -144,7 +145,16 @@ public class TeamController {
     public ResponseEntity<?> findTeamWithNameContains(
             @RequestBody FindTeamRequest findTeamRequest
     ){
-        Set<Team> toGet = teamService.findTeamWithNameContains(findTeamRequest.getTeamName());
+        Set<Team> toGet = teamService.findTeamWithNameContains(findTeamRequest.getTeamName(),findTeamRequest.getPageNum(),findTeamRequest.getPerPage());
+        return new ResponseEntity<>(new CodeResponse(toGet),HttpStatus.OK);
+    }
+
+    @PostMapping("/getAllTeamMember")
+    @PreAuthorize("hasRole('USER') && @teamAuthorization.authorize(authentication,'MEMBER',#getAllTeamMemberRequest.getTeamId())")
+    public ResponseEntity<?> getAllTeamMember(
+            @RequestBody GetAllTeamMemberRequest getAllTeamMemberRequest
+    ){
+        Set<User> toGet = teamService.getAllTeamMemberPaged(getAllTeamMemberRequest.getTeamId(),getAllTeamMemberRequest.pageNum,getAllTeamMemberRequest.perPage);
         return new ResponseEntity<>(new CodeResponse(toGet),HttpStatus.OK);
     }
 }

@@ -99,6 +99,25 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
         return toReturn;
     }
 
+    @Override
+    public List<TeamMember> getAllMemberOfTeamPaged(long teamId, int pageNum, int perPage){
+        MapSqlParameterSource params = new MapSqlParameterSource("teamId",teamId);
+        params.addValue("offset",pageNum*perPage);
+        params.addValue("perPage",perPage);
+
+        String sql = "SELECT * FROM teamMember WHERE teamId = :teamId LIMIT :perPage OFFSET :offset";
+
+        List<TeamMember> toReturn = namedParameterJdbcTemplate.query(
+                sql,
+                params,
+                (rs,i) -> new TeamMember(
+                        rs.getLong("teamId"),
+                        rs.getLong("userId"),
+                        rs.getInt("teamMemberType"),
+                        rs.getDate("addTime")));
+        return toReturn;
+    }
+
     private TeamMember getTeamMember(String sql, MapSqlParameterSource params){
         Optional<TeamMember> toReturn = namedParameterJdbcTemplate.query(
                 sql,

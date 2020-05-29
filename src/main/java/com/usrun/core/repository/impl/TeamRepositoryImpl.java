@@ -199,14 +199,17 @@ public class TeamRepositoryImpl implements TeamRepository {
     }
 
     @Override
-    public Set<Team> findTeamWithNameContains(String searchString){
+    public Set<Team> findTeamWithNameContains(String searchString, int pageNum, int perPage){
         Set<Team> toReturn = Collections.EMPTY_SET;
 
         MapSqlParameterSource params = new MapSqlParameterSource("teamName", "%"+searchString+"%");
+        params.addValue("offset",perPage*pageNum);
+        params.addValue("perPage",perPage);
 
         String sql = "SELECT * " +
                 "FROM team " +
-                "WHERE teamName LIKE :teamName";
+                "WHERE teamName LIKE :teamName " +
+                "LIMIT :perPage OFFSET :offset";
 
         toReturn = getMultipleTeamSQLParamMap(sql,params);
         return toReturn;
@@ -236,7 +239,7 @@ public class TeamRepositoryImpl implements TeamRepository {
                     Set<Team> set = new HashSet<Team>();
                     while(rs.next()){
                         Team team = new Team(
-                                rs.getLong("id"),
+                                rs.getLong("teamId"),
                                 rs.getInt("privacy"),
                                 rs.getInt("totalMember"),
                                 rs.getString("teamName"),

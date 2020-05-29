@@ -181,14 +181,26 @@ public class TeamService {
         return toReturn;
     }
 
-    public Set<Team> findTeamWithNameContains(String searchString){
-        Set<Team> toGet = teamRepository.findTeamWithNameContains(searchString);
+    public Set<Team> findTeamWithNameContains(String searchString, int pageNum, int perPage){
+        Set<Team> toGet = teamRepository.findTeamWithNameContains(searchString,pageNum,perPage);
 
         if(toGet == null){
             throw new DataRetrievalFailureException("Team not found");
         }
 
         return toGet;
+    }
+
+    public Set<User> getAllTeamMemberPaged(Long teamId, int pageNum, int perPage){
+        Set<User> toReturn = new HashSet<>();
+
+        List<TeamMember> teamMembers =  teamMemberRepository.getAllMemberOfTeamPaged(teamId, pageNum, perPage);
+
+        teamMembers.forEach(teamMember -> {
+            toReturn.add(userService.loadUser(teamMember.getUserId()));
+        });
+
+        return toReturn;
     }
 
 }

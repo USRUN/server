@@ -5,8 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class FindTeamRequest {
-    public String teamName;
+public class GetAllTeamMemberRequest {
+    public long teamId;
     public int pageNum;
     public int perPage;
 }
