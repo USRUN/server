@@ -60,24 +60,16 @@ public class TrackService {
         return track;
     }
 
-    public List<Point> track(Long userId, Long trackId, List<Location> locations, Long time, String sig) {
+    public List<Point> track(Long userId, Long trackId, List<Location> locations, Long time) {
         Long t = System.currentTimeMillis() - time;
         if (t > appProperties.getTrack().getTimeInMicroseconds()) {
             String msg = String.format("[%s] Track point has exceeded time: %s", trackId, t);
             LOGGER.warn(msg);
             throw new TrackException(msg, ErrorCode.TRACK_TIMEOUT);
         }
-
-        String hmac = getSigTrack(trackId, time);
-
-        if(!hmac.equals(sig)) {
-            String msg = String.format("[%s] Track signature invalid", trackId);
-            LOGGER.warn(msg);
-            throw new TrackException(msg, ErrorCode.TRACK_SIG_INVALID);
-        }
-
-        if(!cacheClient.getTrackSig(trackId, sig)) {
-            cacheClient.setTrackSig(trackId, sig);
+        String hotFixSig = String.valueOf(System.currentTimeMillis());
+        if(!cacheClient.getTrackSig(trackId, hotFixSig)) {
+            cacheClient.setTrackSig(trackId, hotFixSig);
         } else {
             String msg = String.format("[%s] This track existed", trackId);
             LOGGER.warn(msg);

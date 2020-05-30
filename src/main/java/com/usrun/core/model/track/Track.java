@@ -1,5 +1,6 @@
 package com.usrun.core.model.track;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -26,7 +27,7 @@ public class Track {
     private Long userId;
 
     private String description;
-
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private Date time;
 
     public Track() {

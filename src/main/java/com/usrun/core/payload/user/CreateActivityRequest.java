@@ -9,8 +9,6 @@ import java.util.Date;
 @Getter
 @Setter
 public class CreateActivityRequest {
-    private Long userActivityId;
-    private Date createTime;
     private Long totalDistance;
     private Time totalTime;
     private  Long totalStep;

@@ -14,8 +14,6 @@ import java.util.List;
 @Getter
 @Setter
 public class TrackRequest {
-    private long trackId;
-    private List<Location> locations;
+    private List<List<Location>> locations;
     private long time;
-    private String sig;
 }

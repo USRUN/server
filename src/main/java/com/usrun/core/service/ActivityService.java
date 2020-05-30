@@ -34,8 +34,8 @@ public class ActivityService {
     @Autowired
     private AppProperties appProperties;
 
-    public String getSigActivity(Long recordId) {
-        StringBuffer buffer = new StringBuffer(Long.toString(recordId));
+    public String getSigActivity(Long userId) {
+        StringBuffer buffer = new StringBuffer(Long.toString(userId));
         return Hashing
                 .hmacSha256(appProperties.getActivity().getKey().getBytes())
                 .hashString(buffer.toString(), StandardCharsets.UTF_8)

@@ -12,7 +12,9 @@ import com.usrun.core.model.Love;
 import com.usrun.core.model.Post;
 import com.usrun.core.model.User;
 import com.usrun.core.model.UserActivity;
+import com.usrun.core.model.track.Location;
 import com.usrun.core.model.track.Point;
+import com.usrun.core.model.track.Track;
 import com.usrun.core.payload.CodeResponse;
 import com.usrun.core.payload.activity.ConditionRequest;
 import com.usrun.core.payload.activity.LoveRequest;
@@ -109,29 +111,31 @@ public class ActivityController {
     ) {
         Long userId = userPrincipal.getId();
         String sig = paramActivity.getSig();
-        Long activityId = paramActivity.getUserActivityId();
-        String sigActivity = activityService.getSigActivity(activityId);
-
+        String sigActivity = activityService.getSigActivity(userId);
         List<Point> points = null;
+        try {
+            if (sig.equals(sigActivity)) {
+                Track track = trackService.createTrack(userId, "");
+                List<List<Location>> locations = paramActivity.getTrackRequest().getLocations();
+                locations.forEach(item -> {
+                    trackService.track(userId,
+                            track.getTrackId(),
+                            item,
+                            paramActivity.getTrackRequest().getTime());
+                });
 
-        if (sig.equals(sigActivity)) {
-            try {
-                points = trackService.track(userId,
-                        paramActivity.getTrackRequest().getTrackId(),
-                        paramActivity.getTrackRequest().getLocations(),
-                        paramActivity.getTrackRequest().getTime(),
-                        paramActivity.getTrackRequest().getSig());
-            } catch (TrackException exp) {
-                return new ResponseEntity<>(new CodeResponse(exp.getErrorCode()), HttpStatus.BAD_REQUEST);
+
+                UserActivity userActivity = new UserActivity(paramActivity, track.getTrackId(), track.getTime());
+                userActivity.setUserId(userId);
+                UserActivity result = userActivityRepository.insert(userActivity);
+                User user = userService.loadUser(userId);
+                cacheClient.setActivityCreated(user, result);
+                return new ResponseEntity<>(new CodeResponse(result), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(new CodeResponse(ErrorCode.ACTIVITY_ADD_FAIL), HttpStatus.BAD_REQUEST);
             }
-            UserActivity userActivity = new UserActivity(paramActivity);
-            userActivity.setUserId(userId);
-            UserActivity result = userActivityRepository.insert(userActivity);
-            User user = userService.loadUser(userId);
-            cacheClient.setActivityCreated(user, result);
-            return new ResponseEntity<>(new CodeResponse(result), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(new CodeResponse(ErrorCode.ACTIVITY_ADD_FAIL), HttpStatus.BAD_REQUEST);
+        } catch (TrackException exp) {
+            return new ResponseEntity<>(new CodeResponse(exp.getErrorCode()), HttpStatus.BAD_REQUEST);
         }
     }
 

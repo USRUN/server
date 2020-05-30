@@ -65,9 +65,9 @@ public class UserActivity{
         this.privacy = privacy;
     }
 
-    public UserActivity(CreateActivityRequest createActivityRequest) {
-        this.userActivityId = createActivityRequest.getUserActivityId();
-        this.createTime = createActivityRequest.getCreateTime();
+    public UserActivity(CreateActivityRequest createActivityRequest, long trackId, Date createTime) {
+        this.userActivityId = trackId;
+        this.createTime = createTime;
         this.totalDistance = createActivityRequest.getTotalDistance();
         this.totalTime = createActivityRequest.getTotalTime();
         this.totalStep = createActivityRequest.getTotalStep();
