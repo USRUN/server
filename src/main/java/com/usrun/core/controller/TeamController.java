@@ -2,6 +2,7 @@ package com.usrun.core.controller;
 
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.model.Team;
+import com.usrun.core.model.User;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.*;
 import com.usrun.core.payload.team.*;
@@ -15,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 @RestController
 @RequestMapping("/team")
@@ -32,36 +35,15 @@ public class TeamController {
         try {
             Team team = teamService.createTeam(
                     userPrincipal.getId(),
-                    createTeamRequest.getTeamName(),
-                    createTeamRequest.getThumbnail(),
                     createTeamRequest.getPrivacy(),
-                    createTeamRequest.getLocation(),
-                    createTeamRequest.getDescription());
+                    createTeamRequest.getTeamName(),
+                    createTeamRequest.getDistrict(),
+                    createTeamRequest.getProvince());
             return new ResponseEntity<>(new CodeResponse(team), HttpStatus.CREATED);
         } catch (DuplicateKeyException e) {
             return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_EXISTED), HttpStatus.BAD_REQUEST);
         }
     }
-//
-//    @PostMapping("/create")
-//    @PreAuthorize("hasRole('USER') && teamAuthorization.authorize(authentication,'OWNER',#teamInfoRequest.getTeamId())")
-//    public ResponseEntity<?> updateTeam(
-//            @CurrentUser UserPrincipal userPrincipal,
-//            @RequestBody UpdateTeamRequest updateTeamRequest
-//    ) {
-//        try {
-//            Team team = teamService.updateTeam(
-//                    updateTeamRequest.getTeamId(),
-//                    updateTeamRequest.getTeamName(),
-//                    updateTeamRequest.getThumbnail(),
-//                    updateTeamRequest.getPrivacy(),
-//                    updateTeamRequest.getLocation(),
-//                    updateTeamRequest.getDescription());
-//            return new ResponseEntity<>(new CodeResponse(team), HttpStatus.OK);
-//        } catch (CodeException e) {
-//            return new ResponseEntity<>(new CodeResponse(e.getErrorCode()), HttpStatus.BAD_REQUEST);
-//        }
-//    }
 
     @PostMapping("/update")
     @PreAuthorize("hasRole('USER') && @teamAuthorization.authorize(authentication,'OWNER',#updateTeamRequest.getTeamId())")
@@ -75,8 +57,10 @@ public class TeamController {
                     updateTeamRequest.getTeamId(),
                     updateTeamRequest.getTeamName(),
                     updateTeamRequest.getThumbnail(),
+                    updateTeamRequest.getBanner(),
                     updateTeamRequest.getPrivacy(),
-                    updateTeamRequest.getLocation(),
+                    updateTeamRequest.getDistrict(),
+                    updateTeamRequest.getProvince(),
                     updateTeamRequest.getDescription());
         } catch (DataRetrievalFailureException e) {
             return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_NOT_FOUND), HttpStatus.BAD_REQUEST);
@@ -115,7 +99,6 @@ public class TeamController {
     @PostMapping("/changeMemberType")
     @PreAuthorize("hasRole('USER') && @teamAuthorization.authorize(authentication,'ADMIN',#updateMemberRequest.getTeamId())")
     public ResponseEntity<?> changeMemberType(
-            @CurrentUser UserPrincipal userPrincipal,
             @RequestBody UpdateMemberRequest updateMemberRequest){
         try{
             teamService.updateTeamRole(
@@ -132,7 +115,7 @@ public class TeamController {
     @PostMapping("/getTeamById")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getTeamById(
-            @RequestBody GetTeamOfUserRequest getTeamRequest
+            @RequestBody GetTeamByIdRequest getTeamRequest
     ){
         Team toGet = null;
         try {
@@ -140,6 +123,38 @@ public class TeamController {
         } catch (DataRetrievalFailureException e){
             return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
+        return new ResponseEntity<>(new CodeResponse(toGet),HttpStatus.OK);
+    }
+
+    @PostMapping("/getTeamSuggestion")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getTeamSuggestion(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody SuggestTeamRequest suggestTeamRequest
+    ){
+        Set<Team> toGet = teamService.getTeamSuggestion(
+                userPrincipal.getId(),
+                suggestTeamRequest.getDistrict(),
+                suggestTeamRequest.getProvince(),
+                suggestTeamRequest.getHowMany());
+        return new ResponseEntity<>(new CodeResponse(toGet),HttpStatus.OK);
+    }
+
+    @PostMapping("/findTeam")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> findTeamWithNameContains(
+            @RequestBody FindTeamRequest findTeamRequest
+    ){
+        Set<Team> toGet = teamService.findTeamWithNameContains(findTeamRequest.getTeamName(),findTeamRequest.getPageNum(),findTeamRequest.getPerPage());
+        return new ResponseEntity<>(new CodeResponse(toGet),HttpStatus.OK);
+    }
+
+    @PostMapping("/getAllTeamMember")
+    @PreAuthorize("hasRole('USER') && @teamAuthorization.authorize(authentication,'MEMBER',#getAllTeamMemberRequest.getTeamId())")
+    public ResponseEntity<?> getAllTeamMember(
+            @RequestBody GetAllTeamMemberRequest getAllTeamMemberRequest
+    ){
+        Set<User> toGet = teamService.getAllTeamMemberPaged(getAllTeamMemberRequest.getTeamId(),getAllTeamMemberRequest.pageNum,getAllTeamMemberRequest.perPage);
         return new ResponseEntity<>(new CodeResponse(toGet),HttpStatus.OK);
     }
 }

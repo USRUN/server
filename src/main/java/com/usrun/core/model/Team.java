@@ -21,6 +21,8 @@ public class Team {
 
     private String teamName;
 
+    private String banner;
+
     private String thumbnail;
 
     private boolean verified;
@@ -29,29 +31,36 @@ public class Team {
 
     private Date createTime;
 
-    private String location;
+    private String district;
+
+    private String province;
 
     private String description;
 
-    public Team(String teamName, String thumbnail, String location, int privacy,Date createTime,String description){
-        this.teamName =teamName;
-        this.thumbnail = thumbnail;
-        this.location = location;
+    // used in TeamService -> createTeam
+    public Team(int privacy, String teamName, String district, String province, Date createTime){
+        this.teamName = teamName;
         this.privacy = privacy;
+        this.district = district;
+        this.province = province;
+        this.createTime = createTime;
+
+        // auto-assigned for a newly created team
         this.totalMember = 1;
         this.verified = false;
         this.deleted = false;
-        this.createTime = createTime;
-        this.description = description;
     }
 
-    public Team(Long id, int privacy, int totalMember, String teamName, String thumbnail, boolean verified, boolean deleted, Date createTime, String location, String description){
-        this.id = id;
+    // used to update team's info
+    public Team(Long teamId, int privacy, int totalMember, String teamName, String thumbnail,String banner, boolean verified, boolean deleted, Date createTime, String province, String district, String description){
+        this.id = teamId;
         this.teamName =teamName;
         this.thumbnail = thumbnail;
-        this.location = location;
         this.privacy = privacy;
         this.totalMember = totalMember;
+        this.banner = banner;
+        this.district = district;
+        this.province = province;
         this.verified = verified;
         this.deleted = deleted;
         this.createTime = createTime;

@@ -5,6 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class JoinTeamRequest {
-    private Long teamId;
+public class GetTeamByIdRequest {
+    public Long teamId;
 }

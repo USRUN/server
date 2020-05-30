@@ -9,14 +9,11 @@ import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.repository.TeamMemberRepository;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserRepository;
-import com.usrun.core.security.UserPrincipal;
 import com.usrun.core.utility.CacheClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,9 +31,6 @@ public class TeamService {
     private TeamMemberRepository teamMemberRepository;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private AmazonClient amazonClient;
 
     @Autowired
@@ -47,9 +41,9 @@ public class TeamService {
 
     @Transactional
     public Team createTeam(
-            Long ownerId, String teamName, String thumbnail, int privacy, String location, String description
+            Long ownerId, int privacy, String teamName, String district, String province
     ) {
-        Team toCreate = new Team(teamName, thumbnail, location, privacy, new Date(), description);
+        Team toCreate = new Team(privacy, teamName, district, province, new Date());
 
         toCreate = teamRepository.insert(toCreate, ownerId);
         cacheClient.setTeamMemberType(toCreate.getId(), ownerId, TeamMemberType.OWNER);
@@ -59,15 +53,16 @@ public class TeamService {
         return toCreate;
     }
 
-    public void deleteTeam(Long ownerId, Long teamId) throws Exception {
+    public void deleteTeam(Long teamId) throws Exception {
         Team toDelete = teamRepository.findTeamById(teamId);
 
         if(toDelete == null){
-            throw new Exception("Team Not Found");
+            throw new DataRetrievalFailureException("Team not found");
         }
 
-        teamRepository.delete(toDelete);
-
+        if(!teamRepository.delete(toDelete)){
+            throw new Exception("Can't delete team");
+        }
         List<TeamMember> toRemove = teamMemberRepository.getAllMemberOfTeam(teamId);
 
         toRemove.forEach((teamMember -> {
@@ -95,6 +90,8 @@ public class TeamService {
 
         current.getTeams().add(teamId);
 
+        current.setTeams(currentTeam);
+
         cacheClient.setUser(current);
     }
 
@@ -103,6 +100,8 @@ public class TeamService {
         Set<Long> currentTeam = current.getTeams();
 
         currentTeam.remove(teamId);
+
+        current.setTeams(currentTeam);
 
         cacheClient.setUser(current);
     }
@@ -147,7 +146,7 @@ public class TeamService {
         return teamMemberType;
     }
 
-    public Team updateTeam(Long teamId, String teamName, String thumbnail, int privacy, String location, String description){
+    public Team updateTeam(Long teamId, String teamName, String thumbnail,String banner, int privacy, String district, String province, String description){
         Team toUpdate = teamRepository.findTeamById(teamId);
 
         if(toUpdate == null) {
@@ -155,15 +154,52 @@ public class TeamService {
         }
 
         if(teamName != null) toUpdate.setTeamName(teamName);
-        if(thumbnail != null) toUpdate.setThumbnail(thumbnail);
+        if(thumbnail != null) {
+            String thumbnailURL = amazonClient.uploadFile(thumbnail, "team-" + teamId + "-thumbnail");
+            toUpdate.setThumbnail(thumbnailURL);
+        }
+        if(banner != null) {
+            String bannerURL = amazonClient.uploadFile(banner, "team-" + teamId + "-banner");
+            toUpdate.setBanner(bannerURL);
+        }
         if(privacy != toUpdate.getPrivacy()) toUpdate.setPrivacy(privacy);
-        if(location != null) toUpdate.setLocation(location);
+        if(province != null) toUpdate.setProvince(province);
+        if(district != null) toUpdate.setDistrict(district);
         if(description != null) toUpdate.setDescription(description);
 
         teamRepository.update(toUpdate);
         LOGGER.info("Update team {}", teamId);
 
         return toUpdate;
+    }
+
+    public Set<Team> getTeamSuggestion(Long currentUserId, String district, String province, int howMany){
+        Set<Team> toReturn = new HashSet<>(Collections.emptySet());
+        Set<Long> toExclude = userService.loadUser(currentUserId).getTeams();
+        toReturn =  teamRepository.getTeamSuggestionByUserLocation(district,province,howMany,toExclude);
+        return toReturn;
+    }
+
+    public Set<Team> findTeamWithNameContains(String searchString, int pageNum, int perPage){
+        Set<Team> toGet = teamRepository.findTeamWithNameContains(searchString,pageNum,perPage);
+
+        if(toGet == null){
+            throw new DataRetrievalFailureException("Team not found");
+        }
+
+        return toGet;
+    }
+
+    public Set<User> getAllTeamMemberPaged(Long teamId, int pageNum, int perPage){
+        Set<User> toReturn = new HashSet<>();
+
+        List<TeamMember> teamMembers =  teamMemberRepository.getAllMemberOfTeamPaged(teamId, pageNum, perPage);
+
+        teamMembers.forEach(teamMember -> {
+            toReturn.add(userService.loadUser(teamMember.getUserId()));
+        });
+
+        return toReturn;
     }
 
 }

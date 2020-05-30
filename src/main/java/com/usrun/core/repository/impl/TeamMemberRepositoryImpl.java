@@ -25,7 +25,7 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
         MapSqlParameterSource map = mapTeamMember(toInsert);
         namedParameterJdbcTemplate.update(
                 "INSERT INTO teamMember(teamId,userId,teamMemberType,addTime)" +
-                        " VALUES(:teamId,:userId,:teamMemberType,:addTime)",
+                " VALUES(:teamId,:userId,:teamMemberType,:addTime)",
                 map
         );
         return toInsert;
@@ -35,7 +35,7 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
     public TeamMember update(TeamMember toUpdate) {
         MapSqlParameterSource map = mapTeamMember(toUpdate);
         namedParameterJdbcTemplate.update(
-                "UPDATE teamMember SET teamId = :teamId,userId= :userId,teamMemberType= :teamMemberType",
+                "UPDATE IGNORE teamMember SET teamId = :teamId,userId= :userId,teamMemberType= :teamMemberType",
                 map
         );
         return toUpdate;
@@ -46,8 +46,8 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
         int status = 0;
         MapSqlParameterSource map = mapTeamMember(toDelete);
         status = namedParameterJdbcTemplate.update(
-                "DELETE FROM teamMember" +
-                        "WHERE teamId = :teamId, userId= :userId",
+                "DELETE FROM teamMember " +
+                        "WHERE teamId = :teamId AND userId= :userId",
                 map
         );
 
@@ -99,7 +99,26 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
         return toReturn;
     }
 
-    private TeamMember getTeamMember(String sql, MapSqlParameterSource params) {
+    @Override
+    public List<TeamMember> getAllMemberOfTeamPaged(long teamId, int pageNum, int perPage){
+        MapSqlParameterSource params = new MapSqlParameterSource("teamId",teamId);
+        params.addValue("offset",pageNum*perPage);
+        params.addValue("perPage",perPage);
+
+        String sql = "SELECT * FROM teamMember WHERE teamId = :teamId LIMIT :perPage OFFSET :offset";
+
+        List<TeamMember> toReturn = namedParameterJdbcTemplate.query(
+                sql,
+                params,
+                (rs,i) -> new TeamMember(
+                        rs.getLong("teamId"),
+                        rs.getLong("userId"),
+                        rs.getInt("teamMemberType"),
+                        rs.getDate("addTime")));
+        return toReturn;
+    }
+
+    private TeamMember getTeamMember(String sql, MapSqlParameterSource params){
         Optional<TeamMember> toReturn = namedParameterJdbcTemplate.query(
                 sql,
                 params,

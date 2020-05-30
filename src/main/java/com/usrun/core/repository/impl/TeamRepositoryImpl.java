@@ -10,14 +10,18 @@ import com.usrun.core.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Repository
 public class TeamRepositoryImpl implements TeamRepository {
@@ -40,9 +44,9 @@ public class TeamRepositoryImpl implements TeamRepository {
 
         // insert team into DB
         namedParameterJdbcTemplate.update(
-                "INSERT INTO usrun.team (privacy, totalMember, teamName, thumbnail, verified, deleted, createTime, location,description) " +
+                "INSERT INTO team (privacy, totalMember, teamName, verified, deleted, createTime, district, province) " +
                         "values (" +
-                        ":privacy, :totalMember, :teamName, :thumbnail, :verified, :deleted, :createTime, :location, :description )",
+                        ":privacy, :totalMember, :teamName, :verified, :deleted, :createTime, :district, :province)",
                 map,
                 holder,
                 new String[]{"GENERATED_ID"});
@@ -64,8 +68,9 @@ public class TeamRepositoryImpl implements TeamRepository {
         MapSqlParameterSource map = mapTeamObject(toUpdate);
 
         namedParameterJdbcTemplate.update(
-                "UPDATE usrun.team SET " +
-                "teamName = :teamName, thumbnail=:thumbnail, privacy = :privacy, location = :location, description = :description",
+                "UPDATE team SET " +
+                "privacy = :privacy, teamName = :teamName, thumbnail=:thumbnail, banner=:banner, deleted= :deleted, privacy = :privacy, district = :district, province = :province, description = :description " +
+                        "WHERE teamId = :teamId",
                 map);
 
         return toUpdate;
@@ -75,9 +80,9 @@ public class TeamRepositoryImpl implements TeamRepository {
     public boolean delete(Team toDelete) {
         toDelete.setDeleted(true);
 
-        this.update(toDelete);
+        Team result = this.update(toDelete);
 
-        return true;
+        return result.isDeleted();
     }
 
     @Override
@@ -110,7 +115,9 @@ public class TeamRepositoryImpl implements TeamRepository {
     @Override
     public boolean cancelJoinTeam(Long requestingId, Long teamId){
         TeamMember toDelete = teamMemberRepository.findById(teamId,requestingId);
-
+        if(toDelete == null){
+            throw new DataRetrievalFailureException("Can't find teamMember");
+        }
         return teamMemberRepository.delete(toDelete);
     }
 
@@ -152,32 +159,72 @@ public class TeamRepositoryImpl implements TeamRepository {
         return false;
     }
 
+    /*
+        location: location to search for teams
+        howMany: how many will be returned
+        toExclude: teamIds to exclude from the returned set (user is already a member)
+     */
     @Override
-    public Set<Long> getTeamsByUser(long userId) {
-        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
-        String sql = "SELECT teamId FROM usrun.teamMember WHERE userId = :userId";
-        List<Long> teams = namedParameterJdbcTemplate.query(
-                sql,
-                params,
-                (rs, i) -> new Long(rs.getLong("teamId"))
-        );
-        return teams.stream().collect(Collectors.toSet());
+    public Set<Team> getTeamSuggestionByUserLocation(String district, String province, int howMany, Set<Long> toExclude){
+        Set<Team> toReturn = Collections.EMPTY_SET;
+
+        MapSqlParameterSource params = new MapSqlParameterSource("district", district);
+        params.addValue("province",province);
+        params.addValue("howMany", howMany);
+        params.addValue("toExclude",toExclude);
+
+        String sql = "SELECT * " +
+                "FROM team " +
+                "WHERE province = :province AND district = :district ";
+
+        if(toExclude != null)
+            sql += "NOT IN (:toExclude) ";
+
+        sql += "LIMIT :howMany";
+
+        toReturn = getMultipleTeamSQLParamMap(sql,params);
+        return toReturn;
     }
 
     @Override
-    public List<Team> findAllTeam() {
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        String sql = "SELECT * FROM team";
-        return getTeamsSQLParamMap(sql, params);
+    public Set<Long> getTeamsByUser(long userId) {
+        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+        String sql = "SELECT teamId FROM teamMember WHERE teamMember.userId = :userId";
+        List<Long> teams = namedParameterJdbcTemplate.query(
+                sql,
+                params,
+                (rs, i) -> rs.getLong("teamId")
+        );
+        return new HashSet<>(teams);
+    }
+
+    @Override
+    public Set<Team> findTeamWithNameContains(String searchString, int pageNum, int perPage){
+        Set<Team> toReturn = Collections.EMPTY_SET;
+
+        MapSqlParameterSource params = new MapSqlParameterSource("teamName", "%"+searchString+"%");
+        params.addValue("offset",perPage*pageNum);
+        params.addValue("perPage",perPage);
+
+        String sql = "SELECT * " +
+                "FROM team " +
+                "WHERE teamName LIKE :teamName " +
+                "LIMIT :perPage OFFSET :offset";
+
+        toReturn = getMultipleTeamSQLParamMap(sql,params);
+        return toReturn;
     }
 
     private MapSqlParameterSource mapTeamObject(Team toMap){
         MapSqlParameterSource toReturn = new MapSqlParameterSource();
 
+        toReturn.addValue("teamId", toMap.getId());
         toReturn.addValue("teamName",toMap.getTeamName());
         toReturn.addValue("privacy",toMap.getPrivacy());
         toReturn.addValue("thumbnail",toMap.getThumbnail());
-        toReturn.addValue("location",toMap.getLocation());
+        toReturn.addValue("banner", toMap.getBanner());
+        toReturn.addValue("district",toMap.getDistrict());
+        toReturn.addValue("province",toMap.getProvince());
         toReturn.addValue("totalMember",toMap.getTotalMember());
         toReturn.addValue("createTime",toMap.getCreateTime());
         toReturn.addValue("deleted",toMap.isDeleted());
@@ -187,8 +234,35 @@ public class TeamRepositoryImpl implements TeamRepository {
         return toReturn;
     }
 
-    private List<Team> getTeamsSQLParamMap(String sql, MapSqlParameterSource params) {
-        return namedParameterJdbcTemplate.query(
+    private Set<Team> getMultipleTeamSQLParamMap(String sql, MapSqlParameterSource params){
+        Set<Team> toReturn = namedParameterJdbcTemplate.query(sql,params, rs -> {
+                    Set<Team> set = new HashSet<Team>();
+                    while(rs.next()){
+                        Team team = new Team(
+                                rs.getLong("teamId"),
+                                rs.getInt("privacy"),
+                                rs.getInt("totalMember"),
+                                rs.getString("teamName"),
+                                rs.getString("thumbnail"),
+                                rs.getString("banner"),
+                                rs.getBoolean("verified"),
+                                rs.getBoolean("deleted"),
+                                rs.getDate("createTime"),
+                                rs.getString("district"),
+                                rs.getString("province"),
+                                rs.getString("description")
+                        );
+
+                        set.add(team);
+                    }
+                    return set;
+                }
+        );
+        return  toReturn;
+    }
+
+    private Team getTeamSQLParamMap(String sql, MapSqlParameterSource params) {
+        Optional<Team> toReturn = namedParameterJdbcTemplate.query(
                 sql,
                 params,
                 (rs, i) -> new Team(
@@ -197,10 +271,12 @@ public class TeamRepositoryImpl implements TeamRepository {
                         rs.getInt("totalMember"),
                         rs.getString("teamName"),
                         rs.getString("thumbnail"),
+                        rs.getString("banner"),
                         rs.getBoolean("verified"),
                         rs.getBoolean("deleted"),
                         rs.getDate("createTime"),
-                        rs.getString("location"),
+                        rs.getString("province"),
+                        rs.getString("district"),
                         rs.getString("description")
                 ));
     }
