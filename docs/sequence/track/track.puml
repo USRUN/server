@@ -1,0 +1,44 @@
+@startuml
+
+activate Client
+
+Client -> TrackController: track(trackId, locationsInput, time, sig)
+activate TrackController
+
+TrackController -> TrackService: track(userId, trackId, locations, time, sig)
+activate TrackService
+
+alt track timeout
+    TrackService --> TrackController: return error(TRACK_TIMEOUT)
+end
+
+alt sig invalid
+    TrackService --> TrackController: return error(TRACK_SIG_INVALID)
+end
+
+TrackService -> CacheClient: getTrack(trackId)
+activate CacheClient
+deactivate CacheClient
+
+alt track == null
+    TrackService --> TrackController: return error(TRACK_NOT_FOUND)
+else
+    alt track.userId == userId
+        TrackService -> PointRepository: saveAll(points)
+        activate PointRepository
+        deactivate PointRepository
+        TrackService --> TrackController: return points
+    else
+        TrackService --> TrackController: return error(TRACK_NOT_BELONG_TO_USER)
+    end
+end
+
+deactivate TrackService
+
+TrackController --> Client: return response(track)
+
+deactivate TrackController
+
+deactivate Client
+
+@enduml

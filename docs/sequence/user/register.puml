@@ -1,0 +1,45 @@
+@startuml
+
+activate Client
+
+Client -> AuthController: registerUser(email, password, name)
+activate AuthController
+
+AuthController -> UserRepository: findUserByEmail(email)
+activate UserRepository
+deactivate UserRepository
+
+alt user != null
+    Client <-- AuthController: return response[USER_EXIST]
+end
+
+AuthController -> UserService: createUser(name, email, password);
+activate UserService
+
+UserService -> UniqueIDGenerator: generateID(user)
+activate UniqueIDGenerator
+deactivate UniqueIDGenerator
+
+UserService -> UserRepository: insert(user)
+activate UserRepository
+deactivate UserRepository
+
+UserService -> CacheClient: setUser(user)
+activate CacheClient
+deactivate CacheClient
+
+alt email is hcmus email
+    UserService -> UserService: sendOTPEmail(userId, email)
+end
+
+AuthController <-- UserService: return user
+
+deactivate UserService
+
+Client <-- AuthController: return response(user)
+
+deactivate AuthController
+
+deactivate Client
+
+@enduml
