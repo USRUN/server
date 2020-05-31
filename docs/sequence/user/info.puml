@@ -1,0 +1,34 @@
+@startuml
+
+activate Client
+
+Client -> UserController: getCurrentUser()
+activate UserController
+
+UserController -> UserService: loadUser(userId)
+activate UserService
+
+UserService -> CacheClient: getUser(userId)
+activate CacheClient
+deactivate CacheClient
+
+alt user == null
+    UserService -> UserRepository: findById(userId)
+    alt user == null
+        UserService --> UserController: return error(USER_NOT_FOUND)
+    else
+        UserService -> CacheClient: setUser(user)
+    end
+end
+
+UserService --> UserController: return user
+
+deactivate UserService
+
+UserController --> Client: return response(user)
+
+deactivate UserController
+
+deactivate Client
+
+@enduml
