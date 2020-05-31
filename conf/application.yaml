@@ -1,0 +1,73 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    url: ${DB_URL:jdbc:mysql://128.199.168.137:3306/usrun?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&useLegacyDateTimeCode=false&useUnicode=yes&characterEncoding=utf8&characterResultSets=utf8}
+    username: ${DB_USERNAME:usrunadmin}
+    password: ${DB_USERNAME:@USRUNadmin1620}
+  data:
+    mongodb:
+      host: 128.199.168.137
+      port: 27017
+      database: usrun
+      username:  oo
+      password: 2a891b16161d090ca7eba59a3f7a640d18f07aeadd38b72928c8a546fd833e81
+      authentication-database: admin
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: true
+    time-zone: UTC
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: usrun.hcmus@gmail.com
+    password: cgrcsfwaujodcsal
+    properties:
+      mail:
+        smtp:
+          auth: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+          starttls:
+            enable: true
+  jpa:
+    show_sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+
+
+app:
+  auth:
+    tokenSecret: ${TOKEN_SECRET:USRUN1620}
+    tokenExpirationMs: ${TOKEN_EXPIRATION:604800000}
+  oauth2:
+    google:
+      clientId: ${GOOGLE_CLIENT_ID:945368106119-ln2tvce7hakg96no6htgj10d0eh9vv4u.apps.googleusercontent.com}
+      clientSecret: ${GOOGLE_CLIENT_SECRET:u82xYAYw082gGV2BsubN11zC}
+      scopes:
+        - email
+        - profile
+  track:
+    key: trackusrun1620
+    time-in-microseconds: 86400000
+  activity:
+    key: activityusrun1620
+redis:
+  url: ${REDIS_URL:redis://128.199.168.137:6379}
+  password: ${REDIS_PASSWORD:1daf4caa4f13089d72cb3b5224f0b1d0e0b7619a3a404319e5d4fdb192f08c48}
+
+server:
+  port: ${PORT:8080}
+
+amazon:
+  endpointUrl: https://s3-ap-southeast-1.amazonaws.com
+  accessKey: AKIAZAQQP6WHFUSLGUSH
+  secretKey: 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
+  bucketName: usrun
+

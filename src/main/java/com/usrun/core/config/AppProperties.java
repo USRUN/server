@@ -8,10 +8,13 @@ import java.util.List;
 
 @ConfigurationProperties(prefix = "app")
 @Getter
+@Setter
 public class AppProperties {
     private final Auth auth = new Auth();
     private final OAuth2 oauth2 = new OAuth2();
     private final Track track = new Track();
+    private int node;
+    private final Activity activity = new Activity();
 
     @Getter
     @Setter
@@ -39,5 +42,11 @@ public class AppProperties {
     public static final class Track {
         private String key;
         private Long timeInMicroseconds;
+    }
+
+    @Getter
+    @Setter
+    public static final class Activity{
+        private String key;
     }
 }

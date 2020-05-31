@@ -16,7 +16,7 @@ import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.Set;
 
-@Table("users")
+@Table("user")
 @Getter
 @Setter
 public class User {
@@ -59,6 +59,8 @@ public class User {
     private boolean hcmus = false;
 
     private Set<Role> roles;
+
+    private Set<Long> teams;
 
     public User() {
         this.createTime = new Date();

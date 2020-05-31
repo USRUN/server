@@ -1,10 +1,13 @@
 package com.usrun.core.service;
 
+import com.usrun.core.config.ErrorCode;
+import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.Role;
 import com.usrun.core.model.type.RoleType;
 import com.usrun.core.model.User;
 import com.usrun.core.model.type.AuthType;
 import com.usrun.core.model.type.Gender;
+import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserRepository;
 import com.usrun.core.utility.CacheClient;
 import com.usrun.core.utility.UniqueIDGenerator;
@@ -46,6 +49,9 @@ public class UserService {
     @Autowired
     private UniqueIDGenerator uniqueIDGenerator;
 
+    @Autowired
+    private TeamRepository teamRepository;
+
     public User createUser(String name, String email, String password) {
         User user = new User();
         user.setName(name);
@@ -69,13 +75,14 @@ public class UserService {
         return user;
     }
 
-    public User loadUser(Long userId) {
+    public User loadUser(long userId) {
         User user = cacheClient.getUser(userId);
         if (user == null) {
             try {
                 user = userRepository.findById(userId);
+                user.setTeams(teamRepository.getTeamsByUser(userId));
                 if (user == null)
-                    throw new Exception("User Not Found");
+                    throw new CodeException(ErrorCode.USER_NOT_FOUND);
                 cacheClient.setUser(user);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -89,8 +96,9 @@ public class UserService {
         if (user == null) {
             try {
                 user = userRepository.findUserByEmail(email);
+                user.setTeams(teamRepository.getTeamsByUser(user.getId()));
                 if (user == null)
-                    throw new Exception("User Not Found");
+                    throw new CodeException(ErrorCode.USER_EMAIL_NOT_FOUND);
                 cacheClient.setUser(user);
             } catch (Exception ex) {
                 ex.printStackTrace();

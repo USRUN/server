@@ -39,7 +39,8 @@ public interface ErrorCode {
 
 
     int TEAM_NOT_FOUND = 3000;
-
+    int TEAM_USER_NOT_FOUND = 3001;
+    int TEAM_EXISTED = 3002;
 
     int EVENT_NOT_FOUND = 4000;
     int EVENT_EVENT_EXIT = 4001;

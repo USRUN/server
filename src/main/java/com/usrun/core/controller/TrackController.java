@@ -47,19 +47,19 @@ public class TrackController {
             @CurrentUser UserPrincipal userPrincipal,
             @RequestBody TrackRequest trackRequest
             ) {
-        Long userId = userPrincipal.getId();
-
-        List<Point> points = null;
-        
-        try {
-            points = trackService.track(userId,
-                    trackRequest.getTrackId(),
-                    trackRequest.getLocations(),
-                    trackRequest.getTime(),
-                    trackRequest.getSig());
-        } catch (TrackException exp) {
-            return new ResponseEntity<>(new CodeResponse(exp.getErrorCode()), HttpStatus.BAD_REQUEST);
-        }
+//        Long userId = userPrincipal.getId();
+//
+//        List<Point> points = null;
+//
+//        try {
+//            points = trackService.track(userId,
+//                    trackRequest.getTrackId(),
+//                    trackRequest.getLocations(),
+//                    trackRequest.getTime(),
+//                    trackRequest.getSig());
+//        } catch (TrackException exp) {
+//            return new ResponseEntity<>(new CodeResponse(exp.getErrorCode()), HttpStatus.BAD_REQUEST);
+//        }
         return ResponseEntity.ok(new CodeResponse(0));
     }
 

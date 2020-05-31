@@ -1,5 +1,6 @@
 package com.usrun.core.utility;
 
+import com.usrun.core.model.type.TeamMemberType;
 import org.springframework.stereotype.Component;
 
 /**
@@ -9,15 +10,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class CacheKeyGenerator {
 
-    public String keyVerifyOtp(Long userId) {
+    public String keyVerifyOtp(long userId) {
         return "users:otp:" + userId;
     }
 
-    public String keyTrack(Long trackId) {
+    public String keyTrack(long trackId) {
         return "track:" + trackId;
     }
 
-    public String keyUser(Long userId) {
+    public String keyUser(long userId) {
         return "user:" + userId;
     }
 
@@ -25,7 +26,23 @@ public class CacheKeyGenerator {
         return "users:email:" + email;
     }
 
-    public String keyTrackSig(Long trackId, String sig) {
+    public String keyTrackSig(long trackId, String sig) {
         return "track:sig:" + trackId + sig;
+    }
+
+    public String keyTeamMemberType(long teamId, long userId) {
+        return "team:role:" + teamId + ":" + userId;
+    }
+
+    public String keyActivity(long activityId) {
+        return "activity:" + activityId;
+    }
+
+    public String keyActivitySortedSet(long teamId) {
+        return "activities:team:" + teamId;
+    }
+
+    public String keyActivityCountByTeam(long teamId) {
+        return "activities:team:count:" + teamId;
     }
 }
