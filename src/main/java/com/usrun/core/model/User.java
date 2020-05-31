@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.usrun.core.model.type.AuthType;
 import com.usrun.core.model.type.Gender;
-import com.usrun.core.model.type.RoleType;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
@@ -34,9 +33,7 @@ public class User {
 
     private AuthType type;
 
-    private String openId;
-
-    private String img;
+    private String avatar;
 
     private Date lastLogin;
 
@@ -52,11 +49,9 @@ public class User {
 
     private String deviceToken;
 
-    private String nameSlug;
+    private Date createTime;
 
-    private Date dateAdd;
-
-    private Date dateUpdate;
+    private Date updateTime;
 
     @JsonProperty("isActive")
     private boolean isEnabled = true;
@@ -66,26 +61,24 @@ public class User {
     private Set<Role> roles;
 
     public User() {
-        this.dateUpdate = new Date();
-        this.dateAdd = new Date();
+        this.createTime = new Date();
+        this.updateTime = new Date();
     }
 
-    public User( String name, @NotBlank @Size(max = 50) @Email String email, @NotBlank @Size(max = 100) String password, @NotNull @Size(max = 20) AuthType type, String openId) {
+    public User( String name, @NotBlank @Size(max = 50) @Email String email, @NotBlank @Size(max = 100) String password, @NotNull @Size(max = 20) AuthType type) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.type = type;
-        this.openId = openId;
     }
 
-    public User(Long id, String name, @Email String email, String password, AuthType type, String openId, String img, Date lastLogin, Double weight, Double height, Gender gender, Date birthday, String code, String deviceToken, String nameSlug, boolean isEnabled, boolean hcmus, Date dateAdd, Date dateUpdate) {
+    public User(Long id, String name, @Email String email, String password, AuthType type, String avatar, Date lastLogin, Double weight, Double height, Gender gender, Date birthday, String code, String deviceToken, boolean isEnabled, boolean hcmus, Date createTime, Date updateTime) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
         this.type = type;
-        this.openId = openId;
-        this.img = img;
+        this.avatar = avatar;
         this.lastLogin = lastLogin;
         this.weight = weight;
         this.height = height;
@@ -93,10 +86,9 @@ public class User {
         this.birthday = birthday;
         this.code = code;
         this.deviceToken = deviceToken;
-        this.nameSlug = nameSlug;
         this.isEnabled = isEnabled;
         this.hcmus = hcmus;
-        this.dateAdd = dateAdd;
-        this.dateUpdate = dateUpdate;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
     }
 }

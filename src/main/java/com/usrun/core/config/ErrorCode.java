@@ -60,4 +60,6 @@ public interface ErrorCode {
 
     int TRACK_NOT_FOUND = 8000;
     int TRACK_NOT_BELONG_TO_USER = 8001;
+    int TRACK_TIMEOUT = 8002;
+    int TRACK_SIG_INVALID = 8003;
 }

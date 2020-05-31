@@ -2,6 +2,7 @@ package com.usrun.core.model.track;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.Date;
 
@@ -11,6 +12,7 @@ import java.util.Date;
 
 @Getter
 @Setter
+@ToString
 public class Location {
     private Float latitude;
     private Float longitude;
