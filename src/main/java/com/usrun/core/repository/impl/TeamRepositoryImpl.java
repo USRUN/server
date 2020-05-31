@@ -187,6 +187,13 @@ public class TeamRepositoryImpl implements TeamRepository {
     }
 
     @Override
+    public List<Team> findAllTeam() {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        String sql = "SELECT * FROM team";
+        return getTeamsSQLParamMap(sql, params);
+    }
+
+    @Override
     public Set<Long> getTeamsByUser(long userId) {
         MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
         String sql = "SELECT teamId FROM teamMember WHERE teamMember.userId = :userId";
@@ -261,8 +268,8 @@ public class TeamRepositoryImpl implements TeamRepository {
         return  toReturn;
     }
 
-    private Team getTeamSQLParamMap(String sql, MapSqlParameterSource params) {
-        Optional<Team> toReturn = namedParameterJdbcTemplate.query(
+    private List<Team> getTeamsSQLParamMap(String sql, MapSqlParameterSource params) {
+        return namedParameterJdbcTemplate.query(
                 sql,
                 params,
                 (rs, i) -> new Team(

@@ -33,4 +33,6 @@ public interface TeamRepository {
     Set<Long> getTeamsByUser(long userId);
 
     Set<Team> getTeamSuggestionByUserLocation(String district, String province, int howMany, Set<Long> toExclude);
+
+    List<Team> findAllTeam();
 }
