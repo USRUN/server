@@ -36,7 +36,5 @@ jobs:
           ssh-keyscan github.com >> ~/.ssh/known_hosts
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
-    - name: Copy Package
-      run: scp -r develop/*.jar uzdeploy@128.199.168.137:/server/usrun/dist
     - name: Deployment
       run: ssh uzdeploy@128.199.168.137 cd /server/usrun/ && ./runserver restart
