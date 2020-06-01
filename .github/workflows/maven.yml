@@ -28,8 +28,12 @@ jobs:
       with:
         name: Package
         path: develop
-    - name: Add ssh private key
-      run: eval "$(ssh-agent -s)" && echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add - > /dev/null && ssh-add -l && mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    - name: Setup SSH Keys and known_hosts
+      run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
     - name: Copy Package
       run: scp -r develop/*.jar uzdeploy@128.199.168.137:/server/usrun/dist
     - name: Deployment
