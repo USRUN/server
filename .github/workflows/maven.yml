@@ -29,7 +29,7 @@ jobs:
         name: Package
         path: develop
     - name: Add ssh private key
-      run: eval "$(ssh-agent -s)" && echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add - > /dev/null && ssh-add -l
+      run: eval "$(ssh-agent -s)" && echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add - > /dev/null && ssh-add -l && mkdir -p ~/.ssh && chmod 700 ~/.ssh
     - name: Copy Package
       run: scp -r develop/*.jar uzdeploy@128.199.168.137:/server/usrun/dist
     - name: Deployment
