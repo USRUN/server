@@ -37,4 +37,4 @@ jobs:
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
     - name: Deployment
-      run: ssh uzdeploy@128.199.168.137 "cd /server/usrun/ && ./runserver restart"
+      run: ssh udeploy@128.199.168.137 "cd /server/usrun/ && ./runserver restart"
