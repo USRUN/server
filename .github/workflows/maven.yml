@@ -33,5 +33,7 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
         ssh-host: 128.199.168.137
+    - name: Copy Package to Server
+      run: scp -r develop/*.jar udeploy@128.199.168.137:/server/usrun/dist
     - name: Deployment
       run: ssh udeploy@128.199.168.137 "cd /server/usrun/ && ./runserver restart"
