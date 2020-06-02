@@ -28,13 +28,10 @@ jobs:
       with:
         name: Package
         path: develop
-    - name: Setup SSH Keys and known_hosts
-      env:
-        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-      run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan 128.199.168.137 >> ~/.ssh/known_hosts
-          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-          ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
+    - name: Setup SSH
+      uses: kielabokkie/ssh-key-and-known-hosts-action@v1.0.1
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        ssh-host: 128.199.168.137
     - name: Deployment
       run: ssh udeploy@128.199.168.137 "cd /server/usrun/ && ./runserver restart"
