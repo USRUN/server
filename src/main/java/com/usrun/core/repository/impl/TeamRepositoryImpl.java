@@ -285,18 +285,18 @@ public class TeamRepositoryImpl implements TeamRepository {
                         rs.getString("province"),
                         rs.getString("district"),
                         rs.getString("description")
-                )).get(0);
+                ));
     }
 
-//    private Team getTeamSQLParamMap(String sql, MapSqlParameterSource params) {
-//        Optional<Team> toReturn = getTeamsSQLParamMap(sql, params).stream().findFirst();
-//
-//        if (toReturn.isPresent()) {
-//            if (toReturn.get().isDeleted())
-//                return null;
-//            return toReturn.get();
-//        }
-//        LOGGER.warn("Can't find team with {}",params);
-//        return null;
-//    }
+    private Team getTeamSQLParamMap(String sql, MapSqlParameterSource params) {
+        Optional<Team> toReturn = getTeamsSQLParamMap(sql, params).stream().findFirst();
+
+        if (toReturn.isPresent()) {
+            if (toReturn.get().isDeleted())
+                return null;
+            return toReturn.get();
+        }
+        LOGGER.warn("Can't find team with {}",params);
+        return null;
+    }
 }
