@@ -23,7 +23,7 @@ public class UserActivity{
     private long userId;
     private Date createTime;
     private long totalDistance;
-    private Time totalTime;
+    private long totalTime;
     private long totalStep;
     private double avgPace;
     private double avgHeart;
@@ -34,14 +34,14 @@ public class UserActivity{
     private String photo;
     private String title;
     private String description;
-    private int totalLike;
+    private int totalLove;
     private int totalComment;
     private int totalShare;
     private boolean processed;
     private int deleted;
     private int privacy;
 
-    public UserActivity(long userActivityId, long userId, Date createTime, long totalDistance, Time totalTime, long totalStep, double avgPace, double avgHeart, double maxHeart, int calories, double elevGain, double elevMax, String photo, String title, String description, int totalLike, int totalComment, int totalShare, boolean processed, int deleted, int privacy) {
+    public UserActivity(long userActivityId, long userId, Date createTime, long totalDistance, long totalTime, long totalStep, double avgPace, double avgHeart, double maxHeart, int calories, double elevGain, double elevMax, String photo, String title, String description, int totalLove, int totalComment, int totalShare, boolean processed, int deleted, int privacy) {
         this.userActivityId = userActivityId;
         this.userId = userId;
         this.createTime = createTime;
@@ -57,7 +57,7 @@ public class UserActivity{
         this.photo = photo;
         this.title = title;
         this.description = description;
-        this.totalLike = totalLike;
+        this.totalLove = totalLove;
         this.totalComment = totalComment;
         this.totalShare = totalShare;
         this.processed = processed;
@@ -80,7 +80,7 @@ public class UserActivity{
         this.photo = createActivityRequest.getPhoto();
         this.title = createActivityRequest.getTitle();
         this.description = createActivityRequest.getDescription();
-        this.totalLike = createActivityRequest.getTotalLike();
+        this.totalLove = createActivityRequest.getTotalLove();
         this.totalComment = createActivityRequest.getTotalComment();
         this.totalShare = createActivityRequest.getTotalShare();
         this.processed = createActivityRequest.getProcessed();
@@ -88,7 +88,7 @@ public class UserActivity{
         this.privacy = createActivityRequest.getPrivacy();
     }
 
-    public UserActivity(long userActivityId, long userId, long totalDistance, Time totalTime, double avgPace, Date createTime) {
+    public UserActivity(long userActivityId, long userId, long totalDistance, long totalTime, double avgPace, Date createTime) {
         this.userActivityId = userActivityId;
         this.userId = userId;
         this.totalDistance = totalDistance;
@@ -99,7 +99,7 @@ public class UserActivity{
 
     public UserActivity(){
         this.totalDistance = 0l;
-        this.totalTime = new Time(0l);
+        this.totalTime = 0l;
         this.totalStep = 0l;
         this.avgPace = 0d;
         this.avgHeart = 0d;
@@ -107,7 +107,7 @@ public class UserActivity{
         this.calories = 0;
         this.elevGain = 0d;
         this.elevMax = 0d;
-        this.totalLike = 0;
+        this.totalLove = 0;
         this.totalComment = 0;
         this.totalShare = 0;
     }

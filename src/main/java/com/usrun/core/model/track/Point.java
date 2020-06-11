@@ -23,7 +23,7 @@ public class Point {
 
     private Float longitude;
 
-    private Date time;
+    private double time;
 
     public Point() {
     }
@@ -32,10 +32,11 @@ public class Point {
         this.trackId = trackId;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.time = new Date();
+        Date date = new Date();
+        this.time = date.getTime();
     }
 
-    public Point(Long trackId, Float latitude, Float longitude, Date time) {
+    public Point(Long trackId, Float latitude, Float longitude, double time) {
         this.trackId = trackId;
         this.latitude = latitude;
         this.longitude = longitude;

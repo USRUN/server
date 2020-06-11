@@ -11,11 +11,7 @@ import com.usrun.core.payload.dto.TrackDTO;
 import com.usrun.core.repository.PointRepository;
 import com.usrun.core.repository.TrackRepository;
 import com.usrun.core.utility.CacheClient;
-import com.usrun.core.utility.CacheKeyGenerator;
 import com.usrun.core.utility.SequenceGenerator;
-import com.usrun.core.utility.UniqueIDGenerator;
-import org.redisson.api.RBucket;
-import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +56,8 @@ public class TrackService {
         return track;
     }
 
-    public List<Point> track(Long userId, Long trackId, List<Location> locations, Long time) {
-        Long t = System.currentTimeMillis() - time;
+    public List<Point> track(Long userId, Long trackId, List<Location> locations, double time) {
+        double t = System.currentTimeMillis() - time;
         if (t > appProperties.getTrack().getTimeInMicroseconds()) {
             String msg = String.format("[%s] Track point has exceeded time: %s", trackId, t);
             LOGGER.warn(msg);

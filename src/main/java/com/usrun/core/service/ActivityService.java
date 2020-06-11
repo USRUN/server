@@ -4,9 +4,7 @@ import com.google.common.hash.Hashing;
 import com.usrun.core.config.AppProperties;
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
-import com.usrun.core.model.Team;
 import com.usrun.core.model.UserActivity;
-import com.usrun.core.payload.dto.TeamActivityCountDTO;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserActivityRepository;
 import com.usrun.core.utility.CacheClient;
@@ -17,7 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ActivityService {
@@ -105,14 +102,14 @@ public class ActivityService {
     }
 
     public void setCountAllActivityByTeam() {
-        List<Team> teams = teamRepository.findAllTeam();
-        List<TeamActivityCountDTO> dtos = teams.parallelStream()
-                .map(team -> {
-                    long teamId = team.getId();
-                    long count = userActivityRepository.countUserActivityByUser(teamId);
-                    return new TeamActivityCountDTO(teamId, count);
-                }).collect(Collectors.toList());
-        cacheClient.setCountAllActivityByTeam(dtos);
+//        List<Team> teams = teamRepository.findAllTeam();
+//        List<TeamActivityCountDTO> dtos = teams.parallelStream()
+//                .map(team -> {
+//                    long teamId = team.getId();
+//                    long count = userActivityRepository.countUserActivityByUser(teamId);
+//                    return new TeamActivityCountDTO(teamId, count);
+//                }).collect(Collectors.toList());
+//        cacheClient.setCountAllActivityByTeam(dtos);
     }
 
 

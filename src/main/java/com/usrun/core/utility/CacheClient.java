@@ -121,13 +121,16 @@ public class CacheClient {
     public void setActivityCreated(User user, UserActivity activity) {
         RBatch rBatch = redissonClient.createBatch();
         RBucketAsync<UserActivity> rBucket = rBatch.getBucket(cacheKeyGenerator.keyActivity(activity.getUserActivityId()));
-        user.getTeams().forEach(team -> {
-            RScoredSortedSetAsync<Long> rSortedSet = rBatch.getScoredSortedSet(cacheKeyGenerator.keyActivitySortedSet(team));
-            rSortedSet.addAsync(activity.getUserActivityId(), activity.getUserActivityId());
-            rBatch.getAtomicLong(cacheKeyGenerator.keyActivityCountByTeam(team)).addAndGetAsync(1);
-        });
-        rBucket.setAsync(activity, 2, TimeUnit.DAYS);
-        rBatch.execute();
+        Set<Long> teams = user.getTeams();
+        if(teams != null && teams.size() > 0){
+            user.getTeams().forEach(team -> {
+                RScoredSortedSetAsync<Long> rSortedSet = rBatch.getScoredSortedSet(cacheKeyGenerator.keyActivitySortedSet(team));
+                rSortedSet.addAsync(activity.getUserActivityId(), activity.getUserActivityId());
+                rBatch.getAtomicLong(cacheKeyGenerator.keyActivityCountByTeam(team)).addAndGetAsync(1);
+            });
+            rBucket.setAsync(activity, 2, TimeUnit.DAYS);
+            rBatch.execute();
+        }
     }
 
     public void setActivity(UserActivity userActivity) {
