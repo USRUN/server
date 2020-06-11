@@ -1,5 +1,6 @@
 package com.usrun.core.repository.impl;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.usrun.core.model.Team;
 import com.usrun.core.model.User;
 import com.usrun.core.model.junction.TeamMember;

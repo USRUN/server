@@ -8,6 +8,8 @@ import com.usrun.core.model.type.Gender;
 import com.usrun.core.model.type.RoleType;
 import com.usrun.core.payload.dto.UserFilterDTO;
 import com.usrun.core.repository.UserActivityRepository;
+import java.util.Collection;
+import java.util.Collections;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -156,10 +158,10 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
                         rs.getInt("deleted"),
                         rs.getInt("privacy")
                 ));
-        if (listUserActivity != null && listUserActivity.size() > 0) {
+        if (listUserActivity.size() > 0) {
             return listUserActivity;
         } else {
-            return null;
+            return Collections.emptyList();
         }
     }
 
