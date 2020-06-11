@@ -10,7 +10,7 @@ import java.util.Date;
 @Setter
 public class CreateActivityRequest {
     private Long totalDistance;
-    private Time totalTime;
+    private Long totalTime;
     private  Long totalStep;
     private Double avgPace;
     private Double avgHeart;
@@ -21,7 +21,7 @@ public class CreateActivityRequest {
     private String photo;
     private String title;
     private String description;
-    private Integer totalLike;
+    private Integer totalLove;
     private Integer totalComment;
     private  Integer totalShare;
     private  Boolean processed;

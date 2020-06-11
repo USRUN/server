@@ -85,7 +85,7 @@ public class ActivityController {
         UserActivity valueSum = new UserActivity();
         for (UserActivity item : allByTimeRangeAndUserId) {
             valueSum.setTotalDistance(item.getTotalDistance() + valueSum.getTotalDistance());
-            valueSum.setTotalTime(new Time(item.getTotalTime().getTime() + valueSum.getTotalTime().getTime()));
+            valueSum.setTotalTime(item.getTotalTime() + valueSum.getTotalTime());
             valueSum.setTotalStep(item.getTotalStep() + valueSum.getTotalStep());
             valueSum.setAvgPace(item.getAvgPace() + valueSum.getAvgPace());
             valueSum.setAvgHeart(item.getAvgHeart() + valueSum.getAvgHeart());
@@ -93,7 +93,7 @@ public class ActivityController {
             valueSum.setCalories(item.getCalories() + valueSum.getCalories());
             valueSum.setElevGain(item.getElevGain() + valueSum.getElevGain());
             valueSum.setElevMax(Math.max(item.getElevMax(), valueSum.getElevMax()));
-            valueSum.setTotalLike(item.getTotalLike() + valueSum.getTotalLike());
+            valueSum.setTotalLove(item.getTotalLove() + valueSum.getTotalLove());
             valueSum.setTotalComment(item.getTotalComment() + valueSum.getTotalComment());
             valueSum.setTotalShare(item.getTotalShare() + valueSum.getTotalShare());
         }
@@ -170,15 +170,6 @@ public class ActivityController {
         List<UserActivity> allByTimeRangeAndUserId = userActivityRepository.findNumberActivityLast(userId, pageable);
         return new ResponseEntity<>(new CodeResponse(allByTimeRangeAndUserId), HttpStatus.OK);
 
-    }
-
-    @PostMapping("/hardCodeData")
-    public ResponseEntity<?> hardCodeData(@CurrentUser UserPrincipal userPrincipal) {
-        for (int i = 0; i < 20; i++) {
-            UserActivity userActivity = new UserActivity(100 + i, i % 4 + 5, i % 4 * 10000l, new Time(i % 4 * 100000), 7.3, new Date());
-            userActivityRepository.insert(userActivity);
-        }
-        return new ResponseEntity<>(ErrorCode.FIELD_REQUIRED, HttpStatus.OK);
     }
 
     @PostMapping("/getActivity")

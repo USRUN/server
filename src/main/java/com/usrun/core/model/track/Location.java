@@ -16,9 +16,9 @@ import java.util.Date;
 public class Location {
     private Float latitude;
     private Float longitude;
-    private Date time;
+    private long time;
 
-    public Location(Float latitude, Float longitude, Date time) {
+    public Location(Float latitude, Float longitude, long time) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.time = time;

@@ -34,11 +34,11 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     public UserActivity insert(UserActivity userActivity) {
         MapSqlParameterSource map = getMapUserActivity(userActivity);
         namedParameterJdbcTemplate.update(
-                "INSERT INTO userActivity (userActivityId, userId, createTime, totalDistance, totalTime, " +
+                "INSERT INTO userActivity (userActivityId, userId, totalDistance, totalTime, " +
                         "totalStep, avgPace, avgHeart, maxHeart, calories, " +
-                        "elevGain, elevMax, photo, title, description, totalLike, totalComment,totalShare, processed,deleted, privacy ) values (" +
-                        ":userActivityId ,:userId, :createTime, :totalDistance, :totalTime, :totalStep, :avgPace, :avgHeart, :maxHeart, " +
-                        ":calories, :elevGain, :elevMax, :photo, :title, :description, :totalLike, :totalComment, :totalShare, :processed, :deleted, :privacy)",
+                        "elevGain, elevMax, photo, title, description, totalLove, totalComment,totalShare, processed,deleted, privacy ) values (" +
+                        ":userActivityId ,:userId,  :totalDistance, :totalTime, :totalStep, :avgPace, :avgHeart, :maxHeart, " +
+                        ":calories, :elevGain, :elevMax, :photo, :title, :description, :totalLove, :totalComment, :totalShare, :processed, :deleted, :privacy)",
                 map
         );
         return userActivity;
@@ -138,7 +138,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
                         rs.getLong("userId"),
                         rs.getDate("createTime"),
                         rs.getLong("totalDistance"),
-                        rs.getTime("totalTime"),
+                        rs.getLong("totalTime"),
                         rs.getLong("totalStep"),
                         rs.getDouble("avgPace"),
                         rs.getDouble("avgHeart"),
@@ -149,7 +149,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
                         rs.getString("photo"),
                         rs.getString("title"),
                         rs.getString("description"),
-                        rs.getInt("totalLike"),
+                        rs.getInt("totalLove"),
                         rs.getInt("totalComment"),
                         rs.getInt("totalShare"),
                         rs.getBoolean("processed"),
@@ -180,7 +180,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
         map.addValue("photo", userActivity.getPhoto());
         map.addValue("title", userActivity.getTitle());
         map.addValue("description", userActivity.getDescription());
-        map.addValue("totalLike", userActivity.getTotalLike());
+        map.addValue("totalLove", userActivity.getTotalLove());
         map.addValue("totalComment", userActivity.getTotalComment());
         map.addValue("totalShare", userActivity.getTotalShare());
         map.addValue("processed", userActivity.isProcessed());

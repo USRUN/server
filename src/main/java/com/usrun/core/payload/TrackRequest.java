@@ -15,5 +15,5 @@ import java.util.List;
 @Setter
 public class TrackRequest {
     private List<List<Location>> locations;
-    private long time;
+    private double time;
 }
