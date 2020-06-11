@@ -1,0 +1,37 @@
+@startuml
+
+activate Client
+
+Client -> UserController: updateUser(name, gender, birthday, weight, height, deviceToken, base64Image)
+activate UserController
+
+UserController -> UserService: updateUser(userId, name, deviceToken, gender, birthday, weight, height, base64Image)
+activate UserService
+
+UserService -> UserRepository: findById(userId)
+activate UserRepository
+deactivate UserRepository
+
+UserService -> AmazonClient: uploadFile(base64Image, filename)
+activate AmazonClient
+deactivate AmazonClient
+
+UserService -> UserRepository: update(user)
+activate UserRepository
+deactivate UserRepository
+
+UserService -> CacheClient: setUser(user)
+activate CacheClient
+deactivate CacheClient
+
+UserService --> UserController: return user
+
+deactivate UserService
+
+UserController -> Client: return user
+
+deactivate UserController
+
+deactivate Client
+
+@enduml

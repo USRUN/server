@@ -1,0 +1,33 @@
+@startuml
+
+activate Client
+
+Client -> TrackController: createTrack(description)
+activate TrackController
+
+TrackController -> TrackService: createTrack(userId, description)
+activate TrackService
+
+TrackService -> UniqueIDGenerator: generateTrackId(userId)
+activate UniqueIDGenerator
+deactivate UniqueIDGenerator
+
+TrackService -> TrackRepository: save(track)
+activate TrackRepository
+deactivate TrackRepository
+
+TrackService -> CacheClient: setTrack(track)
+activate CacheClient
+deactivate CacheClient
+
+TrackController <-- TrackService: return track
+
+deactivate TrackService
+
+Client <-- TrackController: return response(track)
+
+deactivate TrackController
+
+deactivate Client
+
+@enduml

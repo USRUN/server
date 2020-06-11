@@ -1,0 +1,39 @@
+@startuml
+
+activate Client
+
+Client -> UserController: verifyStudentHcmus(otp)
+activate UserController
+
+UserController -> UserService: verifyOTP(userId, otp)
+activate UserService
+
+UserService -> CacheClient: verifyOTPFromCache(userId, otp)
+activate CacheClient
+deactivate CacheClient
+
+alt verified == true
+    UserService -> UserRepository: findById(userId)
+    activate UserRepository
+    deactivate UserRepository
+
+    UserService -> UserRepository: update(user)
+    activate UserRepository
+    deactivate UserRepository
+
+    UserService -> CacheClient: setUser(user)
+    activate CacheClient
+    deactivate CacheClient
+end
+
+UserService --> UserController: return verified
+
+deactivate UserService
+
+UserController --> Client: return response(success)
+
+deactivate UserController
+
+deactivate Client
+
+@enduml

@@ -1,0 +1,45 @@
+@startuml
+
+activate Client
+
+Client -> AuthController: authenticateUser(type, token_id, username, password)
+activate AuthController
+
+AuthController -> UserService: loadUser(email)
+activate UserService
+
+UserService -> CacheClient: getUser(email)
+activate CacheClient
+deactivate CacheClient
+
+alt user == null
+
+    UserService -> UserRepository: findUserByEmail(email)
+    activate UserRepository
+    deactivate UserRepository
+
+    alt user == null
+        AuthController <-- UserService: return error(USER_NOT_FOUND)
+    else
+        UserService -> CacheClient: setUser(user)
+        activate CacheClient
+        deactivate CacheClient
+    end
+       
+end
+
+AuthController <-- UserService: return user
+
+deactivate UserService
+
+AuthController -> AuthenticationManager: authenticate(username, password)
+activate AuthenticationManager
+deactivate AuthenticationManager
+
+Client <-- AuthController: return response
+
+deactivate AuthController
+
+deactivate Client
+
+@enduml

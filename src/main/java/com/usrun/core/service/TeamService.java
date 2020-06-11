@@ -90,19 +90,14 @@ public class TeamService {
 
         currentTeam.add(teamId);
 
-        current.setTeams(currentTeam);
-
         cacheClient.setUser(current);
     }
 
     private void removeTeamFromCache(Long teamId,Long userId){
         User current = userService.loadUser(userId);
         Set<Long> currentTeam = current.getTeams();
-
         currentTeam.remove(teamId);
-
         current.setTeams(currentTeam);
-
         cacheClient.setUser(current);
     }
 

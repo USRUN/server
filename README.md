@@ -13,5 +13,5 @@ CREATE DATABASE usrun default CHARACTER SET = utf8 default COLLATE = utf8_genera
 Nhớ tạo file application.yaml để run
 
 ```sh
-mvn spring-boot:run
+mvn spring-boot:run  
 ```
