@@ -45,10 +45,11 @@ public class TrackService {
     @Autowired
     private AppProperties appProperties;
 
-    public Track createTrack(Long userId, String description) {
+    public Track createTrack(Long userId, String description, List<List<Location>> locations) {
         Long trackId = sequenceGenerator.nextId();
         Track track = new Track(trackId, userId, description);
 
+        track.setLocations(locations);
         trackRepository.save(track);
         cacheClient.setTrack(track);
 

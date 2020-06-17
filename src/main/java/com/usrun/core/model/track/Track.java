@@ -30,6 +30,8 @@ public class Track {
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private Date time;
 
+    private List<List<Location>> locations;
+
     public Track() {
     }
 

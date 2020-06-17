@@ -112,17 +112,17 @@ public class ActivityController {
         Long userId = userPrincipal.getId();
         String sig = paramActivity.getSig();
         String sigActivity = activityService.getSigActivity(userId);
-        List<Point> points = null;
         try {
-            if (sig.equals(sigActivity)) {
-                Track track = trackService.createTrack(userId, "");
+//            if (sig.equals(sigActivity)) {
                 List<List<Location>> locations = paramActivity.getTrackRequest().getLocations();
-                locations.forEach(item -> {
-                    trackService.track(userId,
-                            track.getTrackId(),
-                            item,
-                            paramActivity.getTrackRequest().getTime());
-                });
+                Track track = trackService.createTrack(userId, "",locations);
+
+//                locations.forEach(item -> {
+//                    trackService.track(userId,
+//                            track.getTrackId(),
+//                            item,
+//                            paramActivity.getTrackRequest().getTime());
+//                });
 
 
                 UserActivity userActivity = new UserActivity(paramActivity, track.getTrackId(), track.getTime());
