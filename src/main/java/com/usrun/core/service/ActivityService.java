@@ -5,19 +5,25 @@ import com.usrun.core.config.AppProperties;
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.UserActivity;
+import com.usrun.core.payload.user.CreateActivityRequest;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserActivityRepository;
 import com.usrun.core.utility.CacheClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 @Service
 public class ActivityService {
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(ActivityService.class);
 
     @Autowired
     private UserActivityRepository userActivityRepository;
@@ -99,6 +105,14 @@ public class ActivityService {
             cacheClient.setActivitiesByTeam(teamId, userActivityIds);
             return loadActivities(userActivityIds.subList(start, stop));
         }
+    }
+
+    public UserActivity createUserActivity(long creatorId, CreateActivityRequest createActivityRequest, long trackId, Date createTime){
+        UserActivity toCreate = new UserActivity(createActivityRequest,trackId,createTime);
+        toCreate.setUserId(creatorId);
+        toCreate = userActivityRepository.insert(toCreate);
+        LOGGER.info("User activity created for userID [{}] with ID: {}", toCreate.getUserId(), toCreate.getUserActivityId());
+        return toCreate;
     }
 
     public void setCountAllActivityByTeam() {

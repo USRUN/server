@@ -113,24 +113,14 @@ public class ActivityController {
         String sig = paramActivity.getSig();
         String sigActivity = activityService.getSigActivity(userId);
         try {
-//            if (sig.equals(sigActivity)) {
+            if (sig.equals(sigActivity)) {
                 List<List<Location>> locations = paramActivity.getTrackRequest().getLocations();
                 Track track = trackService.createTrack(userId, "",locations);
 
-//                locations.forEach(item -> {
-//                    trackService.track(userId,
-//                            track.getTrackId(),
-//                            item,
-//                            paramActivity.getTrackRequest().getTime());
-//                });
-
-
-                UserActivity userActivity = new UserActivity(paramActivity, track.getTrackId(), track.getTime());
-                userActivity.setUserId(userId);
-                UserActivity result = userActivityRepository.insert(userActivity);
+                UserActivity userActivity = activityService.createUserActivity(userId,paramActivity, track.getTrackId(), track.getTime());
                 User user = userService.loadUser(userId);
-                cacheClient.setActivityCreated(user, result);
-                return new ResponseEntity<>(new CodeResponse(result), HttpStatus.OK);
+                cacheClient.setActivityCreated(user, userActivity);
+                return new ResponseEntity<>(new CodeResponse(userActivity), HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(new CodeResponse(ErrorCode.ACTIVITY_ADD_FAIL), HttpStatus.BAD_REQUEST);
             }

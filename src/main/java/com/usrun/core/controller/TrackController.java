@@ -29,39 +29,39 @@ public class TrackController {
 
     @Autowired
     private TrackService trackService;
-
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> createTrack(
-            @CurrentUser UserPrincipal userPrincipal,
-            @RequestBody CreateTrackRequest createTrackRequest
-            ) {
-        Long userId = userPrincipal.getId();
-        Track track = trackService.createTrack(userId, createTrackRequest.getDescription());
-        return ResponseEntity.ok(new CodeResponse(track));
-    }
-
-    @PostMapping("/point")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> track(
-            @CurrentUser UserPrincipal userPrincipal,
-            @RequestBody TrackRequest trackRequest
-            ) {
+//
+//    @PostMapping("/create")
+//    @PreAuthorize("hasRole('USER')")
+//    public ResponseEntity<?> createTrack(
+//            @CurrentUser UserPrincipal userPrincipal,
+//            @RequestBody CreateTrackRequest createTrackRequest
+//            ) {
 //        Long userId = userPrincipal.getId();
+//        Track track = trackService.createTrack(userId, createTrackRequest.getDescription());
+//        return ResponseEntity.ok(new CodeResponse(track));
+//    }
 //
-//        List<Point> points = null;
-//
-//        try {
-//            points = trackService.track(userId,
-//                    trackRequest.getTrackId(),
-//                    trackRequest.getLocations(),
-//                    trackRequest.getTime(),
-//                    trackRequest.getSig());
-//        } catch (TrackException exp) {
-//            return new ResponseEntity<>(new CodeResponse(exp.getErrorCode()), HttpStatus.BAD_REQUEST);
-//        }
-        return ResponseEntity.ok(new CodeResponse(0));
-    }
+//    @PostMapping("/point")
+//    @PreAuthorize("hasRole('USER')")
+//    public ResponseEntity<?> track(
+//            @CurrentUser UserPrincipal userPrincipal,
+//            @RequestBody TrackRequest trackRequest
+//            ) {
+////        Long userId = userPrincipal.getId();
+////
+////        List<Point> points = null;
+////
+////        try {
+////            points = trackService.track(userId,
+////                    trackRequest.getTrackId(),
+////                    trackRequest.getLocations(),
+////                    trackRequest.getTime(),
+////                    trackRequest.getSig());
+////        } catch (TrackException exp) {
+////            return new ResponseEntity<>(new CodeResponse(exp.getErrorCode()), HttpStatus.BAD_REQUEST);
+////        }
+//        return ResponseEntity.ok(new CodeResponse(0));
+//    }
 
     @PostMapping("/gettrack")
     @PreAuthorize("hasRole('USER')")
@@ -71,14 +71,14 @@ public class TrackController {
             ) {
         Long userId = userPrincipal.getId();
 
-        TrackDTO dto = null;
+        Track track = null;
 
         try {
-            dto = trackService.getTrack(userId, request.getTrackId());
+            track = trackService.getTrack(userId, request.getTrackId());
         } catch (TrackException exp) {
             return new ResponseEntity<>(new CodeResponse(exp.getErrorCode()), HttpStatus.BAD_REQUEST);
         }
-        return ResponseEntity.ok(new CodeResponse(dto));
+        return ResponseEntity.ok(new CodeResponse(track));
     }
 
 }
