@@ -182,7 +182,7 @@ public class TeamRepositoryImpl implements TeamRepository {
         } else{
             if(district == null && province == null) {
                 sql = "SELECT * " +
-                        "FROM team WHERE 1=1";
+                        "FROM team WHERE 1=1 ";
             } else{
                 if(district == null){
                     sql = "SELECT * " +
@@ -196,7 +196,7 @@ public class TeamRepositoryImpl implements TeamRepository {
             }
         }
 
-        if(toExclude != null)
+        if(!toExclude.isEmpty())
             sql += "AND teamId NOT IN (:toExclude) ";
 
         sql += "LIMIT :howMany";
@@ -206,7 +206,7 @@ public class TeamRepositoryImpl implements TeamRepository {
         // can't get any team based on user's location
         if(toReturn.size() == 0){
             sql= "SELECT * FROM team ";
-            if(toExclude != null)
+            if(!toExclude.isEmpty())
                 sql += "WHERE teamId NOT IN (:toExclude) ";
 
             sql += "LIMIT :howMany";
