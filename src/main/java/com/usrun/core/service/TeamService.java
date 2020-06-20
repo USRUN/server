@@ -178,7 +178,7 @@ public class TeamService {
 
     public Set<TeamSummaryDTO> getSummaryFromTeams(Set<Team> teams){
         Long teamMemberCount;
-        Set<TeamSummaryDTO> toReturn = Collections.EMPTY_SET;
+        Set<TeamSummaryDTO> toReturn = new HashSet<>();
 
         for(Team t: teams){
             teamMemberCount = teamMemberRepository.getTeamMemberCount(t.getId());

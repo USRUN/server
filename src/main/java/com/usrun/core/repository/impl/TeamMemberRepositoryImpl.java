@@ -109,6 +109,7 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
                 sql,
                 params,
                 Long.class);
+
         return toReturn;
     }
 

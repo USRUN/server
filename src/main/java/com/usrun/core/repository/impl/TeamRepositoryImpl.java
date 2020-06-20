@@ -173,17 +173,47 @@ public class TeamRepositoryImpl implements TeamRepository {
         params.addValue("province",province);
         params.addValue("howMany", howMany);
         params.addValue("toExclude",toExclude);
+        String sql;
 
-        String sql = "SELECT * " +
-                "FROM team " +
-                "WHERE province = :province AND district = :district ";
+        if(district != null && province != null){
+            sql = "SELECT * " +
+                    "FROM team " +
+                    "WHERE province = :province AND district = :district ";
+        } else{
+            if(district == null && province == null) {
+                sql = "SELECT * " +
+                        "FROM team WHERE 1=1";
+            } else{
+                if(district == null){
+                    sql = "SELECT * " +
+                            "FROM team " +
+                            "WHERE province = :province ";
+                } else {
+                    sql = "SELECT * " +
+                            "FROM team " +
+                            "WHERE district = :district ";
+                }
+            }
+        }
 
         if(toExclude != null)
-            sql += "NOT IN (:toExclude) ";
+            sql += "AND teamId NOT IN (:toExclude) ";
 
         sql += "LIMIT :howMany";
 
         toReturn = getMultipleTeamSQLParamMap(sql,params);
+
+        // can't get any team based on user's location
+        if(toReturn.size() == 0){
+            sql= "SELECT * FROM team ";
+            if(toExclude != null)
+                sql += "WHERE teamId NOT IN (:toExclude) ";
+
+            sql += "LIMIT :howMany";
+            LOGGER.info(sql);
+            toReturn = getMultipleTeamSQLParamMap(sql,params);
+        }
+
         return toReturn;
     }
 
