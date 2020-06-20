@@ -5,6 +5,7 @@ import com.usrun.core.model.Team;
 import com.usrun.core.model.User;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.*;
+import com.usrun.core.payload.dto.TeamSummaryDTO;
 import com.usrun.core.payload.team.*;
 import com.usrun.core.security.CurrentUser;
 import com.usrun.core.security.UserPrincipal;
@@ -137,7 +138,9 @@ public class TeamController {
                 suggestTeamRequest.getDistrict(),
                 suggestTeamRequest.getProvince(),
                 suggestTeamRequest.getHowMany());
-        return new ResponseEntity<>(new CodeResponse(toGet),HttpStatus.OK);
+
+        Set<TeamSummaryDTO> summaries = teamService.getSummaryFromTeams(toGet);
+        return new ResponseEntity<>(new CodeResponse(summaries),HttpStatus.OK);
     }
 
     @PostMapping("/findTeam")

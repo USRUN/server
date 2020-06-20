@@ -6,6 +6,7 @@ import com.usrun.core.model.Team;
 import com.usrun.core.model.User;
 import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
+import com.usrun.core.payload.dto.TeamSummaryDTO;
 import com.usrun.core.repository.TeamMemberRepository;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserRepository;
@@ -169,9 +170,21 @@ public class TeamService {
     }
 
     public Set<Team> getTeamSuggestion(Long currentUserId, String district, String province, int howMany){
-        Set<Team> toReturn = new HashSet<>(Collections.emptySet());
+        Set<Team> toReturn;
         Set<Long> toExclude = userService.loadUser(currentUserId).getTeams();
         toReturn =  teamRepository.getTeamSuggestionByUserLocation(district,province,howMany,toExclude);
+        return toReturn;
+    }
+
+    public Set<TeamSummaryDTO> getSummaryFromTeams(Set<Team> teams){
+        Long teamMemberCount;
+        Set<TeamSummaryDTO> toReturn = Collections.EMPTY_SET;
+
+        for(Team t: teams){
+            teamMemberCount = teamMemberRepository.getTeamMemberCount(t.getId());
+            toReturn.add(new TeamSummaryDTO(t,teamMemberCount));
+        }
+
         return toReturn;
     }
 

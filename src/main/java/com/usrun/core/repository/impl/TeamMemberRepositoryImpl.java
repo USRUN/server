@@ -100,6 +100,19 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
     }
 
     @Override
+    public Long getTeamMemberCount(Long teamId){
+        MapSqlParameterSource params = new MapSqlParameterSource("teamId", teamId);
+
+        String sql = "SELECT COUNT(*) FROM teamMember WHERE teamId = :teamId";
+
+        Long toReturn = namedParameterJdbcTemplate.queryForObject(
+                sql,
+                params,
+                Long.class);
+        return toReturn;
+    }
+
+    @Override
     public List<TeamMember> getAllMemberOfTeamPaged(long teamId, int pageNum, int perPage){
         MapSqlParameterSource params = new MapSqlParameterSource("teamId",teamId);
         params.addValue("offset",pageNum*perPage);
