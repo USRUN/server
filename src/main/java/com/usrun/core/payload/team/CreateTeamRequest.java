@@ -17,4 +17,6 @@ public class CreateTeamRequest {
     private String district;
 
     private String province;
+
+    private String thumbnailBase64;
 }

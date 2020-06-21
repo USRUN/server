@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.usrun.core.config.AmazonS3Config;
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class AmazonClient {
 
@@ -75,7 +77,7 @@ public class AmazonClient {
             uploadFileToS3Bucket(fileName, file);
             file.delete();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("", e);
         }
         return fileUrl;
     }

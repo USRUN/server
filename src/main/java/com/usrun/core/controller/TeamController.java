@@ -39,7 +39,8 @@ public class TeamController {
                     createTeamRequest.getPrivacy(),
                     createTeamRequest.getTeamName(),
                     createTeamRequest.getDistrict(),
-                    createTeamRequest.getProvince());
+                    createTeamRequest.getProvince(),
+                    createTeamRequest.getThumbnailBase64());
             return new ResponseEntity<>(new CodeResponse(team), HttpStatus.CREATED);
         } catch (DuplicateKeyException e) {
             return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_EXISTED), HttpStatus.BAD_REQUEST);
