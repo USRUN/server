@@ -7,7 +7,6 @@ import com.usrun.core.model.Team;
 import com.usrun.core.model.User;
 import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
-import com.usrun.core.payload.dto.TeamSummaryDTO;
 import com.usrun.core.repository.TeamMemberRepository;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.utility.CacheClient;
@@ -120,21 +119,26 @@ public class TeamService {
   }
 
   public boolean updateTeamRole(Long teamId, Long memberId, TeamMemberType toChangeInto) {
-    if (toChangeInto == TeamMemberType.OWNER) {
+    if (toChangeInto == null || toChangeInto == TeamMemberType.OWNER) {
       return false;
     }
-    if (toChangeInto == TeamMemberType.BLOCKED) {
-      teamRepository.changeTotalMember(teamId, -1);
-      removeTeamFromCache(teamId, memberId);
-    }
-    if (toChangeInto == TeamMemberType.MEMBER) {
-      teamRepository.changeTotalMember(teamId, 1);
-      addTeamToCache(teamId, memberId);
-    }
 
-    teamRepository.updateTeamMemberType(teamId, memberId, toChangeInto);
-    cacheClient.setTeamMemberType(teamId, memberId, toChangeInto);
-    return true;
+    boolean updated = teamRepository.updateTeamMemberType(teamId, memberId, toChangeInto);
+
+    if (updated) {
+      if (toChangeInto == TeamMemberType.BLOCKED) {
+        teamRepository.changeTotalMember(teamId, -1);
+        removeTeamFromCache(teamId, memberId);
+      }
+
+      if (toChangeInto == TeamMemberType.MEMBER) {
+        teamRepository.changeTotalMember(teamId, 1);
+        addTeamToCache(teamId, memberId);
+      }
+
+      cacheClient.setTeamMemberType(teamId, memberId, toChangeInto);
+    }
+    return updated;
   }
 
   public boolean cancelJoinTeam(Long requestId, Long teamId) {
@@ -167,11 +171,11 @@ public class TeamService {
       toUpdate.setTeamName(teamName);
     }
     if (thumbnail != null) {
-      String thumbnailURL = amazonClient.uploadFile(thumbnail, "team-" + teamId + "-thumbnail");
+      String thumbnailURL = amazonClient.uploadFile(thumbnail, "thumbnail-team-" + teamName);
       toUpdate.setThumbnail(thumbnailURL);
     }
     if (banner != null) {
-      String bannerURL = amazonClient.uploadFile(banner, "team-" + teamId + "-banner");
+      String bannerURL = amazonClient.uploadFile(banner, "banner-team-" + teamName);
       toUpdate.setBanner(bannerURL);
     }
     if (privacy != toUpdate.getPrivacy()) {
@@ -202,20 +206,8 @@ public class TeamService {
     return toReturn;
   }
 
-  public Set<TeamSummaryDTO> getSummaryFromTeams(Set<Team> teams) {
-    Long teamMemberCount;
-    Set<TeamSummaryDTO> toReturn = new HashSet<>();
-
-    for (Team t : teams) {
-      teamMemberCount = teamMemberRepository.getTeamMemberCount(t.getId());
-      toReturn.add(new TeamSummaryDTO(t, teamMemberCount));
-    }
-
-    return toReturn;
-  }
-
-  public Set<Team> findTeamWithNameContains(String searchString, int pageNum, int perPage) {
-    Set<Team> toGet = teamRepository.findTeamWithNameContains(searchString, pageNum, perPage);
+  public Set<Team> findTeamWithNameContains(String searchString, int offset, int count) {
+    Set<Team> toGet = teamRepository.findTeamWithNameContains(searchString, offset, count);
 
     if (toGet == null) {
       throw new DataRetrievalFailureException("Team not found");
@@ -224,11 +216,11 @@ public class TeamService {
     return toGet;
   }
 
-  public Set<User> getAllTeamMemberPaged(Long teamId, int pageNum, int perPage) {
+  public Set<User> getAllTeamMemberPaged(Long teamId, int offset, int count) {
     Set<User> toReturn = new HashSet<>();
 
     List<TeamMember> teamMembers = teamMemberRepository
-        .getAllMemberOfTeamPaged(teamId, pageNum, perPage);
+        .getAllMemberOfTeamPaged(teamId, offset, count);
 
     teamMembers.forEach(teamMember -> {
       toReturn.add(userService.loadUser(teamMember.getUserId()));

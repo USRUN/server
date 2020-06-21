@@ -2,9 +2,12 @@ package com.usrun.core.config;
 
 public interface ErrorCode {
 
+
   int LOGOUT_CODE = 100;
   int MAINTENANCE = 101;
   int FORCE_UPDATE = 102;
+
+  int SYSTEM_ERROR = 500;
 
   int FIELD_REQUIRED = 1000;
   int ACCESS_DENT = 1001;
@@ -42,6 +45,7 @@ public interface ErrorCode {
   int TEAM_NOT_FOUND = 3000;
   int TEAM_USER_NOT_FOUND = 3001;
   int TEAM_EXISTED = 3002;
+  int TEAM_UPDATE_ROLE_FAILED = 3003;
 
   int EVENT_NOT_FOUND = 4000;
   int EVENT_EVENT_EXIT = 4001;

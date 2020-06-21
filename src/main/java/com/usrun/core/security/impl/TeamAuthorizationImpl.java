@@ -31,12 +31,7 @@ public class TeamAuthorizationImpl implements TeamAuthorization {
     TeamMemberType userTeamRole = null;
     try {
       userTeamRole = teamService.loadTeamMemberType(teamId, userId);
-      if (TeamMemberType.MEMBER.compareTo(userTeamRole) >= 0
-          && requestTeamRole.compareTo(userTeamRole) >= 0) {
-        return true;
-      } else {
-        return false;
-      }
+      return requestTeamRole.compareTo(userTeamRole) >= 0;
     } catch (TeamException ex) {
       return false;
     }

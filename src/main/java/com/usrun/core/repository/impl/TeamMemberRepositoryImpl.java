@@ -2,9 +2,11 @@ package com.usrun.core.repository.impl;
 
 import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
+import com.usrun.core.payload.dto.TeamMemberCountDTO;
 import com.usrun.core.repository.TeamMemberRepository;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -21,7 +23,7 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
 
     MapSqlParameterSource map = mapTeamMember(toInsert);
     namedParameterJdbcTemplate.update(
-        "INSERT INTO teamMember(teamId,userId,teamMemberType,addTime)" +
+        "INSERT INTO teamMember(teamId, userId, teamMemberType, addTime)" +
             " VALUES(:teamId,:userId,:teamMemberType,:addTime)",
         map
     );
@@ -31,11 +33,10 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
   @Override
   public TeamMember update(TeamMember toUpdate) {
     MapSqlParameterSource map = mapTeamMember(toUpdate);
-    namedParameterJdbcTemplate.update(
-        "UPDATE IGNORE teamMember SET teamId = :teamId,userId= :userId,teamMemberType= :teamMemberType",
-        map
-    );
-    return toUpdate;
+    String sql = "UPDATE teamMember SET teamMemberType= :teamMemberType "
+        + "WHERE teamId = :teamId AND userId= :userId";
+    int effect = namedParameterJdbcTemplate.update(sql, map);
+    return effect == 0 ? null : toUpdate;
   }
 
   @Override
@@ -97,28 +98,15 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
   }
 
   @Override
-  public Long getTeamMemberCount(Long teamId) {
-    MapSqlParameterSource params = new MapSqlParameterSource("teamId", teamId);
+  public List<TeamMember> getAllMemberOfTeamPaged(long teamId, int offset, int count) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("teamId", teamId);
+    params.addValue("offset", offset * count);
+    params.addValue("count", count);
 
-    String sql = "SELECT COUNT(*) FROM teamMember WHERE teamId = :teamId";
+    String sql = "SELECT * FROM teamMember WHERE teamId = :teamId LIMIT :count OFFSET :offset";
 
-    Long toReturn = namedParameterJdbcTemplate.queryForObject(
-        sql,
-        params,
-        Long.class);
-
-    return toReturn;
-  }
-
-  @Override
-  public List<TeamMember> getAllMemberOfTeamPaged(long teamId, int pageNum, int perPage) {
-    MapSqlParameterSource params = new MapSqlParameterSource("teamId", teamId);
-    params.addValue("offset", pageNum * perPage);
-    params.addValue("perPage", perPage);
-
-    String sql = "SELECT * FROM teamMember WHERE teamId = :teamId LIMIT :perPage OFFSET :offset";
-
-    List<TeamMember> toReturn = namedParameterJdbcTemplate.query(
+    return namedParameterJdbcTemplate.query(
         sql,
         params,
         (rs, i) -> new TeamMember(
@@ -126,7 +114,6 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
             rs.getLong("userId"),
             rs.getInt("teamMemberType"),
             rs.getDate("addTime")));
-    return toReturn;
   }
 
   private TeamMember getTeamMember(String sql, MapSqlParameterSource params) {

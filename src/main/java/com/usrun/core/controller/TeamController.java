@@ -18,6 +18,8 @@ import com.usrun.core.security.CurrentUser;
 import com.usrun.core.security.UserPrincipal;
 import com.usrun.core.service.TeamService;
 import java.util.Set;
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.dao.DuplicateKeyException;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/team")
 public class TeamController {
@@ -91,7 +94,7 @@ public class TeamController {
       return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_NOT_FOUND),
           HttpStatus.BAD_REQUEST);
     }
-    return ResponseEntity.ok(new CodeResponse(200));
+    return ResponseEntity.ok(new CodeResponse(0));
   }
 
   @PostMapping("/cancelJoin")
@@ -100,12 +103,18 @@ public class TeamController {
       @CurrentUser UserPrincipal userPrincipal,
       @RequestBody JoinTeamRequest joinTeamRequest) {
     try {
-      teamService.cancelJoinTeam(userPrincipal.getId(), joinTeamRequest.getTeamId());
+      boolean deleted = teamService
+          .cancelJoinTeam(userPrincipal.getId(), joinTeamRequest.getTeamId());
     } catch (DataRetrievalFailureException e) {
+      log.error("", e);
       return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_NOT_FOUND),
           HttpStatus.BAD_REQUEST);
+    } catch (Exception e) {
+      log.error("", e);
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
+          HttpStatus.BAD_REQUEST);
     }
-    return ResponseEntity.ok(new CodeResponse(200));
+    return ResponseEntity.ok(new CodeResponse(0));
   }
 
   @PostMapping("/changeMemberType")
@@ -113,15 +122,24 @@ public class TeamController {
   public ResponseEntity<?> changeMemberType(
       @RequestBody UpdateMemberRequest updateMemberRequest) {
     try {
-      teamService.updateTeamRole(
+      boolean updateRole = teamService.updateTeamRole(
           updateMemberRequest.getTeamId(),
           updateMemberRequest.getMemberId(),
           TeamMemberType.fromInt(updateMemberRequest.getMemberType()));
+      if (!updateRole) {
+        return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_UPDATE_ROLE_FAILED),
+            HttpStatus.BAD_REQUEST);
+      }
     } catch (DataRetrievalFailureException e) {
+      log.error("", e);
       return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_NOT_FOUND),
           HttpStatus.BAD_REQUEST);
+    } catch (Exception e) {
+      log.error("", e);
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
+          HttpStatus.BAD_REQUEST);
     }
-    return ResponseEntity.ok(new CodeResponse(200));
+    return ResponseEntity.ok(new CodeResponse(0));
   }
 
   @PostMapping("/getTeamById")
@@ -151,7 +169,8 @@ public class TeamController {
         suggestTeamRequest.getProvince(),
         suggestTeamRequest.getHowMany());
 
-    Set<TeamSummaryDTO> summaries = teamService.getSummaryFromTeams(toGet);
+    Set<TeamSummaryDTO> summaries = toGet.stream().map(TeamSummaryDTO::new).collect(
+        Collectors.toSet());
     return new ResponseEntity<>(new CodeResponse(summaries), HttpStatus.OK);
   }
 
@@ -160,9 +179,12 @@ public class TeamController {
   public ResponseEntity<?> findTeamWithNameContains(
       @RequestBody FindTeamRequest findTeamRequest
   ) {
+    int offset =
+        findTeamRequest.getPageNum() > 0 ? findTeamRequest.getPageNum() - 1 : 0;
+    int count =
+        findTeamRequest.getPerPage() > 0 ? findTeamRequest.getPerPage() : 10;
     Set<Team> toGet = teamService
-        .findTeamWithNameContains(findTeamRequest.getTeamName(), findTeamRequest.getPageNum(),
-            findTeamRequest.getPerPage());
+        .findTeamWithNameContains(findTeamRequest.getTeamName(), offset, count);
     return new ResponseEntity<>(new CodeResponse(toGet), HttpStatus.OK);
   }
 
@@ -171,9 +193,12 @@ public class TeamController {
   public ResponseEntity<?> getAllTeamMember(
       @RequestBody GetAllTeamMemberRequest getAllTeamMemberRequest
   ) {
+    int offset =
+        getAllTeamMemberRequest.getPageNum() > 0 ? getAllTeamMemberRequest.getPageNum() - 1 : 0;
+    int count =
+        getAllTeamMemberRequest.getPerPage() > 0 ? getAllTeamMemberRequest.getPerPage() : 10;
     Set<User> toGet = teamService
-        .getAllTeamMemberPaged(getAllTeamMemberRequest.getTeamId(), getAllTeamMemberRequest.pageNum,
-            getAllTeamMemberRequest.perPage);
+        .getAllTeamMemberPaged(getAllTeamMemberRequest.getTeamId(), offset, count);
     return new ResponseEntity<>(new CodeResponse(toGet), HttpStatus.OK);
   }
 }

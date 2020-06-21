@@ -2,7 +2,9 @@ package com.usrun.core.repository;
 
 import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
+import com.usrun.core.payload.dto.TeamMemberCountDTO;
 import java.util.List;
+import java.util.Set;
 
 public interface TeamMemberRepository {
 
@@ -13,8 +15,6 @@ public interface TeamMemberRepository {
   boolean delete(TeamMember toDelete);
 
   TeamMember findById(Long teamId, Long userId);
-
-  Long getTeamMemberCount(Long teamId);
 
   List<TeamMember> filterByMemberType(long teamId, TeamMemberType toFilter);
 

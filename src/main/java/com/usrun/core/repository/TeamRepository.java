@@ -28,7 +28,7 @@ public interface TeamRepository {
 
   boolean updateTeamMemberType(Long teamId, Long memberId, TeamMemberType action);
 
-  Set<Team> findTeamWithNameContains(String searchString, int pageNum, int perPage);
+  Set<Team> findTeamWithNameContains(String searchString, int offset, int count);
 
   Set<Long> getTeamsByUser(long userId);
 

@@ -1,10 +1,10 @@
 package com.usrun.core.payload.team;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 public class UpdateMemberRequest {
 
   private Long teamId;
