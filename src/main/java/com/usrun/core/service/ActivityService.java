@@ -120,7 +120,7 @@ public class ActivityService {
     List<String> photos = new ArrayList<>();
     int count = 1;
     for(String photoBase64 : photosBase64) {
-      String fileUrl = amazonClient.uploadFile(photoBase64, "activity-" + trackId + "-" + 1);
+      String fileUrl = amazonClient.uploadFile(photoBase64, "activity-" + trackId + "-" + count);
       if(fileUrl != null) {
         photos.add(fileUrl);
       }
