@@ -10,5 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CreateTrackRequest {
-    private String description;
+
+  private String description;
 }

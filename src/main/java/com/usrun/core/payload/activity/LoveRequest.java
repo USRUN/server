@@ -6,5 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LoveRequest {
-    private long activityId;
+
+  private long activityId;
 }

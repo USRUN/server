@@ -1,70 +1,73 @@
 package com.usrun.core.model;
 
 
+import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.util.Date;
-
 @Getter
 @Setter
 @Table("team")
 public class Team {
-    @Id
-    private Long id;
 
-    private int privacy;
+  @Id
+  private Long id;
 
-    private int totalMember;
+  private int privacy;
 
-    private String teamName;
+  private int totalMember;
 
-    private String banner;
+  private String teamName;
 
-    private String thumbnail;
+  private String banner;
 
-    private boolean verified;
+  private String thumbnail;
 
-    private boolean deleted;
+  private boolean verified;
 
-    private Date createTime;
+  private boolean deleted;
 
-    private String district;
+  private Date createTime;
 
-    private String province;
+  private String district;
 
-    private String description;
+  private String province;
 
-    // used in TeamService -> createTeam
-    public Team(int privacy, String teamName, String district, String province, Date createTime, String thumbnail){
-        this.teamName = teamName;
-        this.privacy = privacy;
-        this.district = district;
-        this.province = province;
-        this.createTime = createTime;
+  private String description;
 
-        // auto-assigned for a newly created team
-        this.totalMember = 1;
-        this.verified = false;
-        this.deleted = false;
-        this.thumbnail = thumbnail;
-    }
+  // used in TeamService -> createTeam
+  public Team(int privacy, String teamName, String district, String province, Date createTime,
+      String thumbnail) {
+    this.teamName = teamName;
+    this.privacy = privacy;
+    this.district = district;
+    this.province = province;
+    this.createTime = createTime;
 
-    // used to update team's info
-    public Team(Long teamId, int privacy, int totalMember, String teamName, String thumbnail,String banner, boolean verified, boolean deleted, Date createTime, String province, String district, String description){
-        this.id = teamId;
-        this.teamName =teamName;
-        this.thumbnail = thumbnail;
-        this.privacy = privacy;
-        this.totalMember = totalMember;
-        this.banner = banner;
-        this.district = district;
-        this.province = province;
-        this.verified = verified;
-        this.deleted = deleted;
-        this.createTime = createTime;
-        this.description = description;
-    }
+    // auto-assigned for a newly created team
+    this.totalMember = 1;
+    this.verified = false;
+    this.deleted = false;
+    this.thumbnail = thumbnail;
+  }
+
+  // used to update team's info
+  public Team(Long teamId, int privacy, int totalMember, String teamName, String thumbnail,
+      String banner, boolean verified, boolean deleted, Date createTime, String province,
+      String district, String description) {
+    this.id = teamId;
+    this.teamName = teamName;
+    this.thumbnail = thumbnail;
+    this.privacy = privacy;
+    this.totalMember = totalMember;
+    this.banner = banner;
+    this.district = district;
+    this.province = province;
+    this.verified = verified;
+    this.deleted = deleted;
+    this.createTime = createTime;
+    this.description = description;
+  }
 }

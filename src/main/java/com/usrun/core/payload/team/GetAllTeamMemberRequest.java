@@ -6,7 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GetAllTeamMemberRequest {
-    public long teamId;
-    public int pageNum;
-    public int perPage;
+
+  public long teamId;
+  public int pageNum;
+  public int perPage;
 }

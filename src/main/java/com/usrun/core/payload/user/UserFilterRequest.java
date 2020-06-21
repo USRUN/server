@@ -1,9 +1,8 @@
 package com.usrun.core.payload.user;
 
+import javax.validation.constraints.Min;
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.validation.constraints.Min;
 
 /**
  * @author phuctt4
@@ -12,9 +11,10 @@ import javax.validation.constraints.Min;
 @Setter
 @Getter
 public class UserFilterRequest {
-    @Min(0)
-    private int offset = 0;
-    @Min(1)
-    private int count = 30;
-    private String key;
+
+  @Min(0)
+  private int offset = 0;
+  @Min(1)
+  private int count = 30;
+  private String key;
 }

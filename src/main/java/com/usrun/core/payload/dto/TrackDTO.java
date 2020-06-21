@@ -2,11 +2,10 @@ package com.usrun.core.payload.dto;
 
 import com.usrun.core.model.track.Point;
 import com.usrun.core.model.track.Track;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.Date;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author phuctt4
@@ -15,21 +14,22 @@ import java.util.List;
 @Getter
 @Setter
 public class TrackDTO {
-    private Long trackId;
 
-    private Long userId;
+  private Long trackId;
 
-    private String description;
+  private Long userId;
 
-    private Date time;
+  private String description;
 
-    private List<Point> points;
+  private Date time;
 
-    public TrackDTO(Track track, List<Point> points) {
-        this.trackId = track.getTrackId();
-        this.userId = track.getUserId();
-        this.description = track.getDescription();
-        this.time = track.getTime();
-        this.points = points;
-    }
+  private List<Point> points;
+
+  public TrackDTO(Track track, List<Point> points) {
+    this.trackId = track.getTrackId();
+    this.userId = track.getUserId();
+    this.description = track.getDescription();
+    this.time = track.getTime();
+    this.points = points;
+  }
 }

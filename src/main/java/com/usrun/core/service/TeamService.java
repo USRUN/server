@@ -1,5 +1,6 @@
 package com.usrun.core.service;
 
+import com.usrun.core.config.AppProperties;
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.TeamException;
 import com.usrun.core.model.Team;
@@ -41,14 +42,17 @@ public class TeamService {
   @Autowired
   private UserService userService;
 
+  @Autowired
+  private AppProperties appProperties;
+
   public Team createTeam(
       Long ownerId, int privacy, String teamName, String district, String province,
       String thumbnailBase64
   ) {
-    String thumbnail = "Hello World";
+    String thumbnail = appProperties.getDefaultThumbnailTeam();
     if (!StringUtils.isEmpty(thumbnailBase64)) {
       String fileUrl = amazonClient.uploadFile(thumbnailBase64, "thumbnail-team-" + teamName);
-      if(fileUrl != null) {
+      if (fileUrl != null) {
         thumbnail = fileUrl;
       }
     }

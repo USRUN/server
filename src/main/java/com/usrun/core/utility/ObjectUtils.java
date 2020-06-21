@@ -12,15 +12,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class ObjectUtils {
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    public String toJsonString(Object object) {
-        try {
-            return objectMapper.writeValueAsString(object);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return "";
-        }
+  public String toJsonString(Object object) {
+    try {
+      return objectMapper.writeValueAsString(object);
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+      return "";
     }
+  }
 }

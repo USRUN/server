@@ -6,5 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GetTeamByIdRequest {
-    public Long teamId;
+
+  public Long teamId;
 }

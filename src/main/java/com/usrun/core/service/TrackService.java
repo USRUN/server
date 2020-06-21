@@ -1,25 +1,17 @@
 package com.usrun.core.service;
 
-import com.google.common.hash.Hashing;
-import com.usrun.core.config.AppProperties;
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.TrackException;
 import com.usrun.core.model.track.Location;
-import com.usrun.core.model.track.Point;
 import com.usrun.core.model.track.Track;
-import com.usrun.core.payload.dto.TrackDTO;
-import com.usrun.core.repository.PointRepository;
 import com.usrun.core.repository.TrackRepository;
 import com.usrun.core.utility.CacheClient;
 import com.usrun.core.utility.SequenceGenerator;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author phuctt4
@@ -28,28 +20,28 @@ import java.util.stream.Collectors;
 @Service
 public class TrackService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TrackService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TrackService.class);
 
-    @Autowired
-    private SequenceGenerator sequenceGenerator;
+  @Autowired
+  private SequenceGenerator sequenceGenerator;
 
-    @Autowired
-    private TrackRepository trackRepository;
+  @Autowired
+  private TrackRepository trackRepository;
 
-    @Autowired
-    private CacheClient cacheClient;
+  @Autowired
+  private CacheClient cacheClient;
 
-    public Track createTrack(Long userId, String description, List<List<Location>> locations) {
-        Long trackId = sequenceGenerator.nextId();
-        Track track = new Track(trackId, userId, description);
+  public Track createTrack(Long userId, String description, List<List<Location>> locations) {
+    Long trackId = sequenceGenerator.nextId();
+    Track track = new Track(trackId, userId, description);
 
-        track.setLocations(locations);
-        trackRepository.save(track);
-        cacheClient.setTrack(track);
+    track.setLocations(locations);
+    trackRepository.save(track);
+    cacheClient.setTrack(track);
 
-        LOGGER.info(track.toString());
-        return track;
-    }
+    LOGGER.info(track.toString());
+    return track;
+  }
 
 //    public List<Point> track(Long userId, Long trackId, List<Location> locations, double time) {
 //        double t = System.currentTimeMillis() - time;
@@ -99,21 +91,21 @@ public class TrackService {
 //                .toString();
 //    }
 
-    public Track getTrack(Long userId, Long trackId) {
-        Track track = trackRepository.findById(trackId).orElse(null);
-        if(track == null) {
-            String msg = String.format("[%s] Track not found", trackId);
-            LOGGER.warn(msg);
-            throw new TrackException(msg, ErrorCode.TRACK_NOT_FOUND);
-        } else {
-            if(track.getUserId() == userId) {
-                LOGGER.info("User {} got track {} ", userId, trackId);
-                return track;
-            } else {
-                String msg = String.format("[%s] Track does not belong to %s", trackId, userId);
-                LOGGER.warn(msg);
-                throw new TrackException(msg, ErrorCode.TRACK_NOT_BELONG_TO_USER);
-            }
-        }
+  public Track getTrack(Long userId, Long trackId) {
+    Track track = trackRepository.findById(trackId).orElse(null);
+    if (track == null) {
+      String msg = String.format("[%s] Track not found", trackId);
+      LOGGER.warn(msg);
+      throw new TrackException(msg, ErrorCode.TRACK_NOT_FOUND);
+    } else {
+      if (track.getUserId() == userId) {
+        LOGGER.info("User {} got track {} ", userId, trackId);
+        return track;
+      } else {
+        String msg = String.format("[%s] Track does not belong to %s", trackId, userId);
+        LOGGER.warn(msg);
+        throw new TrackException(msg, ErrorCode.TRACK_NOT_BELONG_TO_USER);
+      }
     }
+  }
 }

@@ -3,24 +3,23 @@ package com.usrun.core.payload.team;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
-
 @Getter
 @Setter
 public class UpdateTeamRequest {
-    private Long teamId;
 
-    private int privacy;
+  private Long teamId;
 
-    private String teamName;
+  private int privacy;
 
-    private String thumbnail;
+  private String teamName;
 
-    private String banner;
+  private String thumbnail;
 
-    private String district;
+  private String banner;
 
-    private String province;
+  private String district;
 
-    private String description;
+  private String province;
+
+  private String description;
 }

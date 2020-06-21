@@ -11,12 +11,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Role {
-    private RoleType roleType;
 
-    public Role() {
-    }
+  private RoleType roleType;
 
-    public Role(RoleType roleType) {
-        this.roleType = roleType;
-    }
+  public Role() {
+  }
+
+  public Role(RoleType roleType) {
+    this.roleType = roleType;
+  }
 }

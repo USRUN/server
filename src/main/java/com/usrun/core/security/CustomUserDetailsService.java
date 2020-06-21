@@ -6,46 +6,47 @@ import com.usrun.core.model.User;
 import com.usrun.core.repository.UserRepository;
 import com.usrun.core.service.UserService;
 import com.usrun.core.utility.CacheClient;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private UserService userService;
+  @Autowired
+  private UserRepository userRepository;
 
-    @Autowired
-    private CacheClient cacheClient;
+  @Autowired
+  private UserService userService;
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userService.loadUser(email);
+  @Autowired
+  private CacheClient cacheClient;
 
-        if (!user.isEnabled())
-            new CodeException(ErrorCode.USER_DOES_NOT_PERMISSION);
+  @Override
+  public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    User user = userService.loadUser(email);
 
-        user.setLastLogin(new Date());
-        userRepository.update(user);
-        cacheClient.setUser(user);
-
-        return UserPrincipal.create(user);
+    if (!user.isEnabled()) {
+      new CodeException(ErrorCode.USER_DOES_NOT_PERMISSION);
     }
 
-    public UserDetails loadUserById(Long id) {
-        User user = userService.loadUser(id);
+    user.setLastLogin(new Date());
+    userRepository.update(user);
+    cacheClient.setUser(user);
 
-        if (!user.isEnabled())
-            throw new CodeException(ErrorCode.USER_DOES_NOT_PERMISSION);
+    return UserPrincipal.create(user);
+  }
 
-        return UserPrincipal.create(user);
+  public UserDetails loadUserById(Long id) {
+    User user = userService.loadUser(id);
+
+    if (!user.isEnabled()) {
+      throw new CodeException(ErrorCode.USER_DOES_NOT_PERMISSION);
     }
+
+    return UserPrincipal.create(user);
+  }
 }

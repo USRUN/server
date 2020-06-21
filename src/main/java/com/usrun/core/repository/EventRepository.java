@@ -6,16 +6,15 @@
 package com.usrun.core.repository;
 
 import com.usrun.core.model.Event;
-import com.usrun.core.model.Love;
-import java.util.List;
 import org.springframework.stereotype.Repository;
 
 /**
- *
  * @author anhhuy
  */
 @Repository
 public interface EventRepository {
-    Event insert(Event event);
-    boolean delete(Event delete);
+
+  Event insert(Event event);
+
+  boolean delete(Event delete);
 }

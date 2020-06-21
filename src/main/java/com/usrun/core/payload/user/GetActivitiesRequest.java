@@ -10,7 +10,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GetActivitiesRequest {
-    private long teamId;
-    private int count = 30;
-    private int offset = 0;
+
+  private long teamId;
+  private int count = 30;
+  private int offset = 0;
 }

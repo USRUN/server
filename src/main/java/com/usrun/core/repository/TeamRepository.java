@@ -3,36 +3,37 @@ package com.usrun.core.repository;
 import com.usrun.core.model.Team;
 import com.usrun.core.model.User;
 import com.usrun.core.model.type.TeamMemberType;
-
 import java.util.List;
 import java.util.Set;
 
 public interface TeamRepository {
-    Team insert(Team toInsert,Long ownerUserId);
 
-    Team update(Team toUpdate);
+  Team insert(Team toInsert, Long ownerUserId);
 
-    boolean delete(Team toDelete);
+  Team update(Team toUpdate);
 
-    Team findTeamById(Long teamId);
+  boolean delete(Team toDelete);
 
-    Team findTeamByName(String teamName);
+  Team findTeamById(Long teamId);
 
-    boolean joinTeam(Long requestingId,Long teamId);
+  Team findTeamByName(String teamName);
 
-    boolean cancelJoinTeam(Long requestingId, Long teamId);
+  boolean joinTeam(Long requestingId, Long teamId);
 
-    int changeTotalMember(Long teamId, int changeAmount);
+  boolean cancelJoinTeam(Long requestingId, Long teamId);
 
-    List<User> getMemberListByType(Long teamId, TeamMemberType toGet);
+  int changeTotalMember(Long teamId, int changeAmount);
 
-    boolean updateTeamMemberType(Long teamId,Long memberId, TeamMemberType action);
+  List<User> getMemberListByType(Long teamId, TeamMemberType toGet);
 
-    Set<Team> findTeamWithNameContains(String searchString,int pageNum, int perPage);
+  boolean updateTeamMemberType(Long teamId, Long memberId, TeamMemberType action);
 
-    Set<Long> getTeamsByUser(long userId);
+  Set<Team> findTeamWithNameContains(String searchString, int pageNum, int perPage);
 
-    Set<Team> getTeamSuggestionByUserLocation(String district, String province, int howMany, Set<Long> toExclude);
+  Set<Long> getTeamsByUser(long userId);
 
-    List<Team> findAllTeam();
+  Set<Team> getTeamSuggestionByUserLocation(String district, String province, int howMany,
+      Set<Long> toExclude);
+
+  List<Team> findAllTeam();
 }
