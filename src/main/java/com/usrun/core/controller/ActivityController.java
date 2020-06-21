@@ -5,6 +5,7 @@
  */
 package com.usrun.core.controller;
 
+import com.usrun.core.config.AppProperties;
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
 import com.usrun.core.exception.TrackException;
@@ -26,7 +27,6 @@ import com.usrun.core.repository.UserActivityRepository;
 import com.usrun.core.security.CurrentUser;
 import com.usrun.core.security.UserPrincipal;
 import com.usrun.core.service.ActivityService;
-import com.usrun.core.service.PostService;
 import com.usrun.core.service.TrackService;
 import com.usrun.core.service.UserService;
 import com.usrun.core.utility.CacheClient;
@@ -59,9 +59,6 @@ public class ActivityController {
   private ActivityService activityService;
 
   @Autowired
-  private PostService postService;
-
-  @Autowired
   private CacheClient cacheClient;
 
   @Autowired
@@ -69,6 +66,9 @@ public class ActivityController {
 
   @Autowired
   private UserService userService;
+
+  @Autowired
+  private AppProperties appProperties;
 
   @PostMapping("/getUserActivityByTimeWithSum")
   public ResponseEntity<?> getUserActivityByTimeWithSum(
@@ -105,13 +105,26 @@ public class ActivityController {
       @CurrentUser UserPrincipal userPrincipal,
       @RequestBody CreateActivityRequest paramActivity
   ) {
-    Long userId = userPrincipal.getId();
+
+    long userId = userPrincipal.getId();
+    long time = paramActivity.getTime();
+    long deltaTime = System.currentTimeMillis() - time;
+    if(deltaTime > appProperties.getActivityLock()) {
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.ACTIVITY_REQUEST_TIME_INVALID),
+          HttpStatus.BAD_REQUEST);
+    }
+
+    if (!cacheClient.acquireActivityLock(userId, time, appProperties.getActivityLock())) {
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.ACTIVITY_PROCESSING_OR_DUPLICATED),
+          HttpStatus.BAD_REQUEST);
+    }
+
     String sig = paramActivity.getSig();
-    String sigActivity = activityService.getSigActivity(userId);
+    String sigActivity = activityService.getSigActivity(userId, time);
     try {
       if (sig.equals(sigActivity)) {
         List<List<Location>> locations = paramActivity.getTrackRequest().getLocations();
-        Track track = trackService.createTrack(userId, "", locations);
+        Track track = trackService.createTrack(userId, paramActivity.getDescription(), locations);
 
         UserActivity userActivity = activityService
             .createUserActivity(userId, paramActivity, track.getTrackId(), track.getTime());

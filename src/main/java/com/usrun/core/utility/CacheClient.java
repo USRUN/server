@@ -19,6 +19,7 @@ import org.redisson.api.RAtomicLongAsync;
 import org.redisson.api.RBatch;
 import org.redisson.api.RBucket;
 import org.redisson.api.RBucketAsync;
+import org.redisson.api.RLock;
 import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RScoredSortedSetAsync;
 import org.redisson.api.RedissonClient;
@@ -213,5 +214,21 @@ public class CacheClient {
         rBatch.getAtomicLong(cacheKeyGenerator
             .keyActivityCountByTeam(dto.getTeamId())).setAsync(dto.getCount()));
     rBatch.execute();
+  }
+
+  public boolean acquireActivityLock(long userId, long time, long lockTime) {
+    RLock rLock = redissonClient.getLock(cacheKeyGenerator.keyActivityLock(userId, time));
+    if (rLock.isLocked()) {
+      return false;
+    }
+    rLock.lock(lockTime, TimeUnit.MILLISECONDS);
+    return true;
+  }
+
+  public void releaseActivityLock(long userId, long time) {
+    RLock rLock = redissonClient.getLock(cacheKeyGenerator.keyActivityLock(userId, time));
+    if (rLock.isLocked()) {
+      rLock.unlock();
+    }
   }
 }

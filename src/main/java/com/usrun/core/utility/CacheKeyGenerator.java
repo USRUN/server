@@ -44,4 +44,8 @@ public class CacheKeyGenerator {
   public String keyActivityCountByTeam(long teamId) {
     return "activities:team:count:" + teamId;
   }
+
+  public String keyActivityLock(long userId, long time) {
+    return "activity:lock:" + userId + ":" + time;
+  }
 }

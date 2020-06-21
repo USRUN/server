@@ -11,6 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class AppProperties {
 
   private String defaultThumbnailTeam;
+  private long activityLock;
   private final Auth auth = new Auth();
   private final OAuth2 oauth2 = new OAuth2();
   private final Track track = new Track();

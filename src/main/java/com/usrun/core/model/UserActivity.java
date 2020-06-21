@@ -6,7 +6,9 @@
 package com.usrun.core.model;
 
 import com.usrun.core.payload.user.CreateActivityRequest;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,7 +31,7 @@ public class UserActivity {
   private int calories;
   private double elevGain;
   private double elevMax;
-  private String photo;
+  private List<String> photos;
   private String title;
   private String description;
   private int totalLove;
@@ -41,7 +43,7 @@ public class UserActivity {
 
   public UserActivity(long userActivityId, long userId, Date createTime, long totalDistance,
       long totalTime, long totalStep, double avgPace, double avgHeart, double maxHeart,
-      int calories, double elevGain, double elevMax, String photo, String title, String description,
+      int calories, double elevGain, double elevMax, List<String> photos, String title, String description,
       int totalLove, int totalComment, int totalShare, boolean processed, int deleted,
       int privacy) {
     this.userActivityId = userActivityId;
@@ -56,7 +58,7 @@ public class UserActivity {
     this.calories = calories;
     this.elevGain = elevGain;
     this.elevMax = elevMax;
-    this.photo = photo;
+    this.photos = photos;
     this.title = title;
     this.description = description;
     this.totalLove = totalLove;
@@ -67,7 +69,7 @@ public class UserActivity {
     this.privacy = privacy;
   }
 
-  public UserActivity(CreateActivityRequest createActivityRequest, long trackId, Date createTime) {
+  public UserActivity(CreateActivityRequest createActivityRequest, long trackId, Date createTime, List<String> photos) {
     this.userActivityId = trackId;
     this.createTime = createTime;
     this.totalDistance = createActivityRequest.getTotalDistance();
@@ -79,7 +81,7 @@ public class UserActivity {
     this.calories = createActivityRequest.getCalories();
     this.elevGain = createActivityRequest.getElevGain();
     this.elevMax = createActivityRequest.getElevMax();
-    this.photo = createActivityRequest.getPhoto();
+    this.photos = photos;
     this.title = createActivityRequest.getTitle();
     this.description = createActivityRequest.getDescription();
     this.totalLove = createActivityRequest.getTotalLove();
@@ -113,5 +115,6 @@ public class UserActivity {
     this.totalLove = 0;
     this.totalComment = 0;
     this.totalShare = 0;
+    this.photos = Collections.emptyList();
   }
 }

@@ -36,8 +36,13 @@ public class ActivityService {
   @Autowired
   private AppProperties appProperties;
 
-  public String getSigActivity(Long userId) {
+  @Autowired
+  private AmazonClient amazonClient;
+
+  public String getSigActivity(long userId, long time) {
     StringBuffer buffer = new StringBuffer(Long.toString(userId));
+    buffer.append("|");
+    buffer.append(time);
     return Hashing
         .hmacSha256(appProperties.getActivity().getKey().getBytes())
         .hashString(buffer.toString(), StandardCharsets.UTF_8)
@@ -111,8 +116,19 @@ public class ActivityService {
 
   public UserActivity createUserActivity(long creatorId,
       CreateActivityRequest createActivityRequest, long trackId, Date createTime) {
-    UserActivity toCreate = new UserActivity(createActivityRequest, trackId, createTime);
+    List<String> photosBase64 = createActivityRequest.getPhotosBase64();
+    List<String> photos = new ArrayList<>();
+    int count = 1;
+    for(String photoBase64 : photosBase64) {
+      String fileUrl = amazonClient.uploadFile(photoBase64, "activity-" + trackId + "-" + 1);
+      if(fileUrl != null) {
+        photos.add(fileUrl);
+      }
+      count++;
+    }
+    UserActivity toCreate = new UserActivity(createActivityRequest, trackId, createTime, photos);
     toCreate.setUserId(creatorId);
+
     toCreate = userActivityRepository.insert(toCreate);
     LOGGER.info("User activity created for userID [{}] with ID: {}", toCreate.getUserId(),
         toCreate.getUserActivityId());

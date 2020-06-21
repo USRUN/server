@@ -1,7 +1,9 @@
 package com.usrun.core.repository.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.usrun.core.model.UserActivity;
 import com.usrun.core.repository.UserActivityRepository;
+import com.usrun.core.utility.ObjectUtils;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -13,6 +15,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class UserActivityRepositoryImpl implements UserActivityRepository {
+
+  @Autowired
+  private ObjectUtils objectUtils;
 
   @Autowired
   private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -141,7 +146,8 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
             rs.getInt("calories"),
             rs.getDouble("elevGain"),
             rs.getDouble("elevMax"),
-            rs.getString("photo"),
+            objectUtils.fromJsonString(rs.getString("photo"), new TypeReference<List<String>>() {
+            }),
             rs.getString("title"),
             rs.getString("description"),
             rs.getInt("totalLove"),
@@ -172,7 +178,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     map.addValue("calories", userActivity.getCalories());
     map.addValue("elevGain", userActivity.getElevGain());
     map.addValue("elevMax", userActivity.getElevMax());
-    map.addValue("photo", userActivity.getPhoto());
+    map.addValue("photo", objectUtils.toJsonString(userActivity.getPhotos()));
     map.addValue("title", userActivity.getTitle());
     map.addValue("description", userActivity.getDescription());
     map.addValue("totalLove", userActivity.getTotalLove());
