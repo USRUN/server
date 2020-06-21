@@ -6,7 +6,10 @@
 package com.usrun.core.repository.impl;
 
 import com.usrun.core.model.Event;
+import com.usrun.core.model.Organization;
 import com.usrun.core.repository.EventRepository;
+import java.util.Collections;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -28,7 +31,6 @@ public class EventRepositoryImpl implements EventRepository {
         map.addValue("createTime", event.getCreateTime());
         map.addValue("endTime", event.getEndTime());
         map.addValue("eventName", event.getEventName());
-        map.addValue("sponsor", event.getSponsor());
         map.addValue("startTime", event.getStartTime());
         map.addValue("status", event.getStatus());
         map.addValue("subtitle", event.getSubtitle());
@@ -38,17 +40,17 @@ public class EventRepositoryImpl implements EventRepository {
     }
 
     @Override
-    public Event insert(Event event) {
+    public int insert(Event event) {
         MapSqlParameterSource map = mapEvent(event);
         try {
-            namedParameterJdbcTemplate.update(
-                    "INSERT INTO event(eventId,createTime,endTime,eventName,sponsor,startTime,status,subtitle,thumbnail,totalParticipant)"
-                    + " VALUES(:eventId, :createTime, :endTime, :eventName, :sponsor, :startTime, :status, :subtitle, :thumbnail, :totalParticipant)",
+            int putError = namedParameterJdbcTemplate.update(
+                    "INSERT INTO event(createTime,endTime,eventName,startTime,status,subtitle,thumbnail,totalParticipant)"
+                    + " VALUES(:createTime, :endTime, :eventName, :startTime, :status, :subtitle, :thumbnail, :totalParticipant)",
                     map
             );
-            return event;
+            return putError;
         } catch (Exception ex) {
-            return null;
+            return -1;
         }
     }
 
@@ -57,10 +59,55 @@ public class EventRepositoryImpl implements EventRepository {
         int status = 0;
         MapSqlParameterSource map = mapEvent(event);
         status = namedParameterJdbcTemplate.update(
-                "DELETE FROM teamMember"
+                "DELETE FROM event"
                 + "WHERE  eventId= :eventId",
                 map
         );
         return status != 0;
+    }
+
+    @Override
+    public Event findById(long id) {
+        MapSqlParameterSource params = new MapSqlParameterSource("id", id);
+        String sql = "SELECT * FROM event WHERE eventId = :id";
+        List<Event> events = findEvent(sql, params);
+        if (events.size() > 0) {
+            return events.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<Event> findByName(String name) {
+        MapSqlParameterSource params = new MapSqlParameterSource("name", name);
+        String sql = "SELECT * FROM event WHERE eventName = :name";
+        List<Event> events = findEvent(sql, params);
+        if (events.size() > 0) {
+            return events;
+        } else {
+            return null;
+        }
+    }
+
+    private List<Event> findEvent(String sql, MapSqlParameterSource params) {
+        List<Event> listEvent = namedParameterJdbcTemplate.query(sql,
+                params,
+                (rs, i) -> new Event(rs.getLong("eventId"),
+                        rs.getInt("status"),
+                        rs.getDate("createTime"),
+                        rs.getString("eventName"),
+                        rs.getString("subtitle"),
+                        rs.getString("thumbnail"),
+                        rs.getInt("totalParticipant"),
+                        rs.getDate("startTime"),
+                        rs.getDate("endTime"),
+                        rs.getInt("status")
+                ));
+        if (listEvent.size() > 0) {
+            return listEvent;
+        } else {
+            return Collections.emptyList();
+        }
     }
 }

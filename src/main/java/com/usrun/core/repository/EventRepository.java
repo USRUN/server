@@ -16,6 +16,8 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface EventRepository {
-    Event insert(Event event);
+    int insert(Event event);
+    Event findById(long id);
+    List<Event> findByName(String name);
     boolean delete(Event delete);
 }
