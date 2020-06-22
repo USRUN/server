@@ -22,11 +22,7 @@ import org.springframework.web.client.RestTemplate;
  */
 
 @Slf4j
-@Component
 public class FacebookOAuth2Verify implements OAuth2Verify {
-
-  @Autowired
-  private ObjectUtils objectUtils;
 
   @Override
   public UserInfo verify(String accessToken) {
@@ -40,8 +36,8 @@ public class FacebookOAuth2Verify implements OAuth2Verify {
         return null;
       } else {
         log.info("Request to {} success, body: {}", url, response.getBody());
-        FacebookUserInfo facebookUserInfo = objectUtils.fromJsonString(response.getBody(), FacebookUserInfo.class);
-        return toUserInfo(facebookUserInfo);
+        FacebookUserInfo facebookUserInfo = ObjectUtils.fromJsonString(response.getBody(), FacebookUserInfo.class);
+        return facebookUserInfo == null ? null : toUserInfo(facebookUserInfo);
       }
     } catch (HttpClientErrorException ex) {
       log.error(ex.getResponseBodyAsString());

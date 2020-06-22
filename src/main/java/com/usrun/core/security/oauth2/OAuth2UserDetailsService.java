@@ -1,6 +1,5 @@
 package com.usrun.core.security.oauth2;
 
-import com.usrun.core.config.AppProperties;
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.Role;
@@ -17,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.HttpClientErrorException;
 
 @Slf4j
 @Service
@@ -28,26 +26,18 @@ public class OAuth2UserDetailsService {
 
   private final PasswordEncoder passwordEncoder;
 
-  private final AppProperties appProperties;
-
   private final CacheClient cacheClient;
-
-  private final ObjectUtils objectUtils;
 
   private final Map<AuthType, OAuth2Verify> verifyMap;
 
   public OAuth2UserDetailsService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-      AppProperties appProperties, CacheClient cacheClient, ObjectUtils objectUtils,
-      GoogleOAuth2Verify googleOAuth2Verify,
-      FacebookOAuth2Verify facebookOAuth2Verify) {
+      CacheClient cacheClient) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
-    this.appProperties = appProperties;
     this.cacheClient = cacheClient;
-    this.objectUtils = objectUtils;
     this.verifyMap = new HashMap<>();
-    this.verifyMap.put(AuthType.google, googleOAuth2Verify);
-    this.verifyMap.put(AuthType.facebook, facebookOAuth2Verify);
+    this.verifyMap.put(AuthType.google, new GoogleOAuth2Verify());
+    this.verifyMap.put(AuthType.facebook, new FacebookOAuth2Verify());
   }
 
   public User loadUser(String token, AuthType type) {
@@ -63,7 +53,7 @@ public class OAuth2UserDetailsService {
         throw new CodeException(ErrorCode.USER_OAUTH2_VERIFY_FAILED);
       }
       return processOAuth2User(oAuth2UserInfo);
-    }  catch (Exception ex) {
+    } catch (Exception ex) {
       log.error("", ex);
       throw new CodeException(ErrorCode.USER_OAUTH2_VERIFY_FAILED);
     }
@@ -72,7 +62,7 @@ public class OAuth2UserDetailsService {
   public User processOAuth2User(UserInfo oAuth2UserInfo) {
     if (StringUtils.isEmpty(oAuth2UserInfo.getEmail())) {
       log.error("Email not found from OAuth2 provider, userInfo: {}",
-          objectUtils.toJsonString(oAuth2UserInfo));
+          ObjectUtils.toJsonString(oAuth2UserInfo));
       throw new CodeException(ErrorCode.USER_CREATE_FAIL);
     }
 
@@ -105,7 +95,7 @@ public class OAuth2UserDetailsService {
     userRepository.insert(user);
     cacheClient.setUser(user);
 
-    log.info("Register User: {}", objectUtils.toJsonString(user));
+    log.info("Register User: {}", ObjectUtils.toJsonString(user));
 
     return user;
   }
@@ -115,7 +105,7 @@ public class OAuth2UserDetailsService {
     existingUser.setAvatar(oAuth2UserInfo.getImageUrl());
     userRepository.update(existingUser);
     cacheClient.setUser(existingUser);
-    log.info("Update User: {}", objectUtils.toJsonString(existingUser));
+    log.info("Update User: {}", ObjectUtils.toJsonString(existingUser));
     return existingUser;
   }
 }

@@ -17,9 +17,6 @@ import org.springframework.stereotype.Repository;
 public class UserActivityRepositoryImpl implements UserActivityRepository {
 
   @Autowired
-  private ObjectUtils objectUtils;
-
-  @Autowired
   private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
   @Override
@@ -146,7 +143,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
             rs.getInt("calories"),
             rs.getDouble("elevGain"),
             rs.getDouble("elevMax"),
-            objectUtils.fromJsonString(rs.getString("photo"), new TypeReference<List<String>>() {
+            ObjectUtils.fromJsonString(rs.getString("photo"), new TypeReference<List<String>>() {
             }),
             rs.getString("title"),
             rs.getString("description"),
@@ -178,7 +175,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     map.addValue("calories", userActivity.getCalories());
     map.addValue("elevGain", userActivity.getElevGain());
     map.addValue("elevMax", userActivity.getElevMax());
-    map.addValue("photo", objectUtils.toJsonString(userActivity.getPhotos()));
+    map.addValue("photo", ObjectUtils.toJsonString(userActivity.getPhotos()));
     map.addValue("title", userActivity.getTitle());
     map.addValue("description", userActivity.getDescription());
     map.addValue("totalLove", userActivity.getTotalLove());

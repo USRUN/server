@@ -1,10 +1,13 @@
 package com.usrun.core.utility;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import java.util.TimeZone;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,13 +15,24 @@ import org.springframework.stereotype.Component;
  */
 
 @Slf4j
-@Component
 public class ObjectUtils {
 
-  @Autowired
-  private ObjectMapper objectMapper;
+  private static final ObjectMapper objectMapper;
 
-  public String toJsonString(Object object) {
+  static {
+    objectMapper = new ObjectMapper();
+    objectMapper
+        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true)
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false)
+        .configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true)
+        .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+        .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
+        .setTimeZone(TimeZone.getTimeZone("UTC"))
+        .setSerializationInclusion(Include.NON_NULL);
+  }
+
+  public static String toJsonString(Object object) {
     try {
       return objectMapper.writeValueAsString(object);
     } catch (JsonProcessingException e) {
@@ -27,7 +41,7 @@ public class ObjectUtils {
     }
   }
 
-  public <T> T fromJsonString(String sJson, Class<T> t) {
+  public static <T> T fromJsonString(String sJson, Class<T> t) {
     try {
       return objectMapper.readValue(sJson, t);
     } catch (JsonProcessingException e) {
@@ -36,7 +50,7 @@ public class ObjectUtils {
     }
   }
 
-  public <T> T fromJsonString(String sJson, TypeReference<T> tTypeReference) {
+  public static <T> T fromJsonString(String sJson, TypeReference<T> tTypeReference) {
     try {
       return objectMapper.readValue(sJson, tTypeReference);
     } catch (JsonProcessingException e) {

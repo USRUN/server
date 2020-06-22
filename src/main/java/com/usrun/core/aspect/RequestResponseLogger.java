@@ -13,7 +13,6 @@ import org.aspectj.lang.reflect.CodeSignature;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,9 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Aspect
 @Component
 public class RequestResponseLogger {
-
-  @Autowired
-  private ObjectUtils objectUtils;
 
   @Pointcut("within(@org.springframework.web.bind.annotation.RestController *)")
   public void controller() {
@@ -69,12 +65,12 @@ public class RequestResponseLogger {
     for (int i = 0; i < joinPoint.getArgs().length; i++) {
       map.put(signature.getParameterNames()[i], joinPoint.getArgs()[i]);
     }
-    return objectUtils.toJsonString(map);
+    return ObjectUtils.toJsonString(map);
   }
 
   private String getResponse(Object result) {
     ResponseEntity<?> responseEntity = (ResponseEntity<?>) result;
-    return objectUtils.toJsonString(responseEntity.getBody());
+    return ObjectUtils.toJsonString(responseEntity.getBody());
   }
 
   private String getBaseUrl(RequestMapping requestMapping, PostMapping postMapping) {

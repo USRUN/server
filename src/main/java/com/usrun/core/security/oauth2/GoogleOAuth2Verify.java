@@ -19,14 +19,7 @@ import org.springframework.web.client.RestTemplate;
  */
 
 @Slf4j
-@Component
 public class GoogleOAuth2Verify implements OAuth2Verify {
-
-  private final ObjectUtils objectUtils;
-
-  public GoogleOAuth2Verify(ObjectUtils objectUtils) {
-    this.objectUtils = objectUtils;
-  }
 
   @Override
   public UserInfo verify(String accessToken) {
@@ -43,7 +36,7 @@ public class GoogleOAuth2Verify implements OAuth2Verify {
         return null;
       } else {
         log.info("Request to {} success, body: {}", url, response.getBody());
-        GoogleUserInfo googleUserInfo = objectUtils
+        GoogleUserInfo googleUserInfo = ObjectUtils
             .fromJsonString(response.getBody(), GoogleUserInfo.class);
         return toUserInfo(googleUserInfo);
       }
