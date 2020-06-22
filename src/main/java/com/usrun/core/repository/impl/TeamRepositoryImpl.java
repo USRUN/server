@@ -176,8 +176,8 @@ public class TeamRepositoryImpl implements TeamRepository {
     params.addValue("howMany", howMany);
     params.addValue("toExclude", toExclude);
     String sql = "SELECT * FROM team WHERE team.teamId NOT IN (:toExclude) "
-        + "AND (district is null OR district = :district) "
-        + "AND (province is null OR province = :province) "
+        + "AND (:district is null OR district = :district) "
+        + "AND (:province is null OR province = :province) "
         + "LIMIT :howMany";
     return getMultipleTeamSQLParamMap(sql, params);
   }
