@@ -10,19 +10,19 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- *
  * @author huyna3
  */
 @Setter
 @Getter
 public class SponsorCreateReq {
-    private long eventId;
-    private List<Long> organizationId;
 
-    public SponsorCreateReq(long eventId, List<Long> organizationId) {
-        this.eventId = eventId;
-        this.organizationId = organizationId;
-    }
-    
-    
+  private long eventId;
+  private List<Long> organizationId;
+
+  public SponsorCreateReq(long eventId, List<Long> organizationId) {
+    this.eventId = eventId;
+    this.organizationId = organizationId;
+  }
+
+
 }

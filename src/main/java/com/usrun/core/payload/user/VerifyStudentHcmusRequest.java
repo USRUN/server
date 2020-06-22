@@ -10,5 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class VerifyStudentHcmusRequest {
-    private String otp;
+
+  private String otp;
 }

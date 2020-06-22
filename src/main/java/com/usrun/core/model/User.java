@@ -4,93 +4,97 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.usrun.core.model.type.AuthType;
 import com.usrun.core.model.type.Gender;
+import java.util.Date;
+import java.util.Set;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.util.Date;
-import java.util.Set;
-
 @Table("user")
 @Getter
 @Setter
 public class User {
-    @Id
-    private Long id;
 
-    private String name;
+  @Id
+  private Long id;
 
-    @Email
-    private String email;
+  private String name;
 
-    @JsonIgnore
-    private String password;
+  @Email
+  private String email;
 
-    private AuthType type;
+  @JsonIgnore
+  private String password;
 
-    private String avatar;
+  private AuthType type;
 
-    private Date lastLogin;
+  private String avatar;
 
-    private Double weight;
+  private Date lastLogin;
 
-    private Double height;
+  private Double weight;
 
-    private Gender gender;
+  private Double height;
 
-    private Date birthday;
+  private Gender gender;
 
-    private String code;
+  private Date birthday;
 
-    private String deviceToken;
+  private String code;
 
-    private Date createTime;
+  private String deviceToken;
 
-    private Date updateTime;
+  private Date createTime;
 
-    @JsonProperty("isActive")
-    private boolean isEnabled = true;
+  private Date updateTime;
 
-    private boolean hcmus = false;
+  @JsonProperty("isActive")
+  private boolean isEnabled = true;
 
-    private Set<Role> roles;
+  private boolean hcmus = false;
 
-    private Set<Long> teams;
+  private Set<Role> roles;
 
-    public User() {
-        this.createTime = new Date();
-        this.updateTime = new Date();
-    }
+  private Set<Long> teams;
 
-    public User( String name, @NotBlank @Size(max = 50) @Email String email, @NotBlank @Size(max = 100) String password, @NotNull @Size(max = 20) AuthType type) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.type = type;
-    }
+  public User() {
+    this.createTime = new Date();
+    this.updateTime = new Date();
+  }
 
-    public User(Long id, String name, @Email String email, String password, AuthType type, String avatar, Date lastLogin, Double weight, Double height, Gender gender, Date birthday, String code, String deviceToken, boolean isEnabled, boolean hcmus, Date createTime, Date updateTime) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.type = type;
-        this.avatar = avatar;
-        this.lastLogin = lastLogin;
-        this.weight = weight;
-        this.height = height;
-        this.gender = gender;
-        this.birthday = birthday;
-        this.code = code;
-        this.deviceToken = deviceToken;
-        this.isEnabled = isEnabled;
-        this.hcmus = hcmus;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-    }
+  public User(String name, @NotBlank @Size(max = 50) @Email String email,
+      @NotBlank @Size(max = 100) String password, @NotNull @Size(max = 20) AuthType type) {
+    this.name = name;
+    this.email = email;
+    this.password = password;
+    this.type = type;
+  }
+
+  public User(Long id, String name, @Email String email, String password, AuthType type,
+      String avatar, Date lastLogin, Double weight, Double height, Gender gender, Date birthday,
+      String code, String deviceToken, boolean isEnabled, boolean hcmus, Date createTime,
+      Date updateTime) {
+    this.id = id;
+    this.name = name;
+    this.email = email;
+    this.password = password;
+    this.type = type;
+    this.avatar = avatar;
+    this.lastLogin = lastLogin;
+    this.weight = weight;
+    this.height = height;
+    this.gender = gender;
+    this.birthday = birthday;
+    this.code = code;
+    this.deviceToken = deviceToken;
+    this.isEnabled = isEnabled;
+    this.hcmus = hcmus;
+    this.createTime = createTime;
+    this.updateTime = updateTime;
+  }
 }

@@ -9,21 +9,21 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- *
  * @author huyna3
  */
 @Getter
 @Setter
 public class Organization {
-    private long id;
-    private String name;
 
-    public Organization(long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
+  private long id;
+  private String name;
 
-    public Organization(String name) {
-        this.name = name;
-    }
+  public Organization(long id, String name) {
+    this.id = id;
+    this.name = name;
+  }
+
+  public Organization(String name) {
+    this.name = name;
+  }
 }

@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PublicActivityRequest {
-    private long userActivityId;
+
+  private long userActivityId;
 }

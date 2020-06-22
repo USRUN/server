@@ -1,31 +1,30 @@
 package com.usrun.core.model.type;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import java.util.HashMap;
 
 public enum RoleType {
-    ROLE_USER(1);
+  ROLE_USER(1);
 
-    private int value;
-    private static final HashMap<Integer, RoleType> returnMap = new HashMap<>();
+  private int value;
+  private static final HashMap<Integer, RoleType> returnMap = new HashMap<>();
 
-    static {
-        for (RoleType role : RoleType.values()) {
-            returnMap.put(role.value, role);
-        }
+  static {
+    for (RoleType role : RoleType.values()) {
+      returnMap.put(role.value, role);
     }
+  }
 
-    RoleType(int value) {
-        this.value = value;
-    }
+  RoleType(int value) {
+    this.value = value;
+  }
 
-    public static RoleType fromInt(int iValue) {
-        return returnMap.get(iValue);
-    }
+  public static RoleType fromInt(int iValue) {
+    return returnMap.get(iValue);
+  }
 
-    @JsonValue
-    public int toValue() {
-        return this.value;
-    }
+  @JsonValue
+  public int toValue() {
+    return this.value;
+  }
 }

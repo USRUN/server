@@ -10,6 +10,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class TeamActivityCountDTO {
-    private long teamId;
-    private long count;
+
+  private long teamId;
+  private long count;
 }

@@ -8,12 +8,11 @@ package com.usrun.core.repository;
 import com.usrun.core.model.Sponsor;
 
 /**
- *
  * @author huyna3
  */
 public interface SponsorRepository {
-    
-    Sponsor insert(Sponsor sponsor);
 
-    Sponsor findById(long id);
+  Sponsor insert(Sponsor sponsor);
+
+  Sponsor findById(long id);
 }

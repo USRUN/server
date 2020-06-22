@@ -9,21 +9,19 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- *
  * @author huyna3
  */
 @Getter
 @Setter
 public class Sponsor {
-    
-    private long eventId;
-    private long organizationId;
 
-    public Sponsor(long eventId, long organizationId) {
-        this.eventId = eventId;
-        this.organizationId = organizationId;
-    }
-    
-    
-    
+  private long eventId;
+  private long organizationId;
+
+  public Sponsor(long eventId, long organizationId) {
+    this.eventId = eventId;
+    this.organizationId = organizationId;
+  }
+
+
 }

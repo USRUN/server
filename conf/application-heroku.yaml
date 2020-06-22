@@ -43,6 +43,9 @@ app:
   track:
     key: ${TRACK_KEY}
     time-in-microseconds: ${TRACK_TIME}
+  node: ${NODE}
+  activity:
+    key: ${ACTIVITY_KEY}
 
 redis:
   url: ${REDIS_URL}

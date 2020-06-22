@@ -5,7 +5,8 @@ package com.usrun.core.exception;
  */
 
 public class PostException extends CodeException {
-    public PostException(String message, int errorCode) {
-        super(message, errorCode);
-    }
+
+  public PostException(String message, int errorCode) {
+    super(message, errorCode);
+  }
 }

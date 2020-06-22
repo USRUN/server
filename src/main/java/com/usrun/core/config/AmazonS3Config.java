@@ -10,8 +10,9 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 public class AmazonS3Config {
-    private String endpointUrl;
-    private String bucketName;
-    private String accessKey;
-    private String secretKey;
+
+  private String endpointUrl;
+  private String bucketName;
+  private String accessKey;
+  private String secretKey;
 }

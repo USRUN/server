@@ -9,11 +9,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- *
  * @author huyna3
  */
 @Getter
 @Setter
 public class OrganizationCreateReq {
-    private String name;
+
+  private String name;
 }

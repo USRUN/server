@@ -1,12 +1,11 @@
 package com.usrun.core.payload.team;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class FindTeamRequest {
-    public String teamName;
-    public int pageNum;
-    public int perPage;
+
+  private String teamName;
+  private int pageNum;
+  private int perPage;
 }

@@ -5,19 +5,17 @@
  */
 package com.usrun.core.repository;
 
-import com.usrun.core.model.Event;
 import com.usrun.core.model.EventParticipant;
 import java.util.List;
-import org.springframework.stereotype.Repository;
 
 /**
- *
  * @author anhhuy
  */
-@Repository
-public interface EventParticipantRepostitory {
-    
-    int insert(EventParticipant eventParticipant);
-    List<EventParticipant> findByUserId(long userId);
-    boolean delete(EventParticipant eventParticipant);
+public interface EventParticipantRepository {
+
+  int insert(EventParticipant eventParticipant);
+
+  List<EventParticipant> findByUserId(long userId);
+
+  boolean delete(EventParticipant eventParticipant);
 }

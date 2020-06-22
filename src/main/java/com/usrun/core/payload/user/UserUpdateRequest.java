@@ -1,14 +1,10 @@
 package com.usrun.core.payload.user;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author phuctt4
@@ -17,23 +13,24 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 public class UserUpdateRequest {
-    @Size(max = 50)
-    private String name;
 
-    private String base64Image;
+  @Size(max = 50)
+  private String name;
 
-    @Min(0)
-    @Max(1)
-    private Integer gender;
+  private String base64Image;
 
-    @Min(1)
-    private Long birthdayNum;
+  @Min(0)
+  @Max(1)
+  private Integer gender;
 
-    @Min(1)
-    private Double weight;
+  @Min(1)
+  private Long birthdayNum;
 
-    @Min(1)
-    private Double height;
+  @Min(1)
+  private Double weight;
 
-    private String deviceToken;
+  @Min(1)
+  private Double height;
+
+  private String deviceToken;
 }

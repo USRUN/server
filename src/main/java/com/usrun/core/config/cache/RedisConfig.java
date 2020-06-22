@@ -9,7 +9,6 @@ import org.redisson.config.Config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 @Getter
 @Setter
@@ -17,20 +16,20 @@ import org.springframework.context.annotation.Profile;
 @ConfigurationProperties(prefix = "redis")
 public class RedisConfig {
 
-    private String url;
-    private String password;
+  private String url;
+  private String password;
 
-    @Bean
-    public RedissonClient redissonClient() {
-        Config config = new Config();
-        config.useSingleServer()
-                .setTimeout(10000000)
-                .setAddress(url)
-                .setPassword(password)
-                .setConnectionPoolSize(10).setConnectionMinimumIdleSize(10);
+  @Bean
+  public RedissonClient redissonClient() {
+    Config config = new Config();
+    config.useSingleServer()
+        .setTimeout(10000000)
+        .setAddress(url)
+        .setPassword(password)
+        .setConnectionPoolSize(10).setConnectionMinimumIdleSize(10);
 //        config.setCodec(StringCodec.INSTANCE);
-        KryoCodec kryoCodec = new KryoCodecWithDefaultSerializer();
-        config.setCodec(kryoCodec);
-        return Redisson.create(config);
-    }
+    KryoCodec kryoCodec = new KryoCodecWithDefaultSerializer();
+    config.setCodec(kryoCodec);
+    return Redisson.create(config);
+  }
 }

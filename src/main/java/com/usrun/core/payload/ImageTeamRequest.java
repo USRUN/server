@@ -6,6 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ImageTeamRequest {
-    private String img;
-    private String logo;
+
+  private String img;
+  private String logo;
 }

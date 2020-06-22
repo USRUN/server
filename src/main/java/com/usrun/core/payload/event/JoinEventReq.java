@@ -9,12 +9,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- *
  * @author huyna3
  */
 @Getter
 @Setter
 public class JoinEventReq {
-    private long teamId;
-    private long eventId;
+
+  private long teamId;
+  private long eventId;
 }

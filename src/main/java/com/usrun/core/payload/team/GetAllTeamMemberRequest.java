@@ -1,12 +1,11 @@
 package com.usrun.core.payload.team;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class GetAllTeamMemberRequest {
-    public long teamId;
-    public int pageNum;
-    public int perPage;
+
+  private long teamId;
+  private int pageNum;
+  private int perPage;
 }

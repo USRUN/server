@@ -6,17 +6,15 @@
 package com.usrun.core.repository;
 
 import com.usrun.core.model.Organization;
-import org.springframework.stereotype.Repository;
 
 /**
- *
  * @author huyna3
  */
 public interface OrganizationRepository {
 
-    int insert(Organization organization);
+  int insert(Organization organization);
 
-    Organization findById(long id);
-    
-    Organization findByName(String name);
+  Organization findById(long id);
+
+  Organization findByName(String name);
 }

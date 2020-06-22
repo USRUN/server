@@ -10,5 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GetActivityRequest {
-    private long activityId;
+
+  private long activityId;
 }

@@ -1,16 +1,13 @@
 package com.usrun.core.model.track;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.util.Date;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.stereotype.Indexed;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author phuctt4
@@ -21,28 +18,32 @@ import java.util.List;
 @ToString(exclude = {"description"})
 @Document(collection = "TrackLog")
 public class Track {
-    @Id
-    private Long trackId;
 
-    private Long userId;
+  @Id
+  private Long trackId;
 
-    private String description;
-    @JsonFormat(shape = JsonFormat.Shape.NUMBER)
-    private Date time;
+  private Long userId;
 
-    public Track() {
-    }
+  private String description;
 
-    public Track(Long trackId, Long userId) {
-        this.trackId = trackId;
-        this.userId = userId;
-        this.time = new Date();
-    }
+  @JsonFormat(shape = JsonFormat.Shape.NUMBER)
+  private Date time;
 
-    public Track(Long trackId, Long userId, String description) {
-        this.trackId = trackId;
-        this.userId = userId;
-        this.description = description;
-        this.time = new Date();
-    }
+  private List<List<Location>> locations;
+
+  public Track() {
+  }
+
+  public Track(Long trackId, Long userId) {
+    this.trackId = trackId;
+    this.userId = userId;
+    this.time = new Date();
+  }
+
+  public Track(Long trackId, Long userId, String description) {
+    this.trackId = trackId;
+    this.userId = userId;
+    this.description = description;
+    this.time = new Date();
+  }
 }

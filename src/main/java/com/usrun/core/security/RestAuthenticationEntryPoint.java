@@ -3,33 +3,33 @@ package com.usrun.core.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.payload.CodeResponse;
+import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
-    private static final Logger logger = LoggerFactory.getLogger(RestAuthenticationEntryPoint.class);
 
-    @Override
-    public void commence(HttpServletRequest httpServletRequest,
-                         HttpServletResponse httpServletResponse,
-                         AuthenticationException e) throws IOException {
+  private static final Logger logger = LoggerFactory.getLogger(RestAuthenticationEntryPoint.class);
 
-        logger.error("Responding with unauthorized error. Message - {}", e.getMessage());
+  @Override
+  public void commence(HttpServletRequest httpServletRequest,
+      HttpServletResponse httpServletResponse,
+      AuthenticationException e) throws IOException {
 
-        httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        httpServletResponse.setContentType("application/json");
+    logger.error("Responding with unauthorized error. Message - {}", e.getMessage());
 
-        ObjectMapper objectMapper = new ObjectMapper();
+    httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    httpServletResponse.setContentType("application/json");
 
-        String error = objectMapper
-                .writeValueAsString(new CodeResponse(ErrorCode.USER_DOES_NOT_PERMISSION));
+    ObjectMapper objectMapper = new ObjectMapper();
 
-        httpServletResponse.getOutputStream().println(error);
-    }
+    String error = objectMapper
+        .writeValueAsString(new CodeResponse(ErrorCode.USER_DOES_NOT_PERMISSION));
+
+    httpServletResponse.getOutputStream().println(error);
+  }
 }
