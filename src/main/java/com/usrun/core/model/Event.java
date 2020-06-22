@@ -29,6 +29,9 @@ public class Event {
   private String eventName;
   private String subtitle;
   private String thumbnail;
+  private String poster;
+  private long totalDistance;
+  private int totalTeamParticipant;
   private int totalParticipant;
   private Date startTime;
   private Date endTime;

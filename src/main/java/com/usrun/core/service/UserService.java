@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Date;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -102,7 +104,8 @@ public class UserService {
         user.setTeams(teamRepository.getTeamsByUser(user.getId()));
         cacheClient.setUser(user);
       } catch (Exception ex) {
-        ex.printStackTrace();
+        log.error("", ex);
+        throw new CodeException(ErrorCode.SYSTEM_ERROR);
       }
     }
     return user;
