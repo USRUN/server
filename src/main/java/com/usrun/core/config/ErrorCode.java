@@ -1,6 +1,10 @@
 package com.usrun.core.config;
 
 public interface ErrorCode {
+    
+    int SUCCESS = 0;
+    int FAIL = 1;
+    
     int LOGOUT_CODE = 100;
     int MAINTENANCE = 101;
     int FORCE_UPDATE = 102;
@@ -43,9 +47,10 @@ public interface ErrorCode {
     int TEAM_EXISTED = 3002;
 
     int EVENT_NOT_FOUND = 4000;
-    int EVENT_EVENT_EXIT = 4001;
+    int EVENT_EXISTED = 4001;
     int EVENT_UN_ACTIVE = 4002;
     int EVENT_CAN_NOT_CREATE = 4003;
+    int EVENT_NOT_EXISTED = 4004;
 
 
     int ACTIVITY_NOT_FOUND = 5000;

@@ -9,14 +9,12 @@ import org.springframework.data.annotation.Id;
 @Setter
 public class Event {
 
-    public Event(Long eventId, short status, Date createTime, String eventName, String subtitle, String thumbnail, String sponsor, int totalParticipant, long startTime, long endTime, boolean deleted) {
-        this.eventId = eventId;
+    public Event(int status, Date createTime, String eventName, String subtitle, String thumbnail, int totalParticipant, Date startTime, Date endTime, int deleted) {
         this.status = status;
         this.createTime = createTime;
         this.eventName = eventName;
         this.subtitle = subtitle;
         this.thumbnail = thumbnail;
-        this.sponsor = sponsor;
         this.totalParticipant = totalParticipant;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -24,14 +22,26 @@ public class Event {
     }
     @Id
     private Long eventId;
-    private short status;
+    private int status;
     private Date createTime;
     private String eventName;
     private String subtitle;
     private String thumbnail;
-    private String  sponsor;
     private int totalParticipant;
-    private long startTime;
-    private long endTime;
-    private boolean deleted;
+    private Date startTime;
+    private Date endTime;
+    private int deleted;
+
+    public Event(Long eventId, int status, Date createTime, String eventName, String subtitle, String thumbnail, int totalParticipant, Date startTime, Date endTime, int deleted) {
+        this.eventId = eventId;
+        this.status = status;
+        this.createTime = createTime;
+        this.eventName = eventName;
+        this.subtitle = subtitle;
+        this.thumbnail = thumbnail;
+        this.totalParticipant = totalParticipant;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.deleted = deleted;
+    }
 }
