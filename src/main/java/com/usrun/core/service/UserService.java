@@ -79,16 +79,12 @@ public class UserService {
   public User loadUser(long userId) {
     User user = cacheClient.getUser(userId);
     if (user == null) {
-      try {
-        user = userRepository.findById(userId);
-        if (user == null) {
-          throw new CodeException(ErrorCode.USER_NOT_FOUND);
-        }
-        user.setTeams(teamRepository.getTeamsByUser(userId));
-        cacheClient.setUser(user);
-      } catch (Exception ex) {
-        ex.printStackTrace();
+      user = userRepository.findById(userId);
+      if (user == null) {
+        throw new CodeException(ErrorCode.USER_NOT_FOUND);
       }
+      user.setTeams(teamRepository.getTeamsByUser(userId));
+      cacheClient.setUser(user);
     }
     return user;
   }
@@ -96,17 +92,12 @@ public class UserService {
   public User loadUser(String email) {
     User user = cacheClient.getUser(email);
     if (user == null) {
-      try {
-        user = userRepository.findUserByEmail(email);
-        if (user == null) {
-          throw new CodeException(ErrorCode.USER_EMAIL_NOT_FOUND);
-        }
-        user.setTeams(teamRepository.getTeamsByUser(user.getId()));
-        cacheClient.setUser(user);
-      } catch (Exception ex) {
-        log.error("", ex);
-        throw new CodeException(ErrorCode.SYSTEM_ERROR);
+      user = userRepository.findUserByEmail(email);
+      if (user == null) {
+        throw new CodeException(ErrorCode.USER_EMAIL_NOT_FOUND);
       }
+      user.setTeams(teamRepository.getTeamsByUser(user.getId()));
+      cacheClient.setUser(user);
     }
     return user;
 //        return userRepository.findByEmail(email).orElseThrow(
