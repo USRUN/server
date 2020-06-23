@@ -8,6 +8,7 @@ import com.usrun.core.repository.TeamMemberRepository;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserRepository;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -170,6 +171,9 @@ public class TeamRepositoryImpl implements TeamRepository {
   @Override
   public Set<Team> getTeamSuggestionByUserLocation(String district, String province, int howMany,
       Set<Long> toExclude) {
+    if (toExclude == null || toExclude.isEmpty()) {
+      toExclude = Collections.singleton(0L);
+    }
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("district", district);
     params.addValue("province", province);

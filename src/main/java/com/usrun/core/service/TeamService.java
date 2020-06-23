@@ -2,6 +2,7 @@ package com.usrun.core.service;
 
 import com.usrun.core.config.AppProperties;
 import com.usrun.core.config.ErrorCode;
+import com.usrun.core.exception.CodeException;
 import com.usrun.core.exception.TeamException;
 import com.usrun.core.model.Team;
 import com.usrun.core.model.User;
@@ -88,10 +89,18 @@ public class TeamService {
     Team toGet = teamRepository.findTeamById(teamId);
 
     if (toGet == null) {
-      throw new DataRetrievalFailureException("Team not found");
+      throw new CodeException(ErrorCode.TEAM_NOT_FOUND);
     }
 
     return toGet;
+  }
+
+  public TeamMember getTeamMemberById(long teamId, long userId) {
+    TeamMember teamMember = teamMemberRepository.findById(teamId, userId);
+    if(teamMember == null) {
+      throw new CodeException(ErrorCode.TEAM_USER_NOT_FOUND);
+    }
+    return teamMember;
   }
 
   private void addTeamToCache(Long teamId, Long userId) {

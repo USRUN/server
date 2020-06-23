@@ -1,10 +1,13 @@
 package com.usrun.core.controller;
 
 import com.usrun.core.config.ErrorCode;
+import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.Team;
 import com.usrun.core.model.User;
+import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.CodeResponse;
+import com.usrun.core.payload.dto.TeamDTO;
 import com.usrun.core.payload.dto.TeamSummaryDTO;
 import com.usrun.core.payload.team.CreateTeamRequest;
 import com.usrun.core.payload.team.FindTeamRequest;
@@ -145,16 +148,26 @@ public class TeamController {
   @PostMapping("/getTeamById")
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<?> getTeamById(
+      @CurrentUser UserPrincipal userPrincipal,
       @RequestBody GetTeamByIdRequest getTeamRequest
   ) {
-    Team toGet = null;
     try {
-      toGet = teamService.getTeamById(getTeamRequest.getTeamId());
-    } catch (DataRetrievalFailureException e) {
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_NOT_FOUND),
+      long userId = userPrincipal.getId();
+      long teamId = getTeamRequest.getTeamId();
+      Team team = teamService.getTeamById(teamId);
+      TeamMember teamMember = teamService.getTeamMemberById(teamId, userId);
+
+      TeamDTO teamDTO = new TeamDTO(team, teamMember);
+      return new ResponseEntity<>(new CodeResponse(teamDTO), HttpStatus.OK);
+    } catch (CodeException ex) {
+      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
           HttpStatus.BAD_REQUEST);
+    } catch (Exception ex) {
+      log.error("", ex);
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
+          HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    return new ResponseEntity<>(new CodeResponse(toGet), HttpStatus.OK);
+
   }
 
   @PostMapping("/getTeamSuggestion")
@@ -163,15 +176,25 @@ public class TeamController {
       @CurrentUser UserPrincipal userPrincipal,
       @RequestBody SuggestTeamRequest suggestTeamRequest
   ) {
-    Set<Team> toGet = teamService.getTeamSuggestion(
-        userPrincipal.getId(),
-        suggestTeamRequest.getDistrict(),
-        suggestTeamRequest.getProvince(),
-        suggestTeamRequest.getHowMany());
+    try {
+      Set<Team> toGet = teamService.getTeamSuggestion(
+          userPrincipal.getId(),
+          suggestTeamRequest.getDistrict(),
+          suggestTeamRequest.getProvince(),
+          suggestTeamRequest.getHowMany());
 
-    Set<TeamSummaryDTO> summaries = toGet.stream().map(TeamSummaryDTO::new).collect(
-        Collectors.toSet());
-    return new ResponseEntity<>(new CodeResponse(summaries), HttpStatus.OK);
+      Set<TeamSummaryDTO> summaries = toGet.stream().map(TeamSummaryDTO::new).collect(
+          Collectors.toSet());
+      return new ResponseEntity<>(new CodeResponse(summaries), HttpStatus.OK);
+    } catch (CodeException ex) {
+      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
+          HttpStatus.BAD_REQUEST);
+    } catch (Exception ex) {
+      log.error("", ex);
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
+          HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
   }
 
   @PostMapping("/findTeam")
