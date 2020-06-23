@@ -91,21 +91,30 @@ public class AuthController {
 
   @PostMapping("/signup")
   public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
-    if (userRepository.findUserByEmail(registerRequest.getEmail()) != null) {
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_IS_USED),
-          HttpStatus.BAD_REQUEST);
+    try {
+      if (userRepository.findUserByEmail(registerRequest.getEmail()) != null) {
+        return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_IS_USED),
+            HttpStatus.BAD_REQUEST);
+      }
+
+      User user = userService.createUser(registerRequest.getName(), registerRequest.getEmail(),
+          registerRequest.getPassword());
+
+      String jwt = tokenProvider.createTokenUserId(user.getId());
+
+      URI location = ServletUriComponentsBuilder
+          .fromCurrentContextPath().path("/user/info")
+          .buildAndExpand(user.getId()).toUri();
+
+      return ResponseEntity.created(location)
+          .body(new UserInfoResponse(user, jwt));
+    } catch (CodeException ex) {
+      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+    } catch (Exception ex) {
+      log.error("", ex);
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
+          HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    User user = userService.createUser(registerRequest.getName(), registerRequest.getEmail(),
-        registerRequest.getPassword());
-
-    String jwt = tokenProvider.createTokenUserId(user.getId());
-
-    URI location = ServletUriComponentsBuilder
-        .fromCurrentContextPath().path("/user/info")
-        .buildAndExpand(user.getId()).toUri();
-
-    return ResponseEntity.created(location)
-        .body(new UserInfoResponse(user, jwt));
   }
 }
