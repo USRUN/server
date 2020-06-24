@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 public class LoginRequest {
 
-  private int type;
+  private int type = -1;
   private String token;
   private String email;
   private String password;

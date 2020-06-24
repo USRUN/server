@@ -31,7 +31,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @Slf4j
 @RestController
 @RequestMapping("/user")
-@Validated
 public class AuthController {
 
   @Autowired
@@ -53,7 +52,6 @@ public class AuthController {
   public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
 
     try {
-      Authentication authentication = null;
       User user = null;
 
       AuthType authType = AuthType.fromInt(loginRequest.getType());
@@ -64,21 +62,16 @@ public class AuthController {
       }
 
       if (AuthType.local == authType) {
-        user = userService.loadUser(loginRequest.getEmail());
-        authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
-                loginRequest.getPassword())
-        );
+        user = userService.verifyUser(loginRequest.getEmail(), loginRequest.getPassword());
       } else {
         user = oAuth2UserDetailsService.loadUser(loginRequest.getToken(), authType);
-        authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(user.getEmail(), "")
-        );
       }
 
-      SecurityContextHolder.getContext().setAuthentication(authentication);
+      if (user == null) {
+        return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_LOGIN_FAIL), HttpStatus.BAD_REQUEST);
+      }
 
-      String jwt = tokenProvider.createToken(authentication);
+      String jwt = tokenProvider.createTokenUserId(user.getId());
       return ResponseEntity.ok(new UserInfoResponse(user, jwt));
     } catch (CodeException ex) {
       return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);

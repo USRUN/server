@@ -100,9 +100,24 @@ public class UserService {
       cacheClient.setUser(user);
     }
     return user;
-//        return userRepository.findByEmail(email).orElseThrow(
-//                () -> new Exception("User Not Found")
-//        );
+  }
+
+  public User verifyUser(String email, String password) {
+    User user = cacheClient.getUser(email);
+    if (user == null) {
+      user = userRepository.findUserByEmail(email);
+      if (user == null) {
+        throw new CodeException(ErrorCode.USER_LOGIN_FAIL);
+      }
+      user.setTeams(teamRepository.getTeamsByUser(user.getId()));
+      cacheClient.setUser(user);
+    }
+
+    if (passwordEncoder.matches(password, user.getPassword())) {
+      return user;
+    } else {
+      return null;
+    }
   }
 
   public User updateUser(Long userId, String name,
