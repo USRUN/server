@@ -194,6 +194,14 @@ public class TeamRepositoryImpl implements TeamRepository {
   }
 
   @Override
+  public List<Team> getTeamsByUserReturnTeam(long userId) {
+    MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+    String sql = "SELECT * FROM team t, teamMember tm "
+        + "WHERE tm.userId = :userId AND tm.teamId = t.teamId";
+    return getTeamsSQLParamMap(sql, params);
+  }
+
+  @Override
   public Set<Long> getTeamsByUser(long userId) {
     MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
     String sql = "SELECT teamId FROM teamMember WHERE teamMember.userId = :userId";

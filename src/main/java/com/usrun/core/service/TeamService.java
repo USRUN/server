@@ -95,6 +95,10 @@ public class TeamService {
     return toGet;
   }
 
+  public List<Team> getTeamByUser(long userId) {
+    return teamRepository.getTeamsByUserReturnTeam(userId);
+  }
+
   public TeamMember getTeamMemberById(long teamId, long userId) {
     TeamMember teamMember = teamMemberRepository.findById(teamId, userId);
     if(teamMember == null) {
@@ -173,7 +177,7 @@ public class TeamService {
     Team toUpdate = teamRepository.findTeamById(teamId);
 
     if (toUpdate == null) {
-      throw new DataRetrievalFailureException("Team not found");
+      throw new CodeException(ErrorCode.TEAM_NOT_FOUND);
     }
 
     if (teamName != null) {

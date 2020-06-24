@@ -36,4 +36,6 @@ public interface TeamRepository {
       Set<Long> toExclude);
 
   List<Team> findAllTeam();
+
+  List<Team> getTeamsByUserReturnTeam(long userId);
 }
