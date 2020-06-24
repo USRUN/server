@@ -1,6 +1,7 @@
 package com.usrun.core.service;
 
 import com.usrun.core.config.ErrorCode;
+import com.usrun.core.exception.CodeException;
 import com.usrun.core.exception.TrackException;
 import com.usrun.core.model.track.Location;
 import com.usrun.core.model.track.Track;
@@ -96,7 +97,7 @@ public class TrackService {
     if (track == null) {
       String msg = String.format("[%s] Track not found", trackId);
       LOGGER.warn(msg);
-      throw new TrackException(msg, ErrorCode.TRACK_NOT_FOUND);
+      throw new CodeException(msg, ErrorCode.TRACK_NOT_FOUND);
     } else {
       if (track.getUserId() == userId) {
         LOGGER.info("User {} got track {} ", userId, trackId);
@@ -104,7 +105,7 @@ public class TrackService {
       } else {
         String msg = String.format("[%s] Track does not belong to %s", trackId, userId);
         LOGGER.warn(msg);
-        throw new TrackException(msg, ErrorCode.TRACK_NOT_BELONG_TO_USER);
+        throw new CodeException(msg, ErrorCode.TRACK_NOT_BELONG_TO_USER);
       }
     }
   }

@@ -165,7 +165,7 @@ public class TeamService {
       if (teamMember == null) {
         String msg = String.format("User %s not belong to Team %s", userId, teamId);
         LOGGER.warn(msg);
-        throw new TeamException(msg, ErrorCode.TEAM_USER_NOT_FOUND);
+        throw new CodeException(msg, ErrorCode.TEAM_USER_NOT_FOUND);
       }
       teamMemberType = teamMember.getTeamMemberType();
     }

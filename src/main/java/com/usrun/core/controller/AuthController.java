@@ -72,7 +72,7 @@ public class AuthController {
       }
 
       String jwt = tokenProvider.createTokenUserId(user.getId());
-      return ResponseEntity.ok(new UserInfoResponse(user, jwt));
+      return ResponseEntity.ok(new CodeResponse(new UserInfoResponse(user, jwt)));
     } catch (CodeException ex) {
       return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
     } catch (Exception ex) {
@@ -95,12 +95,7 @@ public class AuthController {
 
       String jwt = tokenProvider.createTokenUserId(user.getId());
 
-      URI location = ServletUriComponentsBuilder
-          .fromCurrentContextPath().path("/user/info")
-          .buildAndExpand(user.getId()).toUri();
-
-      return ResponseEntity.created(location)
-          .body(new UserInfoResponse(user, jwt));
+      return ResponseEntity.ok(new CodeResponse(new UserInfoResponse(user, jwt)));
     } catch (CodeException ex) {
       return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
     } catch (Exception ex) {
