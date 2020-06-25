@@ -168,7 +168,13 @@ public class TeamController {
       long userId = userPrincipal.getId();
       long teamId = getTeamRequest.getTeamId();
       Team team = teamService.getTeamById(teamId);
-      TeamMember teamMember = teamService.getTeamMemberById(teamId, userId);
+      TeamMember teamMember = null;
+      try {
+        teamMember = teamService.getTeamMemberById(teamId, userId);
+      } catch (CodeException ex) {
+        teamMember = new TeamMember();
+        teamMember.setTeamMemberType(TeamMemberType.GUEST);
+      }
 
       TeamDTO teamDTO = new TeamDTO(team, teamMember);
       return new ResponseEntity<>(new CodeResponse(teamDTO), HttpStatus.OK);

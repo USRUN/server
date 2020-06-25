@@ -8,7 +8,9 @@ public enum TeamMemberType {
   ADMIN(2),
   MEMBER(3),
   PENDING(4),
-  BLOCKED(5);
+  BLOCKED(5),
+  GUEST(6)
+  ;
 
 
   private int value;

@@ -2,12 +2,14 @@ package com.usrun.core.model.junction;
 
 import com.usrun.core.model.type.TeamMemberType;
 import java.util.Date;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
 public class TeamMember {
 
   @Id
