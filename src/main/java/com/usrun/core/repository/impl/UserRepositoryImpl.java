@@ -6,7 +6,9 @@ import com.usrun.core.model.type.AuthType;
 import com.usrun.core.model.type.Gender;
 import com.usrun.core.model.type.RoleType;
 import com.usrun.core.payload.dto.UserFilterDTO;
+import com.usrun.core.payload.dto.UserLeaderBoardDTO;
 import com.usrun.core.repository.UserRepository;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -114,6 +116,18 @@ public class UserRepositoryImpl implements UserRepository {
     MapSqlParameterSource params = new MapSqlParameterSource("userCode", code);
     String sql = "SELECT * FROM user WHERE userCode = :userCode";
     return getUser(sql, params);
+  }
+
+  @Override
+  public List<UserLeaderBoardDTO> getUserLeaderBoard(List<Long> users) {
+    if (users == null || users.isEmpty()) {
+      users = Collections.singletonList(-1L);
+    }
+    MapSqlParameterSource params = new MapSqlParameterSource("users", users);
+    String sql = "SELECT userId, displayName, avatar FROM user WHERE userId IN (:users)";
+    return namedParameterJdbcTemplate.query(sql, params,
+        (rs, i) -> new UserLeaderBoardDTO(rs.getLong("userId"), rs.getString("displayName"),
+            rs.getString("avatar")));
   }
 
   private User getUser(String sql, MapSqlParameterSource params) {

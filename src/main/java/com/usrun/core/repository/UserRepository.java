@@ -2,6 +2,7 @@ package com.usrun.core.repository;
 
 import com.usrun.core.model.User;
 import com.usrun.core.payload.dto.UserFilterDTO;
+import com.usrun.core.payload.dto.UserLeaderBoardDTO;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 
@@ -19,4 +20,6 @@ public interface UserRepository {
   List<UserFilterDTO> findUserIsEnable(String keyword, Pageable pageable);
 
   User findUserByCode(String code);
+
+  List<UserLeaderBoardDTO> getUserLeaderBoard(List<Long> users);
 }

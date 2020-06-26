@@ -3,18 +3,24 @@ package com.usrun.core.service;
 import com.usrun.core.config.AppProperties;
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
-import com.usrun.core.exception.TeamException;
 import com.usrun.core.model.Team;
 import com.usrun.core.model.User;
 import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
+import com.usrun.core.payload.dto.LeaderBoardTeamDTO;
+import com.usrun.core.payload.dto.UserLeaderBoardDTO;
+import com.usrun.core.payload.dto.UserLeaderBoardInfo;
 import com.usrun.core.repository.TeamMemberRepository;
 import com.usrun.core.repository.TeamRepository;
+import com.usrun.core.repository.UserRepository;
 import com.usrun.core.utility.CacheClient;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +47,9 @@ public class TeamService {
 
   @Autowired
   private UserService userService;
+
+  @Autowired
+  private UserRepository userRepository;
 
   @Autowired
   private AppProperties appProperties;
@@ -101,7 +110,7 @@ public class TeamService {
 
   public TeamMember getTeamMemberById(long teamId, long userId) {
     TeamMember teamMember = teamMemberRepository.findById(teamId, userId);
-    if(teamMember == null) {
+    if (teamMember == null) {
       throw new CodeException(ErrorCode.TEAM_USER_NOT_FOUND);
     }
     return teamMember;
@@ -239,6 +248,22 @@ public class TeamService {
     });
 
     return toReturn;
+  }
+
+  public List<UserLeaderBoardInfo> getLeaderBoard(long teamId, int limit) {
+    List<LeaderBoardTeamDTO> leaderBoard = teamRepository.getLeaderBoard(teamId);
+    List<Long> userIds = leaderBoard.stream()
+        .map(LeaderBoardTeamDTO::getUserId)
+        .limit(limit)
+        .collect(Collectors.toList());
+    Map<Long, UserLeaderBoardDTO> mapUsers = new HashMap<>();
+    List<UserLeaderBoardDTO> users = userRepository
+        .getUserLeaderBoard(userIds);
+    users.forEach(user -> mapUsers.put(user.getUserId(), user));
+    return leaderBoard.stream()
+        .map(user -> new UserLeaderBoardInfo(mapUsers.get(user.getUserId()), user.getTotal()))
+        .collect(
+            Collectors.toList());
   }
 
 }
