@@ -9,9 +9,11 @@ import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.CodeResponse;
 import com.usrun.core.payload.dto.TeamDTO;
 import com.usrun.core.payload.dto.TeamSummaryDTO;
+import com.usrun.core.payload.dto.UserLeaderBoardInfo;
 import com.usrun.core.payload.team.CreateTeamRequest;
 import com.usrun.core.payload.team.FindTeamRequest;
 import com.usrun.core.payload.team.GetAllTeamMemberRequest;
+import com.usrun.core.payload.team.GetLeaderBoardRequest;
 import com.usrun.core.payload.team.GetTeamByIdRequest;
 import com.usrun.core.payload.team.JoinTeamRequest;
 import com.usrun.core.payload.team.SuggestTeamRequest;
@@ -269,6 +271,23 @@ public class TeamController {
       long userId = userPrincipal.getId();
       List<Team> teams = teamService.getTeamByUser(userId);
       return ResponseEntity.ok(new CodeResponse(teams));
+    } catch (CodeException ex) {
+      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
+          HttpStatus.BAD_REQUEST);
+    } catch (Exception ex) {
+      log.error("", ex);
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
+          HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @PostMapping("/getLeaderBoard")
+  @PreAuthorize("hasRole('USER')")
+  public ResponseEntity<?> getLeaderBoard(@RequestBody GetLeaderBoardRequest request) {
+    try {
+      long teamId = request.getTeamId();
+      List<UserLeaderBoardInfo> leaderBoards = teamService.getLeaderBoard(teamId, 100);
+      return ResponseEntity.ok(new CodeResponse(leaderBoards));
     } catch (CodeException ex) {
       return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
           HttpStatus.BAD_REQUEST);

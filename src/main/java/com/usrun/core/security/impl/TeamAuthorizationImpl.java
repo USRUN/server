@@ -1,6 +1,6 @@
 package com.usrun.core.security.impl;
 
-import com.usrun.core.exception.TeamException;
+import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.security.TeamAuthorization;
 import com.usrun.core.security.UserPrincipal;
@@ -32,7 +32,7 @@ public class TeamAuthorizationImpl implements TeamAuthorization {
     try {
       userTeamRole = teamService.loadTeamMemberType(teamId, userId);
       return requestTeamRole.compareTo(userTeamRole) >= 0;
-    } catch (TeamException ex) {
+    } catch (CodeException ex) {
       return false;
     }
   }

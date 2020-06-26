@@ -3,6 +3,7 @@ package com.usrun.core.repository;
 import com.usrun.core.model.Team;
 import com.usrun.core.model.User;
 import com.usrun.core.model.type.TeamMemberType;
+import com.usrun.core.payload.dto.LeaderBoardTeamDTO;
 import java.util.List;
 import java.util.Set;
 
@@ -38,4 +39,6 @@ public interface TeamRepository {
   List<Team> findAllTeam();
 
   List<Team> getTeamsByUserReturnTeam(long userId);
+
+  List<LeaderBoardTeamDTO> getLeaderBoard(long teamId);
 }

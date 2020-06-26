@@ -4,6 +4,7 @@ import com.usrun.core.model.Team;
 import com.usrun.core.model.User;
 import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
+import com.usrun.core.payload.dto.LeaderBoardTeamDTO;
 import com.usrun.core.repository.TeamMemberRepository;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserRepository;
@@ -199,6 +200,18 @@ public class TeamRepositoryImpl implements TeamRepository {
     String sql = "SELECT * FROM team t, teamMember tm "
         + "WHERE tm.userId = :userId AND tm.teamId = t.teamId";
     return getTeamsSQLParamMap(sql, params);
+  }
+
+  @Override
+  public List<LeaderBoardTeamDTO> getLeaderBoard(long teamId) {
+    MapSqlParameterSource params = new MapSqlParameterSource("teamId", teamId);
+    String sql = "SELECT ua.userId, SUM(ua.totalDistance) as total "
+        + "FROM userActivity ua, teamMember tm "
+        + "WHERE tm.teamId = :teamId AND tm.userId = ua.userId "
+        + "GROUP BY ua.userId "
+        + "ORDER BY total DESC";
+    return namedParameterJdbcTemplate.query(sql, params,
+        (rs, i) -> new LeaderBoardTeamDTO(rs.getLong("userId"), rs.getLong("total")));
   }
 
   @Override
