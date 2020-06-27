@@ -198,15 +198,13 @@ public class TeamController {
       @RequestBody SuggestTeamRequest suggestTeamRequest
   ) {
     try {
-      Set<Team> toGet = teamService.getTeamSuggestion(
+      Set<Team> teams = teamService.getTeamSuggestion(
           userPrincipal.getId(),
           suggestTeamRequest.getDistrict(),
           suggestTeamRequest.getProvince(),
           suggestTeamRequest.getHowMany());
 
-      Set<TeamSummaryDTO> summaries = toGet.stream().map(TeamSummaryDTO::new).collect(
-          Collectors.toSet());
-      return new ResponseEntity<>(new CodeResponse(summaries), HttpStatus.OK);
+      return new ResponseEntity<>(new CodeResponse(teams), HttpStatus.OK);
     } catch (CodeException ex) {
       return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
           HttpStatus.BAD_REQUEST);
