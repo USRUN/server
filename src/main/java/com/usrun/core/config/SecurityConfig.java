@@ -1,5 +1,6 @@
 package com.usrun.core.config;
 
+import com.usrun.core.security.CustomAccessDeniedHandler;
 import com.usrun.core.security.CustomUserDetailsService;
 import com.usrun.core.security.RestAuthenticationEntryPoint;
 import com.usrun.core.security.TokenAuthenticationFilter;
@@ -71,6 +72,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .disable()
         .exceptionHandling()
         .authenticationEntryPoint(new RestAuthenticationEntryPoint())
+        .accessDeniedHandler(new CustomAccessDeniedHandler())
         .and()
         .authorizeRequests()
         .antMatchers("/",
