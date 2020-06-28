@@ -1,6 +1,7 @@
 package com.usrun.core.repository;
 
 import com.usrun.core.model.User;
+import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.dto.UserFilterDTO;
 import com.usrun.core.payload.dto.UserLeaderBoardDTO;
 import java.util.List;
@@ -22,4 +23,6 @@ public interface UserRepository {
   User findUserByCode(String code);
 
   List<UserLeaderBoardDTO> getUserLeaderBoard(List<Long> users);
+
+  List<UserFilterDTO> getUserByMemberType(long teamId, TeamMemberType teamMemberType, int offset, int limit);
 }

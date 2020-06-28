@@ -5,11 +5,13 @@ import com.usrun.core.model.User;
 import com.usrun.core.model.type.AuthType;
 import com.usrun.core.model.type.Gender;
 import com.usrun.core.model.type.RoleType;
+import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.dto.UserFilterDTO;
 import com.usrun.core.payload.dto.UserLeaderBoardDTO;
 import com.usrun.core.repository.UserRepository;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -130,8 +132,24 @@ public class UserRepositoryImpl implements UserRepository {
             rs.getString("avatar")));
   }
 
-  private User getUser(String sql, MapSqlParameterSource params) {
-    Optional<User> optionalUser = namedParameterJdbcTemplate.query(
+  @Override
+  public List<UserFilterDTO> getUserByMemberType(long teamId, TeamMemberType teamMemberType, int offset, int limit) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("teamId", teamId);
+    params.addValue("teamMemberType", teamMemberType.toValue());
+    params.addValue("offset", offset * limit);
+    params.addValue("limit", limit);
+    String sql  = "SELECT u.* "
+        + "FROM user u, teamMember tm "
+        + "WHERE tm.teamId = :teamId "
+        + "AND teamMemberType = :teamMemberType "
+        + "AND tm.userId = u.userId "
+        + "LIMIT :offset, :limit";
+    return getUserFilterDTO(sql, params);
+  }
+
+  private List<User> getUsers(String sql, MapSqlParameterSource params) {
+    return namedParameterJdbcTemplate.query(
         sql,
         params,
         (rs, i) -> new User(
@@ -152,14 +170,18 @@ public class UserRepositoryImpl implements UserRepository {
             rs.getBoolean("hcmus"),
             rs.getDate("createTime"),
             rs.getDate("updateTime")
-        )).stream().findFirst();
+        ));
+  }
+
+  private User getUser(String sql, MapSqlParameterSource params) {
+    Optional<User> optionalUser = getUsers(sql, params).stream().findFirst();
     if (optionalUser.isPresent()) {
       User user = optionalUser.get();
       List<Role> list = namedParameterJdbcTemplate
           .query("SELECT roleId FROM userRole WHERE userId = :userId",
               new MapSqlParameterSource("userId", user.getId()),
               (resultSet, i) -> new Role(RoleType.fromInt(resultSet.getInt("roleId"))));
-      Set<Role> roles = list.stream().collect(Collectors.toSet());
+      Set<Role> roles = new HashSet<>(list);
       user.setRoles(roles);
       return user;
     } else {
@@ -190,7 +212,7 @@ public class UserRepositoryImpl implements UserRepository {
   }
 
   private List<UserFilterDTO> getUserFilterDTO(String sql, MapSqlParameterSource params) {
-    List<UserFilterDTO> userFilterDTOS = namedParameterJdbcTemplate.query(
+    return namedParameterJdbcTemplate.query(
         sql,
         params,
         (rs, i) -> new UserFilterDTO(
@@ -199,9 +221,9 @@ public class UserRepositoryImpl implements UserRepository {
             rs.getString("email"),
             rs.getString("userCode"),
             Gender.fromInt(rs.getInt("gender")),
-            rs.getDate("birthday")
+            rs.getDate("birthday"),
+            rs.getString("avatar")
         )
     );
-    return userFilterDTOS;
   }
 }

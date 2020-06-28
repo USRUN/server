@@ -8,13 +8,14 @@ import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.CodeResponse;
 import com.usrun.core.payload.dto.TeamDTO;
-import com.usrun.core.payload.dto.TeamSummaryDTO;
+import com.usrun.core.payload.dto.UserFilterDTO;
 import com.usrun.core.payload.dto.UserLeaderBoardInfo;
 import com.usrun.core.payload.team.CreateTeamRequest;
 import com.usrun.core.payload.team.FindTeamRequest;
 import com.usrun.core.payload.team.GetAllTeamMemberRequest;
 import com.usrun.core.payload.team.GetLeaderBoardRequest;
 import com.usrun.core.payload.team.GetTeamByIdRequest;
+import com.usrun.core.payload.team.GetUserByMemberTypeRequest;
 import com.usrun.core.payload.team.JoinTeamRequest;
 import com.usrun.core.payload.team.SuggestTeamRequest;
 import com.usrun.core.payload.team.UpdateMemberRequest;
@@ -24,7 +25,6 @@ import com.usrun.core.security.UserPrincipal;
 import com.usrun.core.service.TeamService;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -286,6 +286,33 @@ public class TeamController {
       long teamId = request.getTeamId();
       List<UserLeaderBoardInfo> leaderBoards = teamService.getLeaderBoard(teamId, 100);
       return ResponseEntity.ok(new CodeResponse(leaderBoards));
+    } catch (CodeException ex) {
+      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
+          HttpStatus.BAD_REQUEST);
+    } catch (Exception ex) {
+      log.error("", ex);
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
+          HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @PostMapping("/getUserByMemberType")
+  @PreAuthorize("hasRole('USER') && @teamAuthorization.authorize(authentication,'MEMBER',#request.getTeamId())")
+  public ResponseEntity<?> getUserByMemberType(@RequestBody GetUserByMemberTypeRequest request) {
+    try {
+      TeamMemberType memberType = TeamMemberType.fromInt(request.getMemberType());
+      if (memberType == null) {
+        return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_MEMBER_TYPE_NOT_FOUND),
+            HttpStatus.BAD_REQUEST);
+      }
+
+      long teamId = request.getTeamId();
+      int offset = Math.max(0, request.getPage() - 1);
+      int limit = request.getCount() == 0 ? 10 : request.getCount();
+
+      List<UserFilterDTO> users = teamService.getUserByMemberType(teamId, memberType, offset, limit);
+
+      return ResponseEntity.ok(new CodeResponse(users));
     } catch (CodeException ex) {
       return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
           HttpStatus.BAD_REQUEST);

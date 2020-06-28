@@ -2,15 +2,19 @@ package com.usrun.core.payload.dto;
 
 import com.usrun.core.model.type.Gender;
 import java.util.Date;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
  * @author phuctt4
  */
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserFilterDTO {
 
   private Long id;
@@ -19,17 +23,5 @@ public class UserFilterDTO {
   private String code;
   private Gender gender;
   private Date birthday;
-
-  public UserFilterDTO() {
-  }
-
-  public UserFilterDTO(Long id, String name, String email, String code, Gender gender,
-      Date birthday) {
-    this.id = id;
-    this.name = name;
-    this.email = email;
-    this.code = code;
-    this.gender = gender;
-    this.birthday = birthday;
-  }
+  private String avatar;
 }

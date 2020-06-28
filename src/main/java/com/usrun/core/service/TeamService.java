@@ -8,6 +8,7 @@ import com.usrun.core.model.User;
 import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.dto.LeaderBoardTeamDTO;
+import com.usrun.core.payload.dto.UserFilterDTO;
 import com.usrun.core.payload.dto.UserLeaderBoardDTO;
 import com.usrun.core.payload.dto.UserLeaderBoardInfo;
 import com.usrun.core.repository.TeamMemberRepository;
@@ -264,6 +265,10 @@ public class TeamService {
         .map(user -> new UserLeaderBoardInfo(mapUsers.get(user.getUserId()), user.getTotal()))
         .collect(
             Collectors.toList());
+  }
+
+  public List<UserFilterDTO> getUserByMemberType(long teamId, TeamMemberType teamMemberType, int offset, int limit) {
+    return userRepository.getUserByMemberType(teamId, teamMemberType, offset, limit);
   }
 
 }
