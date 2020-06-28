@@ -4,6 +4,7 @@ public interface ErrorCode {
 
   int SUCCESS = 0;
   int FAIL = 1;
+  int INVALID_PARAM = 2;
 
 
   int LOGOUT_CODE = 100;
@@ -57,6 +58,8 @@ public interface ErrorCode {
   int EVENT_UN_ACTIVE = 4002;
   int EVENT_CAN_NOT_CREATE = 4003;
   int EVENT_NOT_EXISTED = 4004;
+  int USER_NOT_JOIN_EVENT = 4005;
+  int NOT_TIME_EVENT = 4006;
 
 
   int ACTIVITY_NOT_FOUND = 5000;

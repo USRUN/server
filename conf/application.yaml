@@ -58,6 +58,7 @@ app:
     time-in-microseconds: 86400000
   activity:
     key: activityusrun1620
+  activityLock: 6000000
 redis:
   url: ${REDIS_URL:redis://128.199.168.137:6379}
   password: ${REDIS_PASSWORD:1daf4caa4f13089d72cb3b5224f0b1d0e0b7619a3a404319e5d4fdb192f08c48}

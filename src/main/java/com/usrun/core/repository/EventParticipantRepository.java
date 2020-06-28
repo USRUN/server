@@ -14,6 +14,10 @@ import java.util.List;
 public interface EventParticipantRepository {
 
   int insert(EventParticipant eventParticipant);
+  
+  EventParticipant findEventParticipant(long eventId, long userId);
+  
+  int updateEventParticipant(EventParticipant eventParticipant);
 
   List<EventParticipant> findByUserId(long userId);
 
