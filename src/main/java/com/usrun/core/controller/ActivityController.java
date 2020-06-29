@@ -139,8 +139,7 @@ public class ActivityController {
                 cacheClient.setActivityCreated(user, userActivity);
 
                 long eventId = paramActivity.getEventId();
-                int addError = eventService.addActivityForEvent(userId, eventId, paramActivity.getTotalDistance());
-                logger.info("add activity to event: " + userId + " | " + eventId + " | " + addError );
+                eventService.addActivityForEvent(userId, eventId, paramActivity.getTotalDistance());
                 return new ResponseEntity<>(new CodeResponse(userActivity), HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(new CodeResponse(ErrorCode.ACTIVITY_ADD_FAIL),

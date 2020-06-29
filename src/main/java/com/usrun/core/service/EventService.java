@@ -6,6 +6,7 @@
 package com.usrun.core.service;
 
 import com.usrun.core.config.ErrorCode;
+import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.Event;
 import com.usrun.core.model.EventParticipant;
 import com.usrun.core.repository.EventParticipantRepository;
@@ -31,29 +32,34 @@ public class EventService {
     private EventRepository eventRepository;
 
     public int addActivityForEvent(long userId, long eventId, long distance) {
-        if (userId < 0 || eventId < 0 || distance < 0) {
-            return -ErrorCode.INVALID_PARAM;
+        try {
+            if (userId < 0 || eventId < 0 || distance < 0) {
+                throw new CodeException(ErrorCode.INVALID_PARAM);
+            }
+            //@TODO: check status event;
+            Event event = eventRepository.findById(eventId);
+            if (event == null) {
+                throw new CodeException(ErrorCode.EVENT_NOT_FOUND);
+            }
+            long startTime = event.getStartTime().getTime();
+            long endTime = event.getEndTime().getTime();
+
+            if (System.currentTimeMillis() < startTime || System.currentTimeMillis() > endTime) {
+                throw new CodeException(ErrorCode.NOT_TIME_EVENT);
+            }
+
+            EventParticipant eventpart = eventParticipant.findEventParticipant(eventId, userId);
+            if (eventpart == null) {
+                throw new CodeException(ErrorCode.USER_NOT_JOIN_EVENT);
+            }
+
+            eventpart.setDistance(eventpart.getDistance() + distance);
+            int updateError = eventParticipant.updateEventParticipant(eventpart);
+            return updateError;
+        } catch (CodeException ex) {
+            logger.info("add activity to event: " + userId + " | " + eventId + " | " + ex.getErrorCode());
+            return ex.getErrorCode();
         }
-        //@TODO: check status event;
-        Event event = eventRepository.findById(eventId);
-        if (event == null) {
-            return -ErrorCode.EVENT_NOT_FOUND;
-        }
-        long startTime = event.getStartTime().getTime();
-        long endTime = event.getEndTime().getTime();
-        
-        if(System.currentTimeMillis() < startTime || System.currentTimeMillis() > endTime){
-            return -ErrorCode.NOT_TIME_EVENT;
-        }
-        
-        EventParticipant eventpart = eventParticipant.findEventParticipant(eventId, userId);
-        if (eventpart == null) {
-            return -ErrorCode.USER_NOT_JOIN_EVENT;
-        }
-        
-        eventpart.setDistance(eventpart.getDistance() + distance);
-        int updateError = eventParticipant.updateEventParticipant(eventpart);
-        return updateError;
     }
 
 }
