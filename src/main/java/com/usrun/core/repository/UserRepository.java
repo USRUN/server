@@ -19,7 +19,7 @@ public interface UserRepository {
   User findUserByEmail(String email);
 
   //    @Query(value = "SELECT u.* FROM users u WHERE u.isEnabled = TRUE AND (u.name LIKE :keyword OR u.email LIKE :keyword OR u.code LIKE :keyword)")
-  List<UserFilterDTO> findUserIsEnable(String keyword, Pageable pageable);
+  List<UserFilterDTO> findUserIsEnable(String keyword, int offset, int count);
 
   User findUserByCode(String code);
 

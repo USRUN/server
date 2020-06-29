@@ -101,16 +101,16 @@ public class UserRepositoryImpl implements UserRepository {
   }
 
   @Override
-  public List<UserFilterDTO> findUserIsEnable(String keyword, Pageable pageable) {
+  public List<UserFilterDTO> findUserIsEnable(String keyword, int offset, int count) {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("keyword", keyword);
-    params.addValue("size", pageable.getPageSize());
-    params.addValue("offset", pageable.getOffset());
+    params.addValue("count", count);
+    params.addValue("offset", offset * count);
     String sql = "SELECT u.* " +
         "FROM user u " +
         "WHERE u.isEnabled = TRUE " +
         "AND (u.displayName LIKE :keyword OR u.email LIKE :keyword OR u.userCode LIKE :keyword) " +
-        "LIMIT :size " +
+        "LIMIT :count " +
         "OFFSET :offset";
     return getUserFilterDTO(sql, params);
   }

@@ -66,12 +66,12 @@ public class UserController {
 
   @PostMapping("/filter")
   @PreAuthorize("hasRole('USER')")
-  public ResponseEntity<?> findUser(@RequestBody UserFilterRequest userFilterRequest) {
+  public ResponseEntity<?> findUser(@RequestBody UserFilterRequest request) {
     try {
-      Pageable pageable = PageRequest
-          .of(userFilterRequest.getOffset(), userFilterRequest.getCount());
+      int count = request.getCount() >= 0 ? request.getCount() : 10;
+      int offset = Math.max(0, request.getOffset() - 1);
       List<UserFilterDTO> users = userRepository
-          .findUserIsEnable('%' + userFilterRequest.getKey() + '%', pageable);
+          .findUserIsEnable('%' + request.getKey() + '%', offset, count);
       return new ResponseEntity<>(new CodeResponse(users), HttpStatus.OK);
     } catch (CodeException ex) {
       return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
