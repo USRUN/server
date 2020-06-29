@@ -2,6 +2,7 @@ package com.usrun.core.repository.impl;
 
 import com.usrun.core.model.Role;
 import com.usrun.core.model.User;
+import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.AuthType;
 import com.usrun.core.model.type.Gender;
 import com.usrun.core.model.type.RoleType;
@@ -145,6 +146,25 @@ public class UserRepositoryImpl implements UserRepository {
         + "AND teamMemberType = :teamMemberType "
         + "AND tm.userId = u.userId "
         + "LIMIT :offset, :limit";
+    return getUserFilterDTO(sql, params);
+  }
+
+  @Override
+  public List<UserFilterDTO> getAllMemberByLessEqualTeamMemberType(long teamId,
+      TeamMemberType teamMemberType, int offset, int limit) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("teamId", teamId);
+    params.addValue("offset", offset * limit);
+    params.addValue("limit", limit);
+    params.addValue("teamMemberType", teamMemberType.toValue());
+
+    String sql = "SELECT u.* FROM teamMember tm, user u "
+        + "WHERE tm.teamId = :teamId "
+        + "AND tm.teamMemberType <= :teamMemberType "
+        + "AND tm.userId = u.userId "
+        + "LIMIT :limit "
+        + "OFFSET :offset";
+
     return getUserFilterDTO(sql, params);
   }
 

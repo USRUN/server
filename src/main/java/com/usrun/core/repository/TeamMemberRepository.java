@@ -17,6 +17,4 @@ public interface TeamMemberRepository {
   List<TeamMember> filterByMemberType(long teamId, TeamMemberType toFilter);
 
   List<TeamMember> getAllMemberOfTeam(long teamId);
-
-  List<TeamMember> getAllMemberOfTeamPaged(long teamId, int pageNum, int perPage);
 }

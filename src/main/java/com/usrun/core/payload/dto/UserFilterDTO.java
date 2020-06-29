@@ -17,7 +17,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserFilterDTO {
 
-  private Long id;
+  private Long userId;
   private String name;
   private String email;
   private String code;

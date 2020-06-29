@@ -1,6 +1,7 @@
 package com.usrun.core.repository;
 
 import com.usrun.core.model.User;
+import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.dto.UserFilterDTO;
 import com.usrun.core.payload.dto.UserLeaderBoardDTO;
@@ -25,4 +26,7 @@ public interface UserRepository {
   List<UserLeaderBoardDTO> getUserLeaderBoard(List<Long> users);
 
   List<UserFilterDTO> getUserByMemberType(long teamId, TeamMemberType teamMemberType, int offset, int limit);
+
+  List<UserFilterDTO> getAllMemberByLessEqualTeamMemberType(long teamId,
+      TeamMemberType teamMemberType, int offset, int limit);
 }

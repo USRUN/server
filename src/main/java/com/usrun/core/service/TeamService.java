@@ -238,17 +238,9 @@ public class TeamService {
     return toGet;
   }
 
-  public Set<User> getAllTeamMemberPaged(Long teamId, int offset, int count) {
-    Set<User> toReturn = new HashSet<>();
-
-    List<TeamMember> teamMembers = teamMemberRepository
-        .getAllMemberOfTeamPaged(teamId, offset, count);
-
-    teamMembers.forEach(teamMember -> {
-      toReturn.add(userService.loadUser(teamMember.getUserId()));
-    });
-
-    return toReturn;
+  public List<UserFilterDTO> getAllTeamMemberPaged(Long teamId, int offset, int limit) {
+    return userRepository
+        .getAllMemberByLessEqualTeamMemberType(teamId, TeamMemberType.MEMBER, offset, limit);
   }
 
   public List<UserLeaderBoardInfo> getLeaderBoard(long teamId, int limit) {
@@ -267,7 +259,8 @@ public class TeamService {
             Collectors.toList());
   }
 
-  public List<UserFilterDTO> getUserByMemberType(long teamId, TeamMemberType teamMemberType, int offset, int limit) {
+  public List<UserFilterDTO> getUserByMemberType(long teamId, TeamMemberType teamMemberType,
+      int offset, int limit) {
     return userRepository.getUserByMemberType(teamId, teamMemberType, offset, limit);
   }
 

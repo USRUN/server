@@ -249,7 +249,7 @@ public class TeamController {
           getAllTeamMemberRequest.getPageNum() > 0 ? getAllTeamMemberRequest.getPageNum() - 1 : 0;
       int count =
           getAllTeamMemberRequest.getPerPage() > 0 ? getAllTeamMemberRequest.getPerPage() : 10;
-      Set<User> toGet = teamService
+      List<UserFilterDTO> toGet = teamService
           .getAllTeamMemberPaged(getAllTeamMemberRequest.getTeamId(), offset, count);
       return new ResponseEntity<>(new CodeResponse(toGet), HttpStatus.OK);
     } catch (CodeException ex) {
