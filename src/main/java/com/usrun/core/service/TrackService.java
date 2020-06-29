@@ -2,7 +2,6 @@ package com.usrun.core.service;
 
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
-import com.usrun.core.exception.TrackException;
 import com.usrun.core.model.track.Location;
 import com.usrun.core.model.track.Track;
 import com.usrun.core.repository.TrackRepository;

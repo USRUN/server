@@ -1,6 +1,6 @@
 package com.usrun.core.controller;
 
-import com.usrun.core.exception.TrackException;
+import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.track.Track;
 import com.usrun.core.payload.CodeResponse;
 import com.usrun.core.payload.track.GetTrackRequest;
@@ -72,7 +72,7 @@ public class TrackController {
 
     try {
       track = trackService.getTrack(userId, request.getTrackId());
-    } catch (TrackException exp) {
+    } catch (CodeException exp) {
       return new ResponseEntity<>(new CodeResponse(exp.getErrorCode()), HttpStatus.BAD_REQUEST);
     }
     return ResponseEntity.ok(new CodeResponse(track));

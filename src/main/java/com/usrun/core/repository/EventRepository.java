@@ -22,4 +22,6 @@ public interface EventRepository {
   List<Event> findByName(String name);
 
   boolean delete(Event delete);
+  
+  List<Event> mFindById(List<Long> ids);
 }

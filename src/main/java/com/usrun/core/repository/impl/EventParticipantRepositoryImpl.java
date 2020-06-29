@@ -22,72 +22,94 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class EventParticipantRepositoryImpl implements EventParticipantRepository {
 
-  private static final Logger logger = LoggerFactory
-      .getLogger(EventParticipantRepositoryImpl.class);
-  @Autowired
-  private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private static final Logger logger = LoggerFactory
+            .getLogger(EventParticipantRepositoryImpl.class);
+    @Autowired
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-  private MapSqlParameterSource mapEvent(EventParticipant eventParticipant) {
-    MapSqlParameterSource map = new MapSqlParameterSource();
-    map.addValue("eventId", eventParticipant.getEventId());
-    map.addValue("teamId", eventParticipant.getTeamId());
-    map.addValue("userId", eventParticipant.getUserId());
-    map.addValue("distance", eventParticipant.getDistance());
-    return map;
-  }
-
-  @Override
-  public int insert(EventParticipant eventParticipant) {
-    MapSqlParameterSource map = mapEvent(eventParticipant);
-    try {
-      int putError = namedParameterJdbcTemplate.update(
-          "INSERT INTO eventParticipant(eventId,userId,teamId,distance)"
-              + " VALUES(:eventId, :userId, :teamId, :distance)",
-          map
-      );
-      return putError;
-    } catch (Exception ex) {
-      logger.error(ex.getMessage(), ex);
-      return -1;
+    private MapSqlParameterSource mapEvent(EventParticipant eventParticipant) {
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue("eventId", eventParticipant.getEventId());
+        map.addValue("teamId", eventParticipant.getTeamId());
+        map.addValue("userId", eventParticipant.getUserId());
+        map.addValue("distance", eventParticipant.getDistance());
+        return map;
     }
-  }
 
-  @Override
-  public boolean delete(EventParticipant eventParticipant) {
-    int status = 0;
-    MapSqlParameterSource map = mapEvent(eventParticipant);
-    status = namedParameterJdbcTemplate.update(
-        "DELETE FROM eventParticipant"
-            + "WHERE  eventId= :eventId AND teamId= :teamId AND userId= :userId",
-        map
-    );
-    return status != 0;
-  }
-
-  @Override
-  public List<EventParticipant> findByUserId(long userId) {
-    MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
-    String sql = "SELECT * FROM eventParticipant WHERE userId = :userId";
-    List<EventParticipant> eventParticipants = findEventParticipant(sql, params);
-    if (eventParticipants.size() > 0) {
-      return eventParticipants;
-    } else {
-      return null;
+    @Override
+    public int insert(EventParticipant eventParticipant) {
+        MapSqlParameterSource map = mapEvent(eventParticipant);
+        try {
+            int putError = namedParameterJdbcTemplate.update(
+                    "INSERT INTO eventParticipant(eventId,userId,teamId,distance)"
+                    + " VALUES(:eventId, :userId, :teamId, :distance)",
+                    map
+            );
+            return putError;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+            return -1;
+        }
     }
-  }
 
-  private List<EventParticipant> findEventParticipant(String sql, MapSqlParameterSource params) {
-    List<EventParticipant> listEventParticipant = namedParameterJdbcTemplate.query(sql,
-        params,
-        (rs, i) -> new EventParticipant(rs.getLong("eventId"),
-            rs.getLong("userId"),
-            rs.getLong("teamId"),
-            rs.getLong("distance")
-        ));
-    if (listEventParticipant.size() > 0) {
-      return listEventParticipant;
-    } else {
-      return Collections.emptyList();
+    @Override
+    public boolean delete(EventParticipant eventParticipant) {
+        int status = 0;
+        MapSqlParameterSource map = mapEvent(eventParticipant);
+        status = namedParameterJdbcTemplate.update(
+                "DELETE FROM eventParticipant"
+                + "WHERE  eventId= :eventId AND teamId= :teamId AND userId= :userId",
+                map
+        );
+        return status != 0;
     }
-  }
+
+    @Override
+    public List<EventParticipant> findByUserId(long userId) {
+        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+        String sql = "SELECT * FROM eventParticipant WHERE userId = :userId";
+        List<EventParticipant> eventParticipants = findEventParticipant(sql, params);
+        if (eventParticipants.size() > 0) {
+            return eventParticipants;
+        } else {
+            return null;
+        }
+    }
+
+    private List<EventParticipant> findEventParticipant(String sql, MapSqlParameterSource params) {
+        List<EventParticipant> listEventParticipant = namedParameterJdbcTemplate.query(sql,
+                params,
+                (rs, i) -> new EventParticipant(rs.getLong("eventId"),
+                        rs.getLong("userId"),
+                        rs.getLong("teamId"),
+                        rs.getLong("distance")
+                ));
+        if (listEventParticipant.size() > 0) {
+            return listEventParticipant;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public EventParticipant findEventParticipant(long eventId, long userId) {
+        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+        params.addValue("eventId", eventId);
+        String sql = "SELECT * FROM eventParticipant WHERE userId = :userId AND eventId = :eventId";
+        List<EventParticipant> eventParticipants = findEventParticipant(sql, params);
+        if (eventParticipants.size() > 0) {
+            return eventParticipants.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public int updateEventParticipant(EventParticipant eventParticipant) {
+        MapSqlParameterSource map = mapEvent(eventParticipant);
+        String sql = "UPDATE eventParticipant SET distance= :distance "
+                + "WHERE teamId = :teamId AND userId= :userId AND eventId = :eventId";
+        int effect = namedParameterJdbcTemplate.update(sql, map);
+        return effect;
+    }
 }
