@@ -25,17 +25,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+@Slf4j
 @Service
 public class TeamService {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(TeamService.class);
 
   @Autowired
   private TeamRepository teamRepository;
@@ -59,12 +57,17 @@ public class TeamService {
   private AppProperties appProperties;
 
   public Team createTeam(
-      Long ownerId, int privacy, String teamName, String district, String province,
-      String thumbnailBase64
-  ) throws UnsupportedEncodingException {
-    String encodedName = URLEncoder.encode(teamName, StandardCharsets.UTF_8.toString());
+      Long ownerId, int privacy, String teamName, Integer province,
+      String thumbnailBase64) {
+    String encodedName = null;
+    try {
+      encodedName = URLEncoder.encode(teamName, StandardCharsets.UTF_8.toString());
+    } catch (UnsupportedEncodingException e) {
+      log.error("", e);
+      throw new CodeException(ErrorCode.INVALID_PARAM);
+    }
     String thumbnail = appProperties.getDefaultThumbnailTeam();
-    if (thumbnailBase64.length() > appProperties.getMaxImageSize()) {
+    if (thumbnailBase64 != null && thumbnailBase64.length() > appProperties.getMaxImageSize()) {
       throw new CodeException(ErrorCode.INVALID_IMAGE_SIZE);
     }
     if (!StringUtils.isEmpty(thumbnailBase64)) {
@@ -74,7 +77,7 @@ public class TeamService {
       }
     }
 
-    Team toCreate = new Team(privacy, teamName, district, province, new Date(), thumbnail);
+    Team toCreate = new Team(privacy, teamName, province, new Date(), thumbnail);
 
     toCreate = teamRepository.insert(toCreate, ownerId);
     cacheClient.setTeamMemberType(toCreate.getId(), ownerId, TeamMemberType.OWNER);
@@ -180,7 +183,7 @@ public class TeamService {
       TeamMember teamMember = teamMemberRepository.findById(teamId, userId);
       if (teamMember == null) {
         String msg = String.format("User %s not belong to Team %s", userId, teamId);
-        LOGGER.warn(msg);
+        log.warn(msg);
         throw new CodeException(msg, ErrorCode.TEAM_USER_NOT_FOUND);
       }
       teamMemberType = teamMember.getTeamMemberType();
@@ -189,15 +192,21 @@ public class TeamService {
   }
 
   public Team updateTeam(Long teamId, String thumbnail, String banner, int privacy,
-      String district, String province, String description) throws UnsupportedEncodingException {
+      Integer province, String description) {
     Team toUpdate = teamRepository.findTeamById(teamId);
 
     if (toUpdate == null) {
       throw new CodeException(ErrorCode.TEAM_NOT_FOUND);
     }
 
-    String encodedName = URLEncoder
-        .encode(toUpdate.getTeamName(), StandardCharsets.UTF_8.toString());
+    String encodedName = null;
+    try {
+      encodedName = URLEncoder
+          .encode(toUpdate.getTeamName(), StandardCharsets.UTF_8.toString());
+    } catch (UnsupportedEncodingException e) {
+      log.error("", e);
+      throw new CodeException(ErrorCode.INVALID_PARAM);
+    }
 
     if ((thumbnail != null && thumbnail.length() > appProperties.getMaxImageSize())
         || (banner != null && banner.length() > appProperties.getMaxImageSize())) {
@@ -219,28 +228,25 @@ public class TeamService {
     if (privacy != toUpdate.getPrivacy()) {
       toUpdate.setPrivacy(privacy);
     }
-    if (province != null) {
+    if (province != null && province >= 1 && province <= 63) {
       toUpdate.setProvince(province);
     }
-    if (district != null) {
-      toUpdate.setDistrict(district);
-    }
+
     if (description != null) {
       toUpdate.setDescription(description);
     }
 
     teamRepository.update(toUpdate);
-    LOGGER.info("Update team {}", teamId);
+    log.info("Update team {}", teamId);
 
     return toUpdate;
   }
 
-  public Set<Team> getTeamSuggestion(Long currentUserId, String district, String province,
-      int howMany) {
+  public Set<Team> getTeamSuggestion(Long currentUserId, int province, int count) {
     Set<Team> toReturn;
     Set<Long> toExclude = userService.loadUser(currentUserId).getTeams();
     toReturn = teamRepository
-        .getTeamSuggestionByUserLocation(district, province, howMany, toExclude);
+        .getTeamSuggestionByUserLocation(province, count, toExclude);
     return toReturn;
   }
 

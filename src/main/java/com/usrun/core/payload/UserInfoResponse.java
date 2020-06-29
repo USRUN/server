@@ -30,6 +30,7 @@ public class UserInfoResponse {
   private String accessToken;
   private boolean hcmus;
   private String tokenType;
+  private Integer province;
 
   public UserInfoResponse(User user) {
     this.type = user.getType().ordinal();
@@ -48,6 +49,7 @@ public class UserInfoResponse {
     this.updateTime = user.getUpdateTime();
     this.code = user.getCode();
     this.hcmus = user.isHcmus();
+    this.province = user.getProvince();
   }
 
   public UserInfoResponse(User user, String accessToken) {

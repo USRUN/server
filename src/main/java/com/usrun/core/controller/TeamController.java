@@ -3,7 +3,6 @@ package com.usrun.core.controller;
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.Team;
-import com.usrun.core.model.User;
 import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.CodeResponse;
@@ -55,9 +54,8 @@ public class TeamController {
           userPrincipal.getId(),
           createTeamRequest.getPrivacy(),
           createTeamRequest.getTeamName(),
-          createTeamRequest.getDistrict(),
           createTeamRequest.getProvince(),
-          createTeamRequest.getThumbnailBase64());
+          createTeamRequest.getThumbnail());
       return new ResponseEntity<>(new CodeResponse(team), HttpStatus.CREATED);
     } catch (DuplicateKeyException e) {
       return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_EXISTED), HttpStatus.BAD_REQUEST);
@@ -84,7 +82,6 @@ public class TeamController {
           updateTeamRequest.getThumbnail(),
           updateTeamRequest.getBanner(),
           updateTeamRequest.getPrivacy(),
-          updateTeamRequest.getDistrict(),
           updateTeamRequest.getProvince(),
           updateTeamRequest.getDescription());
       return new ResponseEntity<>(new CodeResponse(updated), HttpStatus.OK);
@@ -194,14 +191,16 @@ public class TeamController {
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<?> getTeamSuggestion(
       @CurrentUser UserPrincipal userPrincipal,
-      @RequestBody SuggestTeamRequest suggestTeamRequest
+      @RequestBody SuggestTeamRequest request
   ) {
     try {
+      int count = request.getCount() <= 0 ? 10 : request.getCount();
+      int province =
+          request.getProvince() >= 1 && request.getProvince() <= 63 ? request.getProvince() : 0;
       Set<Team> teams = teamService.getTeamSuggestion(
           userPrincipal.getId(),
-          suggestTeamRequest.getDistrict(),
-          suggestTeamRequest.getProvince(),
-          suggestTeamRequest.getHowMany());
+          province,
+          count);
 
       return new ResponseEntity<>(new CodeResponse(teams), HttpStatus.OK);
     } catch (CodeException ex) {
@@ -309,7 +308,8 @@ public class TeamController {
       int offset = Math.max(0, request.getPage() - 1);
       int limit = request.getCount() == 0 ? 10 : request.getCount();
 
-      List<UserFilterDTO> users = teamService.getUserByMemberType(teamId, memberType, offset, limit);
+      List<UserFilterDTO> users = teamService
+          .getUserByMemberType(teamId, memberType, offset, limit);
 
       return ResponseEntity.ok(new CodeResponse(users));
     } catch (CodeException ex) {

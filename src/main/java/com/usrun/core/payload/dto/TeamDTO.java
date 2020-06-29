@@ -32,9 +32,7 @@ public class TeamDTO {
 
   private Date createTime;
 
-  private String district;
-
-  private String province;
+  private Integer province;
 
   private String description;
 
@@ -50,7 +48,6 @@ public class TeamDTO {
     this.verified = team.isVerified();
     this.deleted = team.isDeleted();
     this.createTime = team.getCreateTime();
-    this.district = team.getDistrict();
     this.province = team.getProvince();
     this.description = team.getDescription();
     this.teamMemberType = teamMember.getTeamMemberType();

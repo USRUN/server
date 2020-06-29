@@ -127,7 +127,7 @@ public class UserService {
   public User updateUser(Long userId, String name,
       String deviceToken, Integer gender,
       Date birthday, Double weight, Double height,
-      String base64Image) {
+      String base64Image, Integer province) {
     User user = userRepository.findById(userId);
 
     if (name != null) {
@@ -166,6 +166,10 @@ public class UserService {
       if (fileUrl != null) {
         user.setAvatar(fileUrl);
       }
+    }
+
+    if (province != null && province > 0 && province <=63) {
+      user.setProvince(province);
     }
 
     userRepository.update(user);

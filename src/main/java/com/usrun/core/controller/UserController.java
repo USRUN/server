@@ -100,7 +100,8 @@ public class UserController {
           userUpdateRequest.getGender(), birthday,
           userUpdateRequest.getWeight(),
           userUpdateRequest.getHeight(),
-          userUpdateRequest.getAvatar());
+          userUpdateRequest.getAvatar(),
+          userUpdateRequest.getProvince());
       return ResponseEntity.ok(new CodeResponse(new UserInfoResponse(user)));
     } catch (CodeException ex) {
       return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);

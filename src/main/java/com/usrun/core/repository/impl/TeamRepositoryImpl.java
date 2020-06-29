@@ -44,9 +44,10 @@ public class TeamRepositoryImpl implements TeamRepository {
 
     // insert team into DB
     namedParameterJdbcTemplate.update(
-        "INSERT INTO team (privacy, totalMember, teamName, verified, deleted, createTime, district, province, thumbnail, banner) "
-            + "VALUES ("
-            + ":privacy, :totalMember, :teamName, :verified, :deleted, :createTime, :district, :province, :thumbnail, :banner)",
+        "INSERT INTO team (privacy, totalMember, teamName, verified, "
+            + "deleted, createTime, province, thumbnail, banner) "
+            + "VALUES (:privacy, :totalMember, :teamName, :verified, "
+            + ":deleted, :createTime, :province, :thumbnail, :banner)",
         map,
         holder,
         new String[]{"GENERATED_ID"});
@@ -68,7 +69,7 @@ public class TeamRepositoryImpl implements TeamRepository {
     MapSqlParameterSource map = mapTeamObject(toUpdate);
     String sql = "UPDATE team SET "
         + "privacy = :privacy, teamName = :teamName, thumbnail = :thumbnail, banner = :banner, "
-        + "deleted= :deleted, privacy = :privacy, district = :district, province = :province, "
+        + "deleted= :deleted, privacy = :privacy, province = :province, "
         + "description = :description, totalMember = :totalMember "
         + "WHERE teamId = :teamId";
     int effect = namedParameterJdbcTemplate.update(sql, map);
@@ -163,30 +164,6 @@ public class TeamRepositoryImpl implements TeamRepository {
     }
   }
 
-  /*
-      location: location to search for teams
-      howMany: how many will be returned
-      toExclude: teamIds to exclude from the returned set (user is already a member)
-   */
-
-  @Override
-  public Set<Team> getTeamSuggestionByUserLocation(String district, String province, int howMany,
-      Set<Long> toExclude) {
-    if (toExclude == null || toExclude.isEmpty()) {
-      toExclude = Collections.singleton(0L);
-    }
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("district", district);
-    params.addValue("province", province);
-    params.addValue("howMany", howMany);
-    params.addValue("toExclude", toExclude);
-    String sql = "SELECT * FROM team WHERE team.teamId NOT IN (:toExclude) "
-        + "AND (:district is null OR district = :district) "
-        + "AND (:province is null OR province = :province) "
-        + "LIMIT :howMany";
-    return getMultipleTeamSQLParamMap(sql, params);
-  }
-
   @Override
   public List<Team> findAllTeam() {
     MapSqlParameterSource params = new MapSqlParameterSource();
@@ -227,6 +204,21 @@ public class TeamRepositoryImpl implements TeamRepository {
   }
 
   @Override
+  public Set<Team> getTeamSuggestionByUserLocation(int province, int count, Set<Long> toExclude) {
+    if (toExclude == null || toExclude.isEmpty()) {
+      toExclude = Collections.singleton(0L);
+    }
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("province", province);
+    params.addValue("count", count);
+    params.addValue("toExclude", toExclude);
+    String sql = "SELECT * FROM team WHERE team.teamId NOT IN (:toExclude) "
+        + "AND (:province = 0 OR province = :province) "
+        + "LIMIT :count";
+    return getMultipleTeamSQLParamMap(sql, params);
+  }
+
+  @Override
   public Set<Team> findTeamWithNameContains(String searchString, int offset, int count) {
     Set<Team> toReturn = null;
 
@@ -252,7 +244,6 @@ public class TeamRepositoryImpl implements TeamRepository {
     toReturn.addValue("privacy", toMap.getPrivacy());
     toReturn.addValue("thumbnail", toMap.getThumbnail());
     toReturn.addValue("banner", toMap.getBanner());
-    toReturn.addValue("district", toMap.getDistrict());
     toReturn.addValue("province", toMap.getProvince());
     toReturn.addValue("totalMember", toMap.getTotalMember());
     toReturn.addValue("createTime", toMap.getCreateTime());
@@ -277,8 +268,7 @@ public class TeamRepositoryImpl implements TeamRepository {
                 rs.getBoolean("verified"),
                 rs.getBoolean("deleted"),
                 rs.getDate("createTime"),
-                rs.getString("district"),
-                rs.getString("province"),
+                rs.getInt("province"),
                 rs.getString("description")
             );
 
@@ -303,8 +293,7 @@ public class TeamRepositoryImpl implements TeamRepository {
             rs.getBoolean("verified"),
             rs.getBoolean("deleted"),
             rs.getDate("createTime"),
-            rs.getString("province"),
-            rs.getString("district"),
+            rs.getInt("province"),
             rs.getString("description")
         ));
   }

@@ -31,18 +31,15 @@ public class Team {
 
   private Date createTime;
 
-  private String district;
-
-  private String province;
+  private Integer province;
 
   private String description;
 
   // used in TeamService -> createTeam
-  public Team(int privacy, String teamName, String district, String province, Date createTime,
+  public Team(int privacy, String teamName, Integer province, Date createTime,
       String thumbnail) {
     this.teamName = teamName;
     this.privacy = privacy;
-    this.district = district;
     this.province = province;
     this.createTime = createTime;
 
@@ -55,15 +52,14 @@ public class Team {
 
   // used to update team's info
   public Team(Long teamId, int privacy, int totalMember, String teamName, String thumbnail,
-      String banner, boolean verified, boolean deleted, Date createTime, String province,
-      String district, String description) {
+      String banner, boolean verified, boolean deleted, Date createTime, Integer province,
+      String description) {
     this.id = teamId;
     this.teamName = teamName;
     this.thumbnail = thumbnail;
     this.privacy = privacy;
     this.totalMember = totalMember;
     this.banner = banner;
-    this.district = district;
     this.province = province;
     this.verified = verified;
     this.deleted = deleted;

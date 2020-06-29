@@ -18,4 +18,5 @@ public class UserUpdateRequest {
   private Double weight;
   private Double height;
   private String deviceToken;
+  private Integer province;
 }

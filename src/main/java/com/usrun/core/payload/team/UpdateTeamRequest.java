@@ -15,9 +15,7 @@ public class UpdateTeamRequest {
 
   private String banner;
 
-  private String district;
-
-  private String province;
+  private Integer province;
 
   private String description;
 }

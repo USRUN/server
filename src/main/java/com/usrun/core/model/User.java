@@ -58,6 +58,8 @@ public class User {
 
   private boolean hcmus = false;
 
+  private Integer province;
+
   private Set<Role> roles;
 
   private Set<Long> teams;
@@ -78,7 +80,7 @@ public class User {
   public User(Long id, String name, @Email String email, String password, AuthType type,
       String avatar, Date lastLogin, Double weight, Double height, Gender gender, Date birthday,
       String code, String deviceToken, boolean isEnabled, boolean hcmus, Date createTime,
-      Date updateTime) {
+      Date updateTime, int province) {
     this.id = id;
     this.name = name;
     this.email = email;
@@ -96,5 +98,6 @@ public class User {
     this.hcmus = hcmus;
     this.createTime = createTime;
     this.updateTime = updateTime;
+    this.province = province;
   }
 }

@@ -1,13 +1,14 @@
 package com.usrun.core.payload.team;
 
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
 public class SuggestTeamRequest {
 
-  String district;
-  String province;
-  int howMany;
+  int province;
+  int count;
 }

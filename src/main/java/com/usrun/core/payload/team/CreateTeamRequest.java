@@ -9,12 +9,7 @@ public class CreateTeamRequest {
   // OwnerId is assumed to be the current user
 
   private int privacy;
-
   private String teamName;
-
-  private String district;
-
-  private String province;
-
-  private String thumbnailBase64;
+  private Integer province;
+  private String thumbnail;
 }

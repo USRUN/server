@@ -73,13 +73,14 @@ public class UserRepositoryImpl implements UserRepository {
     user.setUpdateTime(new Date());
     MapSqlParameterSource map = getMapUser(user);
     namedParameterJdbcTemplate.update(
-        "UPDATE user SET displayName = :displayName, email = :email, password = :password, userType = :userType, "
-            +
-            "avatar = :avatar , lastLogin = :lastLogin, " +
-            "weight = :weight, height = :height, gender = :gender, " +
-            "birthday = :birthday, userCode = :userCode, deviceToken = :deviceToken, " +
-            "isEnabled = :isEnabled, " +
-            "hcmus := hcmus, updateTime = :updateTime WHERE userId = :userId",
+        "UPDATE user SET displayName = :displayName, email = :email, "
+            + "password = :password, userType = :userType, "
+            + "avatar = :avatar , lastLogin = :lastLogin, "
+            + "weight = :weight, height = :height, gender = :gender, "
+            + "birthday = :birthday, userCode = :userCode, deviceToken = :deviceToken, "
+            + "isEnabled = :isEnabled, hcmus = :hcmus, "
+            + "updateTime = :updateTime, province = :province "
+            + "WHERE userId = :userId",
         map
     );
     return user;
@@ -189,7 +190,8 @@ public class UserRepositoryImpl implements UserRepository {
             rs.getBoolean("isEnabled"),
             rs.getBoolean("hcmus"),
             rs.getDate("createTime"),
-            rs.getDate("updateTime")
+            rs.getDate("updateTime"),
+            rs.getInt("province")
         ));
   }
 
@@ -228,6 +230,7 @@ public class UserRepositoryImpl implements UserRepository {
     map.addValue("hcmus", user.isHcmus());
     map.addValue("createTime", user.getCreateTime());
     map.addValue("updateTime", user.getUpdateTime());
+    map.addValue("province", user.getProvince());
     return map;
   }
 
