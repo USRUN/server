@@ -200,7 +200,7 @@ public class TeamService {
         .encode(toUpdate.getTeamName(), StandardCharsets.UTF_8.toString());
 
     if ((thumbnail != null && thumbnail.length() > appProperties.getMaxImageSize())
-        || (banner != null && banner.length() > appProperties.getMaxImageSize()) {
+        || (banner != null && banner.length() > appProperties.getMaxImageSize())) {
       throw new CodeException(ErrorCode.INVALID_IMAGE_SIZE);
     }
 
