@@ -15,6 +15,9 @@ import com.usrun.core.repository.TeamMemberRepository;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserRepository;
 import com.usrun.core.utility.CacheClient;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,10 +61,14 @@ public class TeamService {
   public Team createTeam(
       Long ownerId, int privacy, String teamName, String district, String province,
       String thumbnailBase64
-  ) {
+  ) throws UnsupportedEncodingException {
+    String encodedName = URLEncoder.encode(teamName, StandardCharsets.UTF_8.toString());
     String thumbnail = appProperties.getDefaultThumbnailTeam();
+    if (thumbnailBase64.length() > appProperties.getMaxImageSize()) {
+      throw new CodeException(ErrorCode.INVALID_IMAGE_SIZE);
+    }
     if (!StringUtils.isEmpty(thumbnailBase64)) {
-      String fileUrl = amazonClient.uploadFile(thumbnailBase64, "thumbnail-team-" + teamName);
+      String fileUrl = amazonClient.uploadFile(thumbnailBase64, "thumbnail-team-" + encodedName);
       if (fileUrl != null) {
         thumbnail = fileUrl;
       }
@@ -181,24 +188,33 @@ public class TeamService {
     return teamMemberType;
   }
 
-  public Team updateTeam(Long teamId, String teamName, String thumbnail, String banner, int privacy,
-      String district, String province, String description) {
+  public Team updateTeam(Long teamId, String thumbnail, String banner, int privacy,
+      String district, String province, String description) throws UnsupportedEncodingException {
     Team toUpdate = teamRepository.findTeamById(teamId);
 
     if (toUpdate == null) {
       throw new CodeException(ErrorCode.TEAM_NOT_FOUND);
     }
 
-    if (teamName != null) {
-      toUpdate.setTeamName(teamName);
+    String encodedName = URLEncoder
+        .encode(toUpdate.getTeamName(), StandardCharsets.UTF_8.toString());
+
+    if ((thumbnail != null && thumbnail.length() > appProperties.getMaxImageSize())
+        || (banner != null && banner.length() > appProperties.getMaxImageSize()) {
+      throw new CodeException(ErrorCode.INVALID_IMAGE_SIZE);
     }
+
     if (thumbnail != null) {
-      String thumbnailURL = amazonClient.uploadFile(thumbnail, "thumbnail-team-" + teamName);
-      toUpdate.setThumbnail(thumbnailURL);
+      String thumbnailURL = amazonClient.uploadFile(thumbnail, "thumbnail-team-" + encodedName);
+      if (thumbnailURL != null) {
+        toUpdate.setThumbnail(thumbnailURL);
+      }
     }
     if (banner != null) {
-      String bannerURL = amazonClient.uploadFile(banner, "banner-team-" + teamName);
-      toUpdate.setBanner(bannerURL);
+      String bannerURL = amazonClient.uploadFile(banner, "banner-team-" + encodedName);
+      if (bannerURL != null) {
+        toUpdate.setBanner(bannerURL);
+      }
     }
     if (privacy != toUpdate.getPrivacy()) {
       toUpdate.setPrivacy(privacy);

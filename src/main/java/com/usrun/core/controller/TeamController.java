@@ -81,7 +81,6 @@ public class TeamController {
     try {
       updated = teamService.updateTeam(
           updateTeamRequest.getTeamId(),
-          updateTeamRequest.getTeamName(),
           updateTeamRequest.getThumbnail(),
           updateTeamRequest.getBanner(),
           updateTeamRequest.getPrivacy(),

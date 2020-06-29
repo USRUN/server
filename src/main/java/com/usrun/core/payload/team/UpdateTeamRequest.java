@@ -11,8 +11,6 @@ public class UpdateTeamRequest {
 
   private int privacy;
 
-  private String teamName;
-
   private String thumbnail;
 
   private String banner;
