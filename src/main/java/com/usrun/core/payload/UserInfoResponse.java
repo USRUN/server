@@ -45,5 +45,6 @@ public class UserInfoResponse {
     this.deviceToken = user.getDeviceToken();
     this.createTime = user.getCreateTime();
     this.updateTime = user.getUpdateTime();
+    this.code = user.getCode();
   }
 }
