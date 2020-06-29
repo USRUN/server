@@ -12,24 +12,24 @@ public class CodeResponse {
   private ErrorCode code;
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
-  private String message;
+  private String errorMessage;
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   private Object data;
 
   public CodeResponse(int code) {
     this.code = ErrorCode.fromInt(code);
-    this.message = this.code.name();
+    this.errorMessage = this.code.name();
   }
 
   public CodeResponse(Object data) {
     this.code = ErrorCode.SUCCESS;
-    this.message = ErrorCode.SUCCESS.name();
+    this.errorMessage = ErrorCode.SUCCESS.name();
     this.data = data;
   }
 
   public CodeResponse(ErrorCode errorCode) {
     this.code = errorCode;
-    this.message = errorCode.name();
+    this.errorMessage = errorCode.name();
   }
 }
