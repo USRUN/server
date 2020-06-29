@@ -1,6 +1,7 @@
 package com.usrun.core.controller;
 
 import com.usrun.core.config.ErrorCode;
+import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.User;
 import com.usrun.core.payload.CodeResponse;
 import com.usrun.core.payload.UserInfoResponse;
@@ -16,7 +17,7 @@ import com.usrun.core.service.UserService;
 import com.usrun.core.utility.CacheClient;
 import java.util.Date;
 import java.util.List;
-import javax.mail.MessagingException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -47,21 +49,37 @@ public class UserController {
   @PostMapping("/info")
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<?> getCurrentUser(@CurrentUser UserPrincipal userPrincipal) {
-    Long userId = userPrincipal.getId();
-    User user = userService.loadUser(userId);
-    String jwt = tokenProvider.createTokenUserId(user.getId());
-    return new ResponseEntity<>(new UserInfoResponse(user, jwt), HttpStatus.OK);
+    try {
+      Long userId = userPrincipal.getId();
+      User user = userService.loadUser(userId);
+      String jwt = tokenProvider.createTokenUserId(user.getId());
+      return new ResponseEntity<>(new UserInfoResponse(user, jwt), HttpStatus.OK);
+    } catch (CodeException ex) {
+      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+    } catch (Exception ex) {
+      log.error("", ex);
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
+          HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
   }
 
   @PostMapping("/filter")
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<?> findUser(@RequestBody UserFilterRequest userFilterRequest) {
-
-    Pageable pageable = PageRequest.of(userFilterRequest.getOffset(), userFilterRequest.getCount());
-    List<UserFilterDTO> users = userRepository
-        .findUserIsEnable('%' + userFilterRequest.getKey() + '%', pageable);
-    return new ResponseEntity<>(new CodeResponse(users), HttpStatus.OK);
-
+    try {
+      Pageable pageable = PageRequest
+          .of(userFilterRequest.getOffset(), userFilterRequest.getCount());
+      List<UserFilterDTO> users = userRepository
+          .findUserIsEnable('%' + userFilterRequest.getKey() + '%', pageable);
+      return new ResponseEntity<>(new CodeResponse(users), HttpStatus.OK);
+    } catch (CodeException ex) {
+      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+    } catch (Exception ex) {
+      log.error("", ex);
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
+          HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @PostMapping("/update")
@@ -70,19 +88,27 @@ public class UserController {
       @CurrentUser UserPrincipal userPrincipal,
       @RequestBody UserUpdateRequest userUpdateRequest
   ) {
-    Date birthday = null;
-    if (userUpdateRequest.getBirthdayNum() != null) {
-      birthday = new Date(userUpdateRequest.getBirthdayNum());
-    }
+    try {
+      Date birthday = null;
+      if (userUpdateRequest.getBirthdayNum() != null) {
+        birthday = new Date(userUpdateRequest.getBirthdayNum());
+      }
 
-    User user = userService.updateUser(userPrincipal.getId(),
-        userUpdateRequest.getName(),
-        userUpdateRequest.getDeviceToken(),
-        userUpdateRequest.getGender(), birthday,
-        userUpdateRequest.getWeight(),
-        userUpdateRequest.getHeight(),
-        userUpdateRequest.getBase64Image());
-    return ResponseEntity.ok(new CodeResponse(user));
+      User user = userService.updateUser(userPrincipal.getId(),
+          userUpdateRequest.getName(),
+          userUpdateRequest.getDeviceToken(),
+          userUpdateRequest.getGender(), birthday,
+          userUpdateRequest.getWeight(),
+          userUpdateRequest.getHeight(),
+          userUpdateRequest.getAvatar());
+      return ResponseEntity.ok(new CodeResponse(new UserInfoResponse(user)));
+    } catch (CodeException ex) {
+      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+    } catch (Exception ex) {
+      log.error("", ex);
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
+          HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @PostMapping("/verifyStudentHcmus")
@@ -90,33 +116,47 @@ public class UserController {
   public ResponseEntity<?> verifyStudentHcmus(
       @CurrentUser UserPrincipal userPrincipal,
       @RequestBody VerifyStudentHcmusRequest request) {
-
-    Long userId = userPrincipal.getId();
-    Boolean verified = userService.verifyOTP(userId, request.getOtp());
-    return verified ?
-        ResponseEntity.ok(new CodeResponse(0)) :
-        new ResponseEntity<>(new CodeResponse(ErrorCode.OTP_INVALID), HttpStatus.BAD_REQUEST);
+    try {
+      Long userId = userPrincipal.getId();
+      Boolean verified = userService.verifyOTP(userId, request.getOtp());
+      return verified ?
+          ResponseEntity.ok(new CodeResponse(ErrorCode.SUCCESS)) :
+          new ResponseEntity<>(new CodeResponse(ErrorCode.OTP_INVALID), HttpStatus.BAD_REQUEST);
+    } catch (CodeException ex) {
+      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+    } catch (Exception ex) {
+      log.error("", ex);
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
+          HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @PostMapping("/resendOTP")
   @PreAuthorize("hasRole('USER')")
-  public ResponseEntity<?> resendOTP(@CurrentUser UserPrincipal userPrincipal)
-      throws MessagingException {
-    if (userPrincipal.isHcmus()) {
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_VERIFIED),
-          HttpStatus.BAD_REQUEST);
-    }
+  public ResponseEntity<?> resendOTP(@CurrentUser UserPrincipal userPrincipal) {
+    try {
+      if (userPrincipal.isHcmus()) {
+        return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_VERIFIED),
+            HttpStatus.BAD_REQUEST);
+      }
 
-    if (!userPrincipal.getEmail().endsWith("@student.hcmus.edu.vn")) {
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_IS_NOT_STUDENT_EMAIL),
-          HttpStatus.BAD_REQUEST);
-    }
+      if (!userPrincipal.getEmail().endsWith("@student.hcmus.edu.vn")) {
+        return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_IS_NOT_STUDENT_EMAIL),
+            HttpStatus.BAD_REQUEST);
+      }
 
-    if (!cacheClient.expireOTP(userPrincipal.getId())) {
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.OTP_SENT), HttpStatus.BAD_REQUEST);
-    }
+      if (!cacheClient.expireOTP(userPrincipal.getId())) {
+        return new ResponseEntity<>(new CodeResponse(ErrorCode.OTP_SENT), HttpStatus.BAD_REQUEST);
+      }
 
-    userService.sendEmailOTP(userPrincipal.getId(), userPrincipal.getEmail());
-    return ResponseEntity.ok(new CodeResponse(0));
+      userService.sendEmailOTP(userPrincipal.getId(), userPrincipal.getEmail());
+      return ResponseEntity.ok(new CodeResponse(0));
+    } catch (CodeException ex) {
+      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+    } catch (Exception ex) {
+      log.error("", ex);
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
+          HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

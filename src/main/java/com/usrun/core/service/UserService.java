@@ -1,5 +1,6 @@
 package com.usrun.core.service;
 
+import com.usrun.core.config.AppProperties;
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.Role;
@@ -52,6 +53,9 @@ public class UserService {
 
   @Autowired
   private TeamRepository teamRepository;
+
+  @Autowired
+  private AppProperties appProperties;
 
   public User createUser(String name, String email, String password) {
     User user = new User();
@@ -153,7 +157,11 @@ public class UserService {
     if (height != null) {
       user.setHeight(height);
     }
+
     if (base64Image != null) {
+      if(base64Image.length() > appProperties.getMaxImageSize()) {
+        throw new CodeException(ErrorCode.INVALID_IMAGE_SIZE);
+      }
       String fileUrl = amazonClient.uploadFile(base64Image, "avatar-" + userId);
       if (fileUrl != null) {
         user.setAvatar(fileUrl);

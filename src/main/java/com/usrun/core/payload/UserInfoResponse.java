@@ -5,9 +5,11 @@ import com.usrun.core.model.type.Gender;
 import java.util.Date;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Data
+@NoArgsConstructor
 public class UserInfoResponse {
 
   private Long userId;
@@ -21,16 +23,15 @@ public class UserInfoResponse {
   private int isActive;
   private String deviceToken;
   private Date birthday;
-  private String phone;
   private Gender gender;
   private Double weight;
   private Double height;
   private Date lastLogin;
   private String accessToken;
-  private String tokenType = "Bearer";
+  private boolean hcmus;
+  private String tokenType;
 
-  public UserInfoResponse(User user, String accessToken) {
-    this.accessToken = accessToken;
+  public UserInfoResponse(User user) {
     this.type = user.getType().ordinal();
     this.userId = user.getId();
     this.email = user.getEmail();
@@ -46,5 +47,12 @@ public class UserInfoResponse {
     this.createTime = user.getCreateTime();
     this.updateTime = user.getUpdateTime();
     this.code = user.getCode();
+    this.hcmus = user.isHcmus();
+  }
+
+  public UserInfoResponse(User user, String accessToken) {
+    this(user);
+    this.accessToken = accessToken;
+    this.tokenType = "Bearer";
   }
 }
