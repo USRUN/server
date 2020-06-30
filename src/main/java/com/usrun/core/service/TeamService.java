@@ -15,9 +15,8 @@ import com.usrun.core.repository.TeamMemberRepository;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserRepository;
 import com.usrun.core.utility.CacheClient;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -59,13 +58,9 @@ public class TeamService {
   public Team createTeam(
       Long ownerId, int privacy, String teamName, Integer province,
       String thumbnailBase64) {
-    String encodedName = null;
-    try {
-      encodedName = URLEncoder.encode(teamName, StandardCharsets.UTF_8.toString());
-    } catch (UnsupportedEncodingException e) {
-      log.error("", e);
-      throw new CodeException(ErrorCode.INVALID_PARAM);
-    }
+
+    String encodedName = Base64.getEncoder()
+        .encodeToString(teamName.getBytes(StandardCharsets.UTF_8));
     String thumbnail = appProperties.getDefaultThumbnailTeam();
     if (thumbnailBase64 != null && thumbnailBase64.length() > appProperties.getMaxImageSize()) {
       throw new CodeException(ErrorCode.INVALID_IMAGE_SIZE);
@@ -199,14 +194,8 @@ public class TeamService {
       throw new CodeException(ErrorCode.TEAM_NOT_FOUND);
     }
 
-    String encodedName = null;
-    try {
-      encodedName = URLEncoder
-          .encode(toUpdate.getTeamName(), StandardCharsets.UTF_8.toString());
-    } catch (UnsupportedEncodingException e) {
-      log.error("", e);
-      throw new CodeException(ErrorCode.INVALID_PARAM);
-    }
+    String encodedName = Base64.getEncoder()
+        .encodeToString(toUpdate.getTeamName().getBytes(StandardCharsets.UTF_8));
 
     if ((thumbnail != null && thumbnail.length() > appProperties.getMaxImageSize())
         || (banner != null && banner.length() > appProperties.getMaxImageSize())) {
