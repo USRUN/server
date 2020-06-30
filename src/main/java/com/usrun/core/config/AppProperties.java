@@ -11,6 +11,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class AppProperties {
 
   private String defaultThumbnailTeam;
+  private String defaultBannerTeam;
+  private String defaultAvatar;
   private long activityLock;
   private long maxImageSize;
   private final Auth auth = new Auth();

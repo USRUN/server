@@ -123,11 +123,20 @@ public class ActivityService {
     List<String> photos = new ArrayList<>();
     int count = 1;
     for (String photoBase64 : photosBase64) {
-      String fileUrl = amazonClient.uploadFile(photoBase64, "activity-" + trackId + "-" + count);
-      if (fileUrl != null) {
-        photos.add(fileUrl);
+      if (photoBase64.length() <= appProperties.getMaxImageSize()) {
+        try {
+          String fileUrl = amazonClient
+              .uploadFile(photoBase64, "activity-" + trackId + "-" + count);
+          if (fileUrl != null) {
+            photos.add(fileUrl);
+          }
+        } catch (CodeException e) {
+          if (e.getErrorCode() != ErrorCode.IMAGE_INVALID) {
+            throw new CodeException(e.getErrorCode());
+          }
+        }
+        count++;
       }
-      count++;
     }
     UserActivity toCreate = new UserActivity(createActivityRequest, trackId, createTime, photos);
     toCreate.setUserId(creatorId);

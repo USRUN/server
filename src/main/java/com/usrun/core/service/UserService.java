@@ -66,6 +66,7 @@ public class UserService {
     user.setRoles(Collections.singleton(new Role(RoleType.ROLE_USER)));
     user.setCreateTime(new Date());
     user.setUpdateTime(new Date());
+    user.setAvatar(appProperties.getDefaultAvatar());
     uniqueIDGenerator.generateID(user);
     user = userRepository.insert(user);
     cacheClient.setUser(user);
@@ -159,16 +160,18 @@ public class UserService {
     }
 
     if (base64Image != null) {
-      if(base64Image.length() > appProperties.getMaxImageSize()) {
+      if (base64Image.length() > appProperties.getMaxImageSize()) {
         throw new CodeException(ErrorCode.INVALID_IMAGE_SIZE);
       }
-      String fileUrl = amazonClient.uploadFile(base64Image, "avatar-" + userId);
+      String fileUrl = amazonClient
+          .uploadFile(base64Image, "avatar-" + userId + System.currentTimeMillis());
       if (fileUrl != null) {
+        amazonClient.deleteFile(user.getAvatar());
         user.setAvatar(fileUrl);
       }
     }
 
-    if (province != null && province > 0 && province <=63) {
+    if (province != null && province > 0 && province <= 63) {
       user.setProvince(province);
     }
 

@@ -37,7 +37,7 @@ public class Team {
 
   // used in TeamService -> createTeam
   public Team(int privacy, String teamName, Integer province, Date createTime,
-      String thumbnail) {
+      String thumbnail, String banner) {
     this.teamName = teamName;
     this.privacy = privacy;
     this.province = province;
@@ -48,6 +48,7 @@ public class Team {
     this.verified = false;
     this.deleted = false;
     this.thumbnail = thumbnail;
+    this.banner = banner;
   }
 
   // used to update team's info

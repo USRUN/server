@@ -62,17 +62,19 @@ public class TeamService {
     String encodedName = Base64.getEncoder()
         .encodeToString(teamName.getBytes(StandardCharsets.UTF_8));
     String thumbnail = appProperties.getDefaultThumbnailTeam();
+    String banner = appProperties.getDefaultBannerTeam();
     if (thumbnailBase64 != null && thumbnailBase64.length() > appProperties.getMaxImageSize()) {
       throw new CodeException(ErrorCode.INVALID_IMAGE_SIZE);
     }
     if (!StringUtils.isEmpty(thumbnailBase64)) {
-      String fileUrl = amazonClient.uploadFile(thumbnailBase64, "thumbnail-team-" + encodedName);
+      String fileUrl = amazonClient.uploadFile(thumbnailBase64,
+          "thumbnail-team-" + encodedName + System.currentTimeMillis());
       if (fileUrl != null) {
         thumbnail = fileUrl;
       }
     }
 
-    Team toCreate = new Team(privacy, teamName, province, new Date(), thumbnail);
+    Team toCreate = new Team(privacy, teamName, province, new Date(), thumbnail, banner);
 
     toCreate = teamRepository.insert(toCreate, ownerId);
     cacheClient.setTeamMemberType(toCreate.getId(), ownerId, TeamMemberType.OWNER);
@@ -203,14 +205,18 @@ public class TeamService {
     }
 
     if (thumbnail != null) {
-      String thumbnailURL = amazonClient.uploadFile(thumbnail, "thumbnail-team-" + encodedName);
+      String thumbnailURL = amazonClient
+          .uploadFile(thumbnail, "thumbnail-team-" + encodedName + System.currentTimeMillis());
       if (thumbnailURL != null) {
+        amazonClient.deleteFile(toUpdate.getThumbnail());
         toUpdate.setThumbnail(thumbnailURL);
       }
     }
     if (banner != null) {
-      String bannerURL = amazonClient.uploadFile(banner, "banner-team-" + encodedName);
+      String bannerURL = amazonClient
+          .uploadFile(banner, "banner-team-" + encodedName + System.currentTimeMillis());
       if (bannerURL != null) {
+        amazonClient.deleteFile(toUpdate.getBanner());
         toUpdate.setBanner(bannerURL);
       }
     }

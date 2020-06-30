@@ -5,6 +5,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.usrun.core.config.AmazonS3Config;
 import com.usrun.core.config.ErrorCode;
@@ -13,10 +14,13 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -73,16 +77,33 @@ public class AmazonClient {
   public String uploadFile(String base64Image, String fileName) {
     String fileUrl = null;
 
+    File file = null;
     try {
-      File file = convertBase64ToImage(base64Image);
+      file = convertBase64ToImage(base64Image);
       fileUrl =
           amazonS3Config.getEndpointUrl() + "/" + amazonS3Config.getBucketName() + "/" + fileName;
       uploadFileToS3Bucket(fileName, file);
       file.delete();
-    } catch (Exception e) {
+    } catch (IOException e) {
       log.error("", e);
     }
+
     return fileUrl;
+  }
+
+  public void deleteFile(String urlStr) {
+    if (StringUtils.isNotBlank(urlStr)) {
+      URL url = null;
+      try {
+        url = new URL(urlStr);
+        String path = url.getPath();
+        String key = path.substring(path.lastIndexOf("/"));
+        amazonS3.deleteObject(new DeleteObjectRequest(amazonS3Config.getBucketName(), key));
+      } catch (MalformedURLException e) {
+        log.error("", e);
+      }
+
+    }
   }
 
   private void uploadFileToS3Bucket(String fileName, File file) {
