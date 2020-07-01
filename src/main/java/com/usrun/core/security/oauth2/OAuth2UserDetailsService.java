@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -58,6 +57,8 @@ public class OAuth2UserDetailsService {
         throw new CodeException(ErrorCode.USER_OAUTH2_VERIFY_FAILED);
       }
       return processOAuth2User(oAuth2UserInfo);
+    } catch (CodeException ex) {
+      throw new CodeException(ex.getErrorCode());
     } catch (Exception ex) {
       log.error("", ex);
       throw new CodeException(ErrorCode.USER_OAUTH2_VERIFY_FAILED);
