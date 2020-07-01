@@ -30,7 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     User user = userService.loadUser(email);
 
     if (!user.isEnabled()) {
-      new CodeException(ErrorCode.USER_DOES_NOT_PERMISSION);
+      throw new CodeException(ErrorCode.USER_DOES_NOT_PERMISSION);
     }
 
     user.setLastLogin(new Date());
