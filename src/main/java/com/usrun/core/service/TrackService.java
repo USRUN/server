@@ -8,6 +8,7 @@ import com.usrun.core.repository.TrackRepository;
 import com.usrun.core.utility.CacheClient;
 import com.usrun.core.utility.SequenceGenerator;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +32,9 @@ public class TrackService {
   @Autowired
   private CacheClient cacheClient;
 
-  public Track createTrack(Long userId, String description, List<List<Location>> locations) {
+  public Track createTrack(Long userId, String description, List<List<Location>> locations, Map<String, Double> splitDistance) {
     Long trackId = sequenceGenerator.nextId();
-    Track track = new Track(trackId, userId, description);
+    Track track = new Track(trackId, userId, description, splitDistance);
 
     track.setLocations(locations);
     trackRepository.save(track);

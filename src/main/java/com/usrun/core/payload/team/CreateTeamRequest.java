@@ -12,9 +12,7 @@ public class CreateTeamRequest {
 
   private String teamName;
 
-  private String district;
-
-  private String province;
+  private int province;
 
   private String thumbnailBase64;
 }

@@ -10,4 +10,6 @@ public class TimeRequest {
 
   private Date fromTime;
   private Date toTime;
+  private int offset;
+  private int limit;
 }

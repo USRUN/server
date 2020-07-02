@@ -13,4 +13,6 @@ public class ConditionRequest {
   private Long distance;
   private Double pace;
   private Double elevation;
+  private int offset;
+  private int limit;
 }

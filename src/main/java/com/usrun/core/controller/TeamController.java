@@ -50,7 +50,6 @@ public class TeamController {
           userPrincipal.getId(),
           createTeamRequest.getPrivacy(),
           createTeamRequest.getTeamName(),
-          createTeamRequest.getDistrict(),
           createTeamRequest.getProvince(),
           createTeamRequest.getThumbnailBase64());
       return new ResponseEntity<>(new CodeResponse(team), HttpStatus.CREATED);
@@ -73,7 +72,6 @@ public class TeamController {
           updateTeamRequest.getThumbnail(),
           updateTeamRequest.getBanner(),
           updateTeamRequest.getPrivacy(),
-          updateTeamRequest.getDistrict(),
           updateTeamRequest.getProvince(),
           updateTeamRequest.getDescription());
     } catch (DataRetrievalFailureException e) {
@@ -165,7 +163,6 @@ public class TeamController {
   ) {
     Set<Team> toGet = teamService.getTeamSuggestion(
         userPrincipal.getId(),
-        suggestTeamRequest.getDistrict(),
         suggestTeamRequest.getProvince(),
         suggestTeamRequest.getHowMany());
 

@@ -7,7 +7,6 @@ import lombok.Setter;
 @Setter
 public class SuggestTeamRequest {
 
-  String district;
-  String province;
+  int province;
   int howMany;
 }
