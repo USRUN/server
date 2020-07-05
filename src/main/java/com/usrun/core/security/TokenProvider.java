@@ -41,19 +41,32 @@ public class TokenProvider {
     return createTokenUserId(userPrincipal.getId());
   }
 
-  public Long getUserIdFromToken(String token) {
+  public String createResetPasswordToken(long userId) {
+    Date now = new Date();
+    Date expiryDate = new Date(
+        now.getTime() + appProperties.getResetPassword().getTokenExpirationMs());
+
+    return Jwts.builder()
+        .setSubject(Long.toString(userId))
+        .setIssuedAt(new Date())
+        .setExpiration(expiryDate)
+        .signWith(SignatureAlgorithm.HS256, appProperties.getAuth().getTokenSecret())
+        .compact();
+  }
+
+  public Long getUserIdFromToken(String token, String secret) {
     Claims claims = Jwts.parser()
-        .setSigningKey(appProperties.getAuth().getTokenSecret())
+        .setSigningKey(secret)
         .parseClaimsJws(token)
         .getBody();
 
     return Long.parseLong(claims.getSubject());
   }
 
-  public boolean validateToken(String authToken) {
+  public boolean validateToken(String token, String secret) {
     try {
-      Jwts.parser().setSigningKey(appProperties.getAuth().getTokenSecret())
-          .parseClaimsJws(authToken);
+      Jwts.parser().setSigningKey(token)
+          .parseClaimsJws(secret);
       return true;
     } catch (SignatureException ex) {
       logger.error("Invalid JWT signature");
@@ -68,4 +81,5 @@ public class TokenProvider {
     }
     return false;
   }
+
 }

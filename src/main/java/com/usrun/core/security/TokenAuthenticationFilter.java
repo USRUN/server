@@ -1,5 +1,6 @@
 package com.usrun.core.security;
 
+import com.usrun.core.config.AppProperties;
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -23,6 +24,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
   @Autowired
   private CustomUserDetailsService customUserDetailsService;
 
+  @Autowired
+  private AppProperties appProperties;
+
   private static final Logger logger = LoggerFactory.getLogger(TokenAuthenticationFilter.class);
 
   @Override
@@ -31,8 +35,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     try {
       String jwt = getJwtFromRequest(request);
 
-      if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-        Long userId = tokenProvider.getUserIdFromToken(jwt);
+      if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt, appProperties.getAuth().getTokenSecret())) {
+        Long userId = tokenProvider.getUserIdFromToken(jwt, appProperties.getAuth().getTokenSecret());
 
         UserDetails userDetails = customUserDetailsService.loadUserById(userId);
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

@@ -10,13 +10,15 @@ import com.usrun.core.model.type.Gender;
 import com.usrun.core.model.type.RoleType;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserRepository;
+import com.usrun.core.security.TokenProvider;
 import com.usrun.core.utility.CacheClient;
-import com.usrun.core.utility.UniqueIDGenerator;
+import com.usrun.core.utility.UniqueGenerator;
 import java.util.Collections;
 import java.util.Date;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -49,13 +51,16 @@ public class UserService {
   private PasswordEncoder passwordEncoder;
 
   @Autowired
-  private UniqueIDGenerator uniqueIDGenerator;
+  private UniqueGenerator uniqueGenerator;
 
   @Autowired
   private TeamRepository teamRepository;
 
   @Autowired
   private AppProperties appProperties;
+
+  @Autowired
+  private TokenProvider tokenProvider;
 
   public User createUser(String name, String email, String password) {
     User user = new User();
@@ -67,7 +72,7 @@ public class UserService {
     user.setCreateTime(new Date());
     user.setUpdateTime(new Date());
     user.setAvatar(appProperties.getDefaultAvatar());
-    uniqueIDGenerator.generateID(user);
+    uniqueGenerator.generateID(user);
     user = userRepository.insert(user);
     cacheClient.setUser(user);
 
@@ -181,6 +186,22 @@ public class UserService {
     return user;
   }
 
+  public User changePassword(long userId, String oldPassword, String newPassword) {
+    User user = loadUser(userId);
+    if (passwordEncoder.matches(oldPassword, user.getPassword())) {
+      if (StringUtils.isNotBlank(newPassword)) {
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.update(user);
+        cacheClient.setUser(user);
+        return user;
+      } else {
+        throw new CodeException(ErrorCode.INVALID_PARAM);
+      }
+    } else {
+      throw new CodeException(ErrorCode.USER_DOES_NOT_PERMISSION);
+    }
+  }
+
   public Boolean verifyOTP(Long userId, String otp) {
     boolean verified = cacheClient.verifyOTPFromCache(userId, otp);
 
@@ -199,7 +220,7 @@ public class UserService {
 
     Context context = new Context();
     context.setVariable("otp", otp);
-    String content = templateEngine.process("mailTemplate", context);
+    String content = templateEngine.process("mail-otp-template", context);
 
     MimeMessage message = javaMailSender.createMimeMessage();
     MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
@@ -209,5 +230,34 @@ public class UserService {
     helper.setText(content, true);
 
     javaMailSender.send(message);
+  }
+
+  public void sendEmailResetPassword(String email, String newPassword) throws MessagingException {
+    Context context = new Context();
+    context.setVariable("newPassword", newPassword);
+    String content = templateEngine.process("mail-reset-password-template", context);
+
+    MimeMessage message = javaMailSender.createMimeMessage();
+    MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
+
+    helper.setFrom("USRUN");
+    helper.setTo(email);
+    helper.setSubject("[USRUN] Làm mới mật khẩu tài khoản USRUN");
+    helper.setText(content, true);
+
+    javaMailSender.send(message);
+  }
+
+  @Async("threadPoolEmailOtp")
+  public void resetPassword(User user) {
+    String newPassword = uniqueGenerator.randomString(10);
+    try {
+      sendEmailResetPassword(user.getEmail(), newPassword);
+      user.setPassword(passwordEncoder.encode(newPassword));
+      userRepository.update(user);
+      cacheClient.setUser(user);
+    } catch (MessagingException e) {
+      e.printStackTrace();
+    }
   }
 }
