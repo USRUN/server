@@ -13,7 +13,6 @@ public class AppProperties {
   private long activityLock;
   private long maxImageSize;
   private final Auth auth = new Auth();
-  private final Track track = new Track();
   private int node;
   private final Activity activity = new Activity();
 
@@ -22,13 +21,6 @@ public class AppProperties {
 
     private String tokenSecret;
     private long tokenExpirationMs;
-  }
-
-  @Data
-  public static final class Track {
-
-    private String key;
-    private Long timeInMicroseconds;
   }
 
   @Data
