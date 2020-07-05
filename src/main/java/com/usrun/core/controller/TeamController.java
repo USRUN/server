@@ -11,6 +11,7 @@ import com.usrun.core.payload.dto.UserFilterDTO;
 import com.usrun.core.payload.dto.UserFilterWithTypeDTO;
 import com.usrun.core.payload.dto.UserLeaderBoardInfo;
 import com.usrun.core.payload.team.CreateTeamRequest;
+import com.usrun.core.payload.team.FindTeamMemberRequest;
 import com.usrun.core.payload.team.FindTeamRequest;
 import com.usrun.core.payload.team.GetAllTeamMemberRequest;
 import com.usrun.core.payload.team.GetLeaderBoardRequest;
@@ -312,6 +313,27 @@ public class TeamController {
       List<UserFilterDTO> users = teamService
           .getUserByMemberType(teamId, memberType, offset, limit);
 
+      return ResponseEntity.ok(new CodeResponse(users));
+    } catch (CodeException ex) {
+      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
+          HttpStatus.BAD_REQUEST);
+    } catch (Exception ex) {
+      log.error("", ex);
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
+          HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @PostMapping("/findUser")
+  @PreAuthorize("hasRole('USER') && @teamAuthorization.authorize(authentication,'MEMBER',#request.getTeamId())")
+  public ResponseEntity<?> findUser(@RequestBody FindTeamMemberRequest request) {
+    try {
+      int count = request.getCount() > 0 ? request.getCount() : 10;
+      int offset = Math.max(0, request.getOffset() - 1);
+      long teamId = request.getTeamId();
+      String keyword = '%' + request.getKeyword() + '%';
+      List<UserFilterWithTypeDTO> users = teamService
+          .findTeamMember(keyword, teamId, offset, count);
       return ResponseEntity.ok(new CodeResponse(users));
     } catch (CodeException ex) {
       return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),

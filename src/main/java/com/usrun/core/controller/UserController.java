@@ -73,7 +73,7 @@ public class UserController {
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<?> findUser(@RequestBody UserFilterRequest request) {
     try {
-      int count = request.getCount() >= 0 ? request.getCount() : 10;
+      int count = request.getCount() > 0 ? request.getCount() : 10;
       int offset = Math.max(0, request.getOffset() - 1);
       List<UserFilterDTO> users = userRepository
           .findUserIsEnable('%' + request.getKey() + '%', offset, count);

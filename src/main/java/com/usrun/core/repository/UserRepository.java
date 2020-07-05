@@ -22,6 +22,8 @@ public interface UserRepository {
   //    @Query(value = "SELECT u.* FROM users u WHERE u.isEnabled = TRUE AND (u.name LIKE :keyword OR u.email LIKE :keyword OR u.code LIKE :keyword)")
   List<UserFilterDTO> findUserIsEnable(String keyword, int offset, int count);
 
+  List<UserFilterWithTypeDTO> findUserIsEnable(String keyword, long teamId, int offset, int count);
+
   User findUserByCode(String code);
 
   List<UserLeaderBoardDTO> getUserLeaderBoard(List<Long> users);

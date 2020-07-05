@@ -114,6 +114,25 @@ public class UserRepositoryImpl implements UserRepository {
   }
 
   @Override
+  public List<UserFilterWithTypeDTO> findUserIsEnable(String keyword, long teamId, int offset,
+      int count) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("keyword", keyword);
+    params.addValue("teamId", teamId);
+    params.addValue("count", count);
+    params.addValue("offset", offset * count);
+    String sql = "SELECT u.*, tm.teamMemberType " +
+        "FROM user u, teamMember tm " +
+        "WHERE u.isEnabled = TRUE " +
+        "AND tm.userId = u.userId " +
+        "AND tm.teamId = :teamId " +
+        "AND (u.displayName LIKE :keyword OR u.email LIKE :keyword OR u.userCode LIKE :keyword) " +
+        "LIMIT :count " +
+        "OFFSET :offset";
+    return getUserFilterWithTypeDTO(sql, params);
+  }
+
+  @Override
   public User findUserByCode(String code) {
     MapSqlParameterSource params = new MapSqlParameterSource("userCode", code);
     String sql = "SELECT * FROM user WHERE userCode = :userCode";

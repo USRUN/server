@@ -261,6 +261,11 @@ public class TeamService {
         .getAllMemberByLessEqualTeamMemberType(teamId, TeamMemberType.MEMBER, offset, limit);
   }
 
+  public List<UserFilterWithTypeDTO> findTeamMember(String keyword, long teamId, int offset, int limit) {
+    return userRepository
+        .findUserIsEnable(keyword, teamId, offset, limit);
+  }
+
   public List<UserLeaderBoardInfo> getLeaderBoard(long teamId, int limit) {
     List<LeaderBoardTeamDTO> leaderBoard = teamRepository.getLeaderBoard(teamId);
     List<Long> userIds = leaderBoard.stream()
