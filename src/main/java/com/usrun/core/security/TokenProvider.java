@@ -41,19 +41,6 @@ public class TokenProvider {
     return createTokenUserId(userPrincipal.getId());
   }
 
-  public String createResetPasswordToken(long userId) {
-    Date now = new Date();
-    Date expiryDate = new Date(
-        now.getTime() + appProperties.getResetPassword().getTokenExpirationMs());
-
-    return Jwts.builder()
-        .setSubject(Long.toString(userId))
-        .setIssuedAt(new Date())
-        .setExpiration(expiryDate)
-        .signWith(SignatureAlgorithm.HS256, appProperties.getAuth().getTokenSecret())
-        .compact();
-  }
-
   public Long getUserIdFromToken(String token, String secret) {
     Claims claims = Jwts.parser()
         .setSigningKey(secret)
