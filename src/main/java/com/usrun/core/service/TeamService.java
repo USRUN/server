@@ -9,6 +9,7 @@ import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.dto.LeaderBoardTeamDTO;
 import com.usrun.core.payload.dto.UserFilterDTO;
+import com.usrun.core.payload.dto.UserFilterWithTypeDTO;
 import com.usrun.core.payload.dto.UserLeaderBoardDTO;
 import com.usrun.core.payload.dto.UserLeaderBoardInfo;
 import com.usrun.core.repository.TeamMemberRepository;
@@ -255,7 +256,7 @@ public class TeamService {
     return toGet;
   }
 
-  public List<UserFilterDTO> getAllTeamMemberPaged(Long teamId, int offset, int limit) {
+  public List<UserFilterWithTypeDTO> getAllTeamMemberPaged(Long teamId, int offset, int limit) {
     return userRepository
         .getAllMemberByLessEqualTeamMemberType(teamId, TeamMemberType.MEMBER, offset, limit);
   }

@@ -8,6 +8,7 @@ import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.CodeResponse;
 import com.usrun.core.payload.dto.TeamDTO;
 import com.usrun.core.payload.dto.UserFilterDTO;
+import com.usrun.core.payload.dto.UserFilterWithTypeDTO;
 import com.usrun.core.payload.dto.UserLeaderBoardInfo;
 import com.usrun.core.payload.team.CreateTeamRequest;
 import com.usrun.core.payload.team.FindTeamRequest;
@@ -247,7 +248,7 @@ public class TeamController {
           getAllTeamMemberRequest.getPageNum() > 0 ? getAllTeamMemberRequest.getPageNum() - 1 : 0;
       int count =
           getAllTeamMemberRequest.getPerPage() > 0 ? getAllTeamMemberRequest.getPerPage() : 10;
-      List<UserFilterDTO> toGet = teamService
+      List<UserFilterWithTypeDTO> toGet = teamService
           .getAllTeamMemberPaged(getAllTeamMemberRequest.getTeamId(), offset, count);
       return new ResponseEntity<>(new CodeResponse(toGet), HttpStatus.OK);
     } catch (CodeException ex) {

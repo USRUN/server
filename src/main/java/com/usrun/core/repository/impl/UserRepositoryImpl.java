@@ -2,12 +2,12 @@ package com.usrun.core.repository.impl;
 
 import com.usrun.core.model.Role;
 import com.usrun.core.model.User;
-import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.AuthType;
 import com.usrun.core.model.type.Gender;
 import com.usrun.core.model.type.RoleType;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.dto.UserFilterDTO;
+import com.usrun.core.payload.dto.UserFilterWithTypeDTO;
 import com.usrun.core.payload.dto.UserLeaderBoardDTO;
 import com.usrun.core.repository.UserRepository;
 import java.util.Collections;
@@ -16,9 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -135,13 +133,14 @@ public class UserRepositoryImpl implements UserRepository {
   }
 
   @Override
-  public List<UserFilterDTO> getUserByMemberType(long teamId, TeamMemberType teamMemberType, int offset, int limit) {
+  public List<UserFilterDTO> getUserByMemberType(long teamId, TeamMemberType teamMemberType,
+      int offset, int limit) {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("teamId", teamId);
     params.addValue("teamMemberType", teamMemberType.toValue());
     params.addValue("offset", offset * limit);
     params.addValue("limit", limit);
-    String sql  = "SELECT u.* "
+    String sql = "SELECT u.* "
         + "FROM user u, teamMember tm "
         + "WHERE tm.teamId = :teamId "
         + "AND teamMemberType = :teamMemberType "
@@ -151,7 +150,7 @@ public class UserRepositoryImpl implements UserRepository {
   }
 
   @Override
-  public List<UserFilterDTO> getAllMemberByLessEqualTeamMemberType(long teamId,
+  public List<UserFilterWithTypeDTO> getAllMemberByLessEqualTeamMemberType(long teamId,
       TeamMemberType teamMemberType, int offset, int limit) {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("teamId", teamId);
@@ -159,14 +158,14 @@ public class UserRepositoryImpl implements UserRepository {
     params.addValue("limit", limit);
     params.addValue("teamMemberType", teamMemberType.toValue());
 
-    String sql = "SELECT u.* FROM teamMember tm, user u "
+    String sql = "SELECT u.*, tm.teamMemberType FROM teamMember tm, user u "
         + "WHERE tm.teamId = :teamId "
         + "AND tm.teamMemberType <= :teamMemberType "
         + "AND tm.userId = u.userId "
         + "LIMIT :limit "
         + "OFFSET :offset";
 
-    return getUserFilterDTO(sql, params);
+    return getUserFilterWithTypeDTO(sql, params);
   }
 
   private List<User> getUsers(String sql, MapSqlParameterSource params) {
@@ -246,6 +245,24 @@ public class UserRepositoryImpl implements UserRepository {
             Gender.fromInt(rs.getInt("gender")),
             rs.getDate("birthday"),
             rs.getString("avatar")
+        )
+    );
+  }
+
+  private List<UserFilterWithTypeDTO> getUserFilterWithTypeDTO(String sql,
+      MapSqlParameterSource params) {
+    return namedParameterJdbcTemplate.query(
+        sql,
+        params,
+        (rs, i) -> new UserFilterWithTypeDTO(
+            rs.getLong("userId"),
+            rs.getString("displayName"),
+            rs.getString("email"),
+            rs.getString("userCode"),
+            Gender.fromInt(rs.getInt("gender")),
+            rs.getDate("birthday"),
+            rs.getString("avatar"),
+            TeamMemberType.fromInt(rs.getInt("teamMemberType"))
         )
     );
   }

@@ -4,6 +4,7 @@ import com.usrun.core.model.User;
 import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.dto.UserFilterDTO;
+import com.usrun.core.payload.dto.UserFilterWithTypeDTO;
 import com.usrun.core.payload.dto.UserLeaderBoardDTO;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +28,6 @@ public interface UserRepository {
 
   List<UserFilterDTO> getUserByMemberType(long teamId, TeamMemberType teamMemberType, int offset, int limit);
 
-  List<UserFilterDTO> getAllMemberByLessEqualTeamMemberType(long teamId,
+  List<UserFilterWithTypeDTO> getAllMemberByLessEqualTeamMemberType(long teamId,
       TeamMemberType teamMemberType, int offset, int limit);
 }
