@@ -12,12 +12,12 @@ public interface UserActivityRepository {
 
   UserActivity findById(long id);
 
-  List<UserActivity> findAllByUserId(long userId);
+  List<UserActivity> findAllByUserId(long userId, int offset, int limit);
 
-  List<UserActivity> findAllByTimeRangeAndUserId(long userId, Date timeFrom, Date timeTo);
+  List<UserActivity> findAllByTimeRangeAndUserId(long userId, Date timeFrom, Date timeTo, int offset, int limit);
 
   List<UserActivity> findAllByTimeRangeAndUserIdWithCondition(long userId, Date timeFrom,
-      Date timeTo, long distance, double pace, double elev);
+      Date timeTo, long distance, double pace, double elev, int offset, int limit);
 
   List<UserActivity> findNumberActivityLast(long userId, Pageable pageable);
 

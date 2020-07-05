@@ -49,27 +49,31 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
   }
 
   @Override
-  public List<UserActivity> findAllByUserId(long userId) {
+  public List<UserActivity> findAllByUserId(long userId, int offset, int limit) {
     MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
-    String sql = "SELECT * FROM userActivity WHERE userId = :userId";
+    params.addValue("offset", offset* limit);
+    params.addValue("limit", limit);
+    String sql = "SELECT * FROM userActivity WHERE userId = :userId LIMIT :limit OFFSET :offset";
     List<UserActivity> userActivity = findUserActivity(sql, params);
     return userActivity;
   }
 
   @Override
-  public List<UserActivity> findAllByTimeRangeAndUserId(long userId, Date timeFrom, Date timeTo) {
+  public List<UserActivity> findAllByTimeRangeAndUserId(long userId, Date timeFrom, Date timeTo, int offset, int limit) {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("userId", userId);
     params.addValue("timeFrom", timeFrom);
     params.addValue("timeTo", timeTo);
-    String sql = "SELECT * FROM userActivity WHERE userId = :userId AND createTime >= :timeFrom AND createTime <= :timeTo ";
+    params.addValue("offset", offset * limit);
+    params.addValue("limit", limit);
+    String sql = "SELECT * FROM userActivity WHERE userId = :userId AND createTime >= :timeFrom AND createTime <= :timeTo LIMIT :limit OFFSET :offset";
     List<UserActivity> userActivity = findUserActivity(sql, params);
     return userActivity;
   }
 
   @Override
   public List<UserActivity> findAllByTimeRangeAndUserIdWithCondition(long userId, Date timeFrom,
-      Date timeTo, long distance, double pace, double elev) {
+      Date timeTo, long distance, double pace, double elev, int offset, int limmit) {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("userId", userId);
     params.addValue("timeFrom", timeFrom);
@@ -77,10 +81,12 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     params.addValue("totalDistance", distance);
     params.addValue("avgPace", pace);
     params.addValue("elevGain", elev);
+    params.addValue("offset", offset * limmit);
+    params.addValue("limit", limmit);
     String sql =
         "SELECT * FROM userActivity WHERE userId = :userId AND createTime >= :timeFrom AND createTime <= :timeTo"
             +
-            "AND totalDistance >= :distance AND avgPace <= :pace AND elevGain >= elev ";
+            "AND totalDistance >= :distance AND avgPace <= :pace AND elevGain >= elev LIMIT :limit OFFSET :offset ";
     List<UserActivity> userActivity = findUserActivity(sql, params);
     return userActivity;
   }
