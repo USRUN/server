@@ -310,4 +310,5 @@ public class TeamRepositoryImpl implements TeamRepository {
     log.error("Can't find team with {}", params);
     return null;
   }
+
 }

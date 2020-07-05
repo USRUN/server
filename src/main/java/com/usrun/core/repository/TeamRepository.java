@@ -26,7 +26,7 @@ public interface TeamRepository {
   int changeTotalMember(Long teamId, int changeAmount);
 
   List<User> getMemberListByType(Long teamId, TeamMemberType toGet);
-
+  
   boolean updateTeamMemberType(Long teamId, Long memberId, TeamMemberType action);
 
   Set<Team> findTeamWithNameContains(String searchString, int offset, int count);

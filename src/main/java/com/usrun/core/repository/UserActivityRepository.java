@@ -26,4 +26,6 @@ public interface UserActivityRepository {
   List<Long> findByTeamId(long teamId, long limit);
 
   List<UserActivity> findByIds(List<Long> ids);
+  
+  List<UserActivity> findByTeamId(long teamId);
 }
