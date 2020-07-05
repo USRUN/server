@@ -9,7 +9,7 @@ import com.usrun.core.model.type.RoleType;
 import com.usrun.core.repository.UserRepository;
 import com.usrun.core.utility.CacheClient;
 import com.usrun.core.utility.ObjectUtils;
-import com.usrun.core.utility.UniqueIDGenerator;
+import com.usrun.core.utility.UniqueGenerator;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,17 +31,17 @@ public class OAuth2UserDetailsService {
 
   private final Map<AuthType, OAuth2Verify> verifyMap;
 
-  private final UniqueIDGenerator uniqueIDGenerator;
+  private final UniqueGenerator uniqueGenerator;
 
   public OAuth2UserDetailsService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-      CacheClient cacheClient, UniqueIDGenerator uniqueIDGenerator) {
+      CacheClient cacheClient, UniqueGenerator uniqueGenerator) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.cacheClient = cacheClient;
     this.verifyMap = new HashMap<>();
     this.verifyMap.put(AuthType.google, new GoogleOAuth2Verify());
     this.verifyMap.put(AuthType.facebook, new FacebookOAuth2Verify());
-    this.uniqueIDGenerator = uniqueIDGenerator;
+    this.uniqueGenerator = uniqueGenerator;
   }
 
   public User loadUser(String token, AuthType type) {
@@ -96,7 +96,7 @@ public class OAuth2UserDetailsService {
     user.setEmail(oAuth2UserInfo.getEmail());
     user.setAvatar(oAuth2UserInfo.getImageUrl());
     user.setPassword(passwordEncoder.encode(""));
-    uniqueIDGenerator.generateID(user);
+    uniqueGenerator.generateID(user);
 
     user.setRoles(Collections.singleton(new Role(RoleType.ROLE_USER)));
     userRepository.insert(user);
