@@ -14,7 +14,6 @@ public class AppProperties {
   private long maxImageSize;
   private final Auth auth = new Auth();
   private final Track track = new Track();
-  private final ResetPassword resetPassword = new ResetPassword();
   private int node;
   private final Activity activity = new Activity();
 
@@ -36,12 +35,5 @@ public class AppProperties {
   public static final class Activity {
 
     private String key;
-  }
-
-  @Data
-  public static final class ResetPassword {
-
-    private String tokenSecret;
-    private long tokenExpirationMs;
   }
 }
