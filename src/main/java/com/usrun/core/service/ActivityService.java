@@ -6,6 +6,7 @@ import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.Team;
 import com.usrun.core.model.UserActivity;
+import com.usrun.core.model.track.Track;
 import com.usrun.core.payload.dto.TeamActivityCountDTO;
 import com.usrun.core.payload.user.CreateActivityRequest;
 import com.usrun.core.repository.TeamRepository;
@@ -13,9 +14,9 @@ import com.usrun.core.repository.UserActivityRepository;
 import com.usrun.core.utility.CacheClient;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,9 @@ public class ActivityService {
 
   @Autowired
   private AmazonClient amazonClient;
+
+  @Autowired
+  private TrackService trackService;
 
   public String getSigActivity(long userId, long time) {
     StringBuffer buffer = new StringBuffer(Long.toString(userId));
@@ -118,27 +122,25 @@ public class ActivityService {
   }
 
   public UserActivity createUserActivity(long creatorId,
-      CreateActivityRequest createActivityRequest, long trackId, Date createTime) {
-    List<String> photosBase64 = createActivityRequest.getPhotosBase64();
+      CreateActivityRequest request) {
+    List<String> photosBase64 = request.getPhotosBase64();
     List<String> photos = new ArrayList<>();
-    int count = 1;
     for (String photoBase64 : photosBase64) {
       if (photoBase64.length() <= appProperties.getMaxImageSize()) {
-        try {
-          String fileUrl = amazonClient
-              .uploadFile(photoBase64, "activity-" + trackId + "-" + count);
-          if (fileUrl != null) {
-            photos.add(fileUrl);
-          }
-        } catch (CodeException e) {
-          if (e.getErrorCode() != ErrorCode.IMAGE_INVALID) {
-            throw new CodeException(e.getErrorCode());
-          }
+        String fileUrl = amazonClient
+            .uploadFile(photoBase64, "activity-" + UUID.randomUUID().toString());
+        if (fileUrl != null) {
+          photos.add(fileUrl);
         }
-        count++;
+      } else {
+        throw new CodeException(ErrorCode.INVALID_IMAGE_SIZE);
       }
     }
-    UserActivity toCreate = new UserActivity(createActivityRequest, trackId, createTime, photos);
+
+    Track track = trackService
+        .createTrack(creatorId, request.getDescription(), request.getTrackRequest().getLocations(),
+            request.getTrackRequest().getSplitDistance());
+    UserActivity toCreate = new UserActivity(request, track.getTrackId(), track.getTime(), photos);
     toCreate.setUserId(creatorId);
 
     toCreate = userActivityRepository.insert(toCreate);
