@@ -9,6 +9,7 @@ import com.usrun.core.model.UserActivity;
 import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.dto.LeaderBoardTeamDTO;
+import com.usrun.core.payload.dto.TeamLeaderBoardDTO;
 import com.usrun.core.payload.dto.TeamStatDTO;
 import com.usrun.core.payload.dto.UserFilterDTO;
 import com.usrun.core.payload.dto.UserLeaderBoardDTO;
@@ -19,7 +20,10 @@ import com.usrun.core.repository.UserActivityRepository;
 import com.usrun.core.repository.UserRepository;
 import com.usrun.core.utility.CacheClient;
 import java.nio.charset.StandardCharsets;
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -60,7 +64,7 @@ public class TeamService {
 
     @Autowired
     private AppProperties appProperties;
-
+    
     public Team createTeam(
             Long ownerId, int privacy, String teamName, Integer province,
             String thumbnailBase64) {
@@ -292,7 +296,7 @@ public class TeamService {
         List<Long> listTeamId = teams.stream()
                 .map(team -> team.getId())
                 .collect(Collectors.toList());
-
+        List<TeamLeaderBoardDTO> teamLeaderBoardDTO = new ArrayList<>();
         listTeamId.forEach(teamId -> {
             List<Long> ids = teamMemberRepository.getAllIdMemberOfTeam(teamId);
             List<UserActivity> activities = acticityRepository.findByIds(ids);
@@ -307,12 +311,20 @@ public class TeamService {
             }
             List<TeamMember> newTeamMemberInWeek = teamMemberRepository.getNewMemberInWeek(teamId);
             int newMember = newTeamMemberInWeek.size();
-            TeamStatDTO teamStat = new TeamStatDTO(totalDistance, maxTotalTime , maxDistance, newMember,ids.size() , activities.size());
+            TeamStatDTO teamStat = new TeamStatDTO(totalDistance, maxTotalTime, maxDistance, newMember, ids.size(), numberActivity);
             cacheClient.setTeamStat(teamId, teamStat);
+            TeamLeaderBoardDTO itemLeaderBoard = new TeamLeaderBoardDTO();
+            itemLeaderBoard.distance = totalDistance;
+            itemLeaderBoard.teamId = teamId;
+            teamLeaderBoardDTO.add(itemLeaderBoard);
+            List<TeamLeaderBoardDTO> sortedTeamLeaderBoard = teamLeaderBoardDTO
+                    .stream()
+                    .sorted(Comparator.comparingLong(TeamLeaderBoardDTO::getDistance))
+                    .collect(Collectors.toList());
+
+            cacheClient.setTeamLeaderBoard( sortedTeamLeaderBoard);
         });
-
     }
-
 }
 
 //    private Team updateTeam(

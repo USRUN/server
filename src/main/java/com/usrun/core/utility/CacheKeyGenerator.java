@@ -52,4 +52,8 @@ public class CacheKeyGenerator {
   public String keyTeamStat(long teamId){
       return"team:stat:"+teamId;
   }
+  
+  public String keyTeamLeaderBoard(){
+      return"team:leaderBoard:";
+  }
 }

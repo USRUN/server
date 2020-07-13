@@ -5,6 +5,7 @@ import com.usrun.core.model.UserActivity;
 import com.usrun.core.model.track.Track;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.dto.TeamActivityCountDTO;
+import com.usrun.core.payload.dto.TeamLeaderBoardDTO;
 import com.usrun.core.payload.dto.TeamStatDTO;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserActivityRepository;
@@ -205,6 +206,18 @@ public class CacheClient {
     public TeamStatDTO getTeamStat(long teamId) {
         RBucket<TeamStatDTO> rBucket = redissonClient
                 .getBucket(cacheKeyGenerator.keyTeamStat(teamId));
+        return rBucket.get();
+    }
+
+    public void setTeamLeaderBoard(List<TeamLeaderBoardDTO> teamLeaderBoard) {
+        RBucket<List<TeamLeaderBoardDTO>> rBucket = redissonClient
+                .getBucket(cacheKeyGenerator.keyTeamLeaderBoard());
+        rBucket.set(teamLeaderBoard, 7, TimeUnit.DAYS);
+    }
+
+    public List<TeamLeaderBoardDTO> getTeamLeaderBoard(long teamId) {
+        RBucket<List<TeamLeaderBoardDTO>> rBucket = redissonClient
+                .getBucket(cacheKeyGenerator.keyTeamLeaderBoard());
         return rBucket.get();
     }
 
