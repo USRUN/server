@@ -17,6 +17,8 @@ import com.usrun.core.payload.CodeResponse;
 import com.usrun.core.payload.activity.ConditionRequest;
 import com.usrun.core.payload.activity.LoveRequest;
 import com.usrun.core.payload.activity.ActivityRequest;
+import com.usrun.core.payload.activity.UserStatRequest;
+import com.usrun.core.payload.activity.UserStatResp;
 import com.usrun.core.payload.user.CreateActivityRequest;
 import com.usrun.core.payload.user.GetActivitiesRequest;
 import com.usrun.core.payload.user.GetActivityRequest;
@@ -51,6 +53,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/activity")
 public class ActivityController {
+
     private static final Logger logger = LoggerFactory.getLogger(ActivityController.class);
 
     @Autowired
@@ -146,7 +149,7 @@ public class ActivityController {
                 return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
-            logger.error(ex.getMessage() , ex);
+            logger.error(ex.getMessage(), ex);
             return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
         }
     }
@@ -296,6 +299,20 @@ public class ActivityController {
             Love loveObject = new Love(request.getActivityId(), userId);
             boolean remove = loveRepository.delete(loveObject);
             return new ResponseEntity<>(new CodeResponse(remove), HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
+        }
+    }
+
+    @PostMapping("/getStatUser")
+    public ResponseEntity<?> getStatUser(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody UserStatRequest userStatRequest
+    ) {
+        try {
+            Long userId = userPrincipal.getId();
+            UserStatResp resp = activityService.getUserStat(userId, userStatRequest.getFromTime(), userStatRequest.getToTime());
+            return new ResponseEntity<>(new CodeResponse(resp), HttpStatus.OK);
         } catch (Exception ex) {
             return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
         }

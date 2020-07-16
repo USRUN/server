@@ -69,6 +69,17 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     }
 
     @Override
+    public List<UserActivity> findAllByTimeRangeAndUserId(long userId, Date timeFrom, Date timeTo) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
+        params.addValue("timeFrom", timeFrom);
+        params.addValue("timeTo", timeTo);
+        String sql = "SELECT * FROM userActivity WHERE userId = :userId AND createTime >= :timeFrom AND createTime <= :timeTo";
+        List<UserActivity> userActivity = findUserActivity(sql, params);
+        return userActivity;
+    }
+
+    @Override
     public List<UserActivity> findAllByTimeRangeAndUserIdWithCondition(long userId, Date timeFrom,
             Date timeTo, long distance, double pace, double elev, int offset, int limmit) {
         MapSqlParameterSource params = new MapSqlParameterSource();
