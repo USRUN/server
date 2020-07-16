@@ -15,8 +15,8 @@ import lombok.Setter;
 /**
  * @author huyna
  */
-@Setter
 @Getter
+@Setter
 public class UserActivity {
 
   private long userActivityId;

@@ -48,4 +48,12 @@ public class CacheKeyGenerator {
   public String keyActivityLock(long userId, long time) {
     return "activity:lock:" + userId + ":" + time;
   }
+  
+  public String keyTeamStat(long teamId){
+      return"team:stat:"+teamId;
+  }
+  
+  public String keyTeamLeaderBoard(){
+      return"team:leaderBoard:";
+  }
 }

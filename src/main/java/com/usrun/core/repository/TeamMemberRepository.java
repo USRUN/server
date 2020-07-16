@@ -17,4 +17,12 @@ public interface TeamMemberRepository {
   List<TeamMember> filterByMemberType(long teamId, TeamMemberType toFilter);
 
   List<TeamMember> getAllMemberOfTeam(long teamId);
+  
+  List<Long> getAllIdMemberOfTeam(long teamId);
+  
+  List<TeamMember> getNewMemberInWeek(long teamId);
+  
+  List<TeamMember> getMemberAvailable(long teamId); // member, admin, owner
+  
+  
 }

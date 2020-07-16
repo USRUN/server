@@ -7,6 +7,7 @@ import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.Team;
 import com.usrun.core.model.UserActivity;
 import com.usrun.core.model.track.Track;
+import com.usrun.core.payload.activity.UserStatResp;
 import com.usrun.core.payload.dto.TeamActivityCountDTO;
 import com.usrun.core.payload.user.CreateActivityRequest;
 import com.usrun.core.repository.TeamRepository;
@@ -14,6 +15,7 @@ import com.usrun.core.repository.UserActivityRepository;
 import com.usrun.core.utility.CacheClient;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -159,5 +161,59 @@ public class ActivityService {
         }).collect(Collectors.toList());
     cacheClient.setCountAllActivityByTeam(dtos);
   }
+
+    public UserStatResp getUserStat(long userId, Date startTime, Date endTime) {
+        List<UserActivity> listActivity = userActivityRepository.findAllByTimeRangeAndUserId(userId, startTime, endTime);
+        UserStatResp result = new UserStatResp();
+        result.setNumberActivity(listActivity.size());
+        double avgTime = 0;
+        double avgPace = 0;
+        double avgheart = 0;
+        double avgElev = 0;
+        for (UserActivity userActivity : listActivity) {
+            if (userActivity.getCalories() > 0) {
+                result.setTotalCal(result.getTotalCal() + userActivity.getCalories());
+            }
+            if (userActivity.getElevGain() > 0) {
+                result.setAvgElev(result.getAvgElev() + userActivity.getElevGain());
+                avgElev++;
+            }
+            if (userActivity.getAvgPace() > 0) {
+                result.setAvgPace(result.getAvgPace() + userActivity.getAvgPace());
+                avgPace++;
+            }
+            if (userActivity.getAvgHeart() > 0) {
+                result.setAvgheart(result.getAvgheart() + userActivity.getAvgHeart());
+                avgheart++;
+            }
+            if (userActivity.getElevMax() > 0) {
+                result.setMaxElev((long) Math.max(result.getMaxElev(), userActivity.getElevMax()));
+            }
+            if (userActivity.getTotalDistance() > 0) {
+                result.setTotalDistance(result.getTotalDistance() + userActivity.getTotalDistance());
+            }
+            if (userActivity.getTotalStep() > 0) {
+                result.setTotalStep(result.getTotalStep() + userActivity.getTotalStep());
+            }
+            if (userActivity.getTotalTime() > 0) {
+                result.setAvgTime(result.getAvgTime() + userActivity.getTotalTime());
+                result.setTotalTime(result.getTotalTime() + userActivity.getTotalTime());
+                avgTime++;
+            }
+        }
+        if (avgElev != 0) {
+            result.setAvgElev(result.getAvgElev() / avgElev);
+        }
+        if (avgPace != 0) {
+            result.setAvgPace(result.getAvgPace()/ avgPace);
+        }
+        if (avgTime != 0) {
+            result.setAvgTime(result.getAvgTime()/ avgTime);
+        }
+        if (avgheart != 0) {
+            result.setAvgheart(result.getAvgheart()/ avgheart);
+        }
+        return result;
+    }
 
 }

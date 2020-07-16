@@ -15,6 +15,9 @@ import com.usrun.core.payload.CodeResponse;
 import com.usrun.core.payload.activity.ActivityRequest;
 import com.usrun.core.payload.activity.ConditionRequest;
 import com.usrun.core.payload.activity.LoveRequest;
+import com.usrun.core.payload.activity.ActivityRequest;
+import com.usrun.core.payload.activity.UserStatRequest;
+import com.usrun.core.payload.activity.UserStatResp;
 import com.usrun.core.payload.user.CreateActivityRequest;
 import com.usrun.core.payload.user.GetActivitiesRequest;
 import com.usrun.core.payload.user.GetActivityRequest;
@@ -49,254 +52,268 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/activity")
 public class ActivityController {
 
-  private static final Logger logger = LoggerFactory.getLogger(ActivityController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ActivityController.class);
 
-  @Autowired
-  private UserActivityRepository userActivityRepository;
+    @Autowired
+    private UserActivityRepository userActivityRepository;
 
-  @Autowired
-  private LoveRepository loveRepository;
+    @Autowired
+    private LoveRepository loveRepository;
 
-  @Autowired
-  private ActivityService activityService;
+    @Autowired
+    private ActivityService activityService;
 
-  @Autowired
-  private CacheClient cacheClient;
+    @Autowired
+    private CacheClient cacheClient;
 
-  @Autowired
-  private TrackService trackService;
+    @Autowired
+    private TrackService trackService;
 
-  @Autowired
-  private UserService userService;
+    @Autowired
+    private UserService userService;
 
-  @Autowired
-  private AppProperties appProperties;
+    @Autowired
+    private AppProperties appProperties;
 
-  @PostMapping("/getUserActivityByTimeWithSum")
-  public ResponseEntity<?> getUserActivityByTimeWithSum(
-      @CurrentUser UserPrincipal userPrincipal,
-      @RequestBody TimeRequest timeRequest
-  ) {
-    try {
-      Long userId = userPrincipal.getId();
-      List<UserActivity> allByTimeRangeAndUserId = userActivityRepository
-          .findAllByTimeRangeAndUserId(userId, timeRequest.getFromTime(), timeRequest.getToTime(),
-              timeRequest.getOffset(), timeRequest.getLimit());
-      UserActivity valueSum = new UserActivity();
-      for (UserActivity item : allByTimeRangeAndUserId) {
-        valueSum.setTotalDistance(item.getTotalDistance() + valueSum.getTotalDistance());
-        valueSum.setTotalTime(item.getTotalTime() + valueSum.getTotalTime());
-        valueSum.setTotalStep(item.getTotalStep() + valueSum.getTotalStep());
-        valueSum.setAvgPace(item.getAvgPace() + valueSum.getAvgPace());
-        valueSum.setAvgHeart(item.getAvgHeart() + valueSum.getAvgHeart());
-        valueSum.setMaxHeart(Math.max(item.getMaxHeart(), valueSum.getMaxHeart()));
-        valueSum.setCalories(item.getCalories() + valueSum.getCalories());
-        valueSum.setElevGain(item.getElevGain() + valueSum.getElevGain());
-        valueSum.setElevMax(Math.max(item.getElevMax(), valueSum.getElevMax()));
-        valueSum.setTotalLove(item.getTotalLove() + valueSum.getTotalLove());
-        valueSum.setTotalComment(item.getTotalComment() + valueSum.getTotalComment());
-        valueSum.setTotalShare(item.getTotalShare() + valueSum.getTotalShare());
-      }
-      valueSum.setUserId(userId);
-      valueSum.setAvgPace(valueSum.getAvgPace() / allByTimeRangeAndUserId.size());
-      valueSum.setAvgHeart(valueSum.getAvgHeart() / allByTimeRangeAndUserId.size());
-      return new ResponseEntity<>(new CodeResponse(valueSum), HttpStatus.OK);
-    } catch (Exception ex) {
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
-    }
-  }
-
-  @PostMapping("/createUserActivity")
-  public ResponseEntity<?> createUserActivity(
-      @CurrentUser UserPrincipal userPrincipal,
-      @RequestBody CreateActivityRequest paramActivity
-  ) {
-    try {
-      long userId = userPrincipal.getId();
-      long time = paramActivity.getTime();
-      long deltaTime = System.currentTimeMillis() - time;
-      if (deltaTime > appProperties.getActivityLock()) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.ACTIVITY_REQUEST_TIME_INVALID),
-            HttpStatus.BAD_REQUEST);
-      }
-
-      if (!cacheClient.acquireActivityLock(userId, time, appProperties.getActivityLock())) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.ACTIVITY_PROCESSING_OR_DUPLICATED),
-            HttpStatus.BAD_REQUEST);
-      }
-
-      String sig = paramActivity.getSig();
-      String sigActivity = activityService.getSigActivity(userId, time);
-      try {
-        if (sig.equals(sigActivity)) {
-          UserActivity userActivity = activityService
-              .createUserActivity(userId, paramActivity);
-          User user = userService.loadUser(userId);
-          cacheClient.setActivityCreated(user, userActivity);
-          return new ResponseEntity<>(new CodeResponse(userActivity), HttpStatus.OK);
-        } else {
-          return new ResponseEntity<>(new CodeResponse(ErrorCode.ACTIVITY_ADD_FAIL),
-              HttpStatus.BAD_REQUEST);
+    @PostMapping("/getUserActivityByTimeWithSum")
+    public ResponseEntity<?> getUserActivityByTimeWithSum(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody TimeRequest timeRequest
+    ) {
+        try {
+            Long userId = userPrincipal.getId();
+            List<UserActivity> allByTimeRangeAndUserId = userActivityRepository
+                    .findAllByTimeRangeAndUserId(userId, timeRequest.getFromTime(), timeRequest.getToTime(),
+                            timeRequest.getOffset(), timeRequest.getLimit());
+            UserActivity valueSum = new UserActivity();
+            for (UserActivity item : allByTimeRangeAndUserId) {
+                valueSum.setTotalDistance(item.getTotalDistance() + valueSum.getTotalDistance());
+                valueSum.setTotalTime(item.getTotalTime() + valueSum.getTotalTime());
+                valueSum.setTotalStep(item.getTotalStep() + valueSum.getTotalStep());
+                valueSum.setAvgPace(item.getAvgPace() + valueSum.getAvgPace());
+                valueSum.setAvgHeart(item.getAvgHeart() + valueSum.getAvgHeart());
+                valueSum.setMaxHeart(Math.max(item.getMaxHeart(), valueSum.getMaxHeart()));
+                valueSum.setCalories(item.getCalories() + valueSum.getCalories());
+                valueSum.setElevGain(item.getElevGain() + valueSum.getElevGain());
+                valueSum.setElevMax(Math.max(item.getElevMax(), valueSum.getElevMax()));
+                valueSum.setTotalLove(item.getTotalLove() + valueSum.getTotalLove());
+                valueSum.setTotalComment(item.getTotalComment() + valueSum.getTotalComment());
+                valueSum.setTotalShare(item.getTotalShare() + valueSum.getTotalShare());
+            }
+            valueSum.setUserId(userId);
+            valueSum.setAvgPace(valueSum.getAvgPace() / allByTimeRangeAndUserId.size());
+            valueSum.setAvgHeart(valueSum.getAvgHeart() / allByTimeRangeAndUserId.size());
+            return new ResponseEntity<>(new CodeResponse(valueSum), HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
         }
-      } catch (Exception exp) {
-        logger.error("", exp);
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.BAD_REQUEST);
-      }
-    } catch (Exception ex) {
-      logger.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
-    }
-  }
-
-  @PostMapping("/getActivityByUser")
-  public ResponseEntity<?> getUserActivityByTime(
-      @RequestBody ActivityRequest activityReq
-  ) {
-    try {
-      List<UserActivity> allByTimeRangeAndUserId = userActivityRepository
-          .findAllByUserId(activityReq.getUserId(), activityReq.getOffset(),
-              activityReq.getLimit());
-      return new ResponseEntity<>(new CodeResponse(allByTimeRangeAndUserId), HttpStatus.OK);
-    } catch (Exception ex) {
-      logger.error(ex.getMessage(), ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
-    }
-  }
-
-  @PostMapping("/getUserActivityByTime")
-  public ResponseEntity<?> getUserActivityByTime(
-      @CurrentUser UserPrincipal userPrincipal,
-      @RequestBody TimeRequest timeRequest
-  ) {
-    try {
-      Long userId = userPrincipal.getId();
-      List<UserActivity> allByTimeRangeAndUserId = userActivityRepository
-          .findAllByTimeRangeAndUserId(userId, timeRequest.getFromTime(), timeRequest.getToTime(),
-              timeRequest.getOffset(), timeRequest.getLimit());
-      return new ResponseEntity<>(new CodeResponse(allByTimeRangeAndUserId), HttpStatus.OK);
-    } catch (Exception ex) {
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
-    }
-  }
-
-  @PostMapping("/getUserActivityByTimeWithCondition")
-  public ResponseEntity<?> getUserActivityByTimeWithCondition(
-      @CurrentUser UserPrincipal userPrincipal,
-      @RequestBody ConditionRequest conditionRequest
-  ) {
-    try {
-      Long userId = userPrincipal.getId();
-      List<UserActivity> allByTimeRangeAndUserId = userActivityRepository
-          .findAllByTimeRangeAndUserIdWithCondition(userId, conditionRequest.getFromTime(),
-              conditionRequest.getToTime(), conditionRequest.getDistance(),
-              conditionRequest.getPace(), conditionRequest.getElevation(),
-              conditionRequest.getOffset(), conditionRequest.getLimit());
-      return new ResponseEntity<>(new CodeResponse(allByTimeRangeAndUserId), HttpStatus.OK);
-    } catch (Exception ex) {
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
-    }
-  }
-
-  @PostMapping("/getNumberLastUserActivity")
-  public ResponseEntity<?> getNumberLastUserActivity(
-      @CurrentUser UserPrincipal userPrincipal,
-      @RequestBody NumberActivityRequest numberActivityRequest
-  ) {
-    try {
-      Long userId = userPrincipal.getId();
-      Pageable pageable = PageRequest
-          .of(numberActivityRequest.getOffset(), numberActivityRequest.getSize());
-      List<UserActivity> allByTimeRangeAndUserId = userActivityRepository
-          .findNumberActivityLast(userId, pageable);
-      return new ResponseEntity<>(new CodeResponse(allByTimeRangeAndUserId), HttpStatus.OK);
-    } catch (Exception ex) {
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
     }
 
-  }
+    @PostMapping("/createUserActivity")
+    public ResponseEntity<?> createUserActivity(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody CreateActivityRequest paramActivity
+    ) {
+        try {
+            long userId = userPrincipal.getId();
+            long time = paramActivity.getTime();
+            long deltaTime = System.currentTimeMillis() - time;
+            if (deltaTime > appProperties.getActivityLock()) {
+                return new ResponseEntity<>(new CodeResponse(ErrorCode.ACTIVITY_REQUEST_TIME_INVALID),
+                        HttpStatus.BAD_REQUEST);
+            }
 
-  @PostMapping("/getActivity")
-  @PreAuthorize("hasRole('USER')")
-  public ResponseEntity<?> getActivity(
-      @RequestBody GetActivityRequest request
-  ) {
-    try {
-      UserActivity userActivity = activityService.loadActivity(request.getActivityId());
-      return ResponseEntity.ok(new CodeResponse(userActivity));
-    } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
-    }
-  }
+            if (!cacheClient.acquireActivityLock(userId, time, appProperties.getActivityLock())) {
+                return new ResponseEntity<>(new CodeResponse(ErrorCode.ACTIVITY_PROCESSING_OR_DUPLICATED),
+                        HttpStatus.BAD_REQUEST);
+            }
 
-  @PostMapping("/getActivitiesByTeam")
-  @PreAuthorize("hasRole('USER') && @teamAuthorization.authorize(authentication, 'MEMBER', #request.teamId)")
-  public ResponseEntity<?> getActivitiesByTeam(
-      @RequestBody GetActivitiesRequest request
-  ) {
-    try {
-      List<UserActivity> activities = activityService
-          .getActivitiesByTeam(request.getTeamId(), request.getCount(), request.getOffset());
-      return ResponseEntity.ok(new CodeResponse(activities));
-    } catch (Exception ex) {
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
+            String sig = paramActivity.getSig();
+            String sigActivity = activityService.getSigActivity(userId, time);
+            try {
+                if (sig.equals(sigActivity)) {
+                    UserActivity userActivity = activityService
+                            .createUserActivity(userId, paramActivity);
+                    User user = userService.loadUser(userId);
+                    cacheClient.setActivityCreated(user, userActivity);
+                    return new ResponseEntity<>(new CodeResponse(userActivity), HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>(new CodeResponse(ErrorCode.ACTIVITY_ADD_FAIL),
+                            HttpStatus.BAD_REQUEST);
+                }
+            } catch (Exception exp) {
+                logger.error("", exp);
+                return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception ex) {
+            logger.error("", ex);
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
+        }
     }
-  }
 
-  @PostMapping("/loveActivity")
-  public ResponseEntity<?> loveActivity(
-      @CurrentUser UserPrincipal userPrincipal,
-      @RequestBody LoveRequest request
-  ) {
-    try {
-      Long userId = userPrincipal.getId();
-      Love loveObject = new Love(request.getActivityId(), userId);
-      Love insert = loveRepository.insert(loveObject);
-      return new ResponseEntity<>(new CodeResponse(insert), HttpStatus.OK);
-    } catch (Exception ex) {
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
+    @PostMapping("/getActivityByUser")
+    public ResponseEntity<?> getUserActivityByTime(
+            @RequestBody ActivityRequest activityReq
+    ) {
+        try {
+            List<UserActivity> allByTimeRangeAndUserId = userActivityRepository
+                    .findAllByUserId(activityReq.getUserId(), activityReq.getOffset(),
+                            activityReq.getLimit());
+            return new ResponseEntity<>(new CodeResponse(allByTimeRangeAndUserId), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
+        }
     }
-  }
 
-  @PostMapping("/getUserLoveActivity")
-  public ResponseEntity<?> getUserLoveActivity(
-      @CurrentUser UserPrincipal userPrincipal,
-      @RequestBody LoveRequest request
-  ) {
-    try {
-      List<Long> numberLoveOfActivity = loveRepository
-          .getNumberLoveOfActivity(request.getActivityId());
-      return new ResponseEntity<>(new CodeResponse(numberLoveOfActivity), HttpStatus.OK);
-    } catch (Exception ex) {
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
+    @PostMapping("/getUserActivityByTime")
+    public ResponseEntity<?> getUserActivityByTime(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody TimeRequest timeRequest
+    ) {
+        try {
+            Long userId = userPrincipal.getId();
+            List<UserActivity> allByTimeRangeAndUserId = userActivityRepository
+                    .findAllByTimeRangeAndUserId(userId, timeRequest.getFromTime(), timeRequest.getToTime(),
+                            timeRequest.getOffset(), timeRequest.getLimit());
+            return new ResponseEntity<>(new CodeResponse(allByTimeRangeAndUserId), HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
+        }
     }
-  }
 
-  @PostMapping("/isLoveActivity")
-  public ResponseEntity<?> isLoveActivity(
-      @CurrentUser UserPrincipal userPrincipal,
-      @RequestBody LoveRequest request
-  ) {
-    try {
-      Long userId = userPrincipal.getId();
-      boolean userLoveActivity = loveRepository.isUserLoveActivity(userId, request.getActivityId());
-      return new ResponseEntity<>(new CodeResponse(userLoveActivity), HttpStatus.OK);
-    } catch (Exception ex) {
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
+    @PostMapping("/getUserActivityByTimeWithCondition")
+    public ResponseEntity<?> getUserActivityByTimeWithCondition(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody ConditionRequest conditionRequest
+    ) {
+        try {
+            Long userId = userPrincipal.getId();
+            List<UserActivity> allByTimeRangeAndUserId = userActivityRepository
+                    .findAllByTimeRangeAndUserIdWithCondition(userId, conditionRequest.getFromTime(),
+                            conditionRequest.getToTime(), conditionRequest.getDistance(),
+                            conditionRequest.getPace(), conditionRequest.getElevation(),
+                            conditionRequest.getOffset(), conditionRequest.getLimit());
+            return new ResponseEntity<>(new CodeResponse(allByTimeRangeAndUserId), HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
+        }
     }
-  }
 
-  @PostMapping("/removeLoveActivity")
-  public ResponseEntity<?> removeLoveActivity(
-      @CurrentUser UserPrincipal userPrincipal,
-      @RequestBody LoveRequest request
-  ) {
-    try {
-      Long userId = userPrincipal.getId();
-      Love loveObject = new Love(request.getActivityId(), userId);
-      boolean remove = loveRepository.delete(loveObject);
-      return new ResponseEntity<>(new CodeResponse(remove), HttpStatus.OK);
-    } catch (Exception ex) {
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
+    @PostMapping("/getNumberLastUserActivity")
+    public ResponseEntity<?> getNumberLastUserActivity(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody NumberActivityRequest numberActivityRequest
+    ) {
+        try {
+            Long userId = userPrincipal.getId();
+            Pageable pageable = PageRequest
+                    .of(numberActivityRequest.getOffset(), numberActivityRequest.getSize());
+            List<UserActivity> allByTimeRangeAndUserId = userActivityRepository
+                    .findNumberActivityLast(userId, pageable);
+            return new ResponseEntity<>(new CodeResponse(allByTimeRangeAndUserId), HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
+        }
+
     }
-  }
+
+    @PostMapping("/getActivity")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getActivity(
+            @RequestBody GetActivityRequest request
+    ) {
+        try {
+            UserActivity userActivity = activityService.loadActivity(request.getActivityId());
+            return ResponseEntity.ok(new CodeResponse(userActivity));
+        } catch (CodeException ex) {
+            return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/getActivitiesByTeam")
+    @PreAuthorize("hasRole('USER') && @teamAuthorization.authorize(authentication, 'MEMBER', #request.teamId)")
+    public ResponseEntity<?> getActivitiesByTeam(
+            @RequestBody GetActivitiesRequest request
+    ) {
+        try {
+            List<UserActivity> activities = activityService
+                    .getActivitiesByTeam(request.getTeamId(), request.getCount(), request.getOffset());
+            return ResponseEntity.ok(new CodeResponse(activities));
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
+        }
+    }
+
+    @PostMapping("/loveActivity")
+    public ResponseEntity<?> loveActivity(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody LoveRequest request
+    ) {
+        try {
+            Long userId = userPrincipal.getId();
+            Love loveObject = new Love(request.getActivityId(), userId);
+            Love insert = loveRepository.insert(loveObject);
+            return new ResponseEntity<>(new CodeResponse(insert), HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
+        }
+    }
+
+    @PostMapping("/getUserLoveActivity")
+    public ResponseEntity<?> getUserLoveActivity(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody LoveRequest request
+    ) {
+        try {
+            List<Long> numberLoveOfActivity = loveRepository
+                    .getNumberLoveOfActivity(request.getActivityId());
+            return new ResponseEntity<>(new CodeResponse(numberLoveOfActivity), HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
+        }
+    }
+
+    @PostMapping("/isLoveActivity")
+    public ResponseEntity<?> isLoveActivity(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody LoveRequest request
+    ) {
+        try {
+            Long userId = userPrincipal.getId();
+            boolean userLoveActivity = loveRepository.isUserLoveActivity(userId, request.getActivityId());
+            return new ResponseEntity<>(new CodeResponse(userLoveActivity), HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
+        }
+    }
+
+    @PostMapping("/removeLoveActivity")
+    public ResponseEntity<?> removeLoveActivity(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody LoveRequest request
+    ) {
+        try {
+            Long userId = userPrincipal.getId();
+            Love loveObject = new Love(request.getActivityId(), userId);
+            boolean remove = loveRepository.delete(loveObject);
+            return new ResponseEntity<>(new CodeResponse(remove), HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
+        }
+    }
+
+    @PostMapping("/getStatUser")
+    public ResponseEntity<?> getStatUser(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody UserStatRequest userStatRequest
+    ) {
+        try {
+            Long userId = userPrincipal.getId();
+            UserStatResp resp = activityService.getUserStat(userId, userStatRequest.getFromTime(), userStatRequest.getToTime());
+            return new ResponseEntity<>(new CodeResponse(resp), HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.OK);
+        }
+    }
 }
