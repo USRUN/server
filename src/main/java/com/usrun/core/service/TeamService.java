@@ -20,7 +20,6 @@ import com.usrun.core.repository.UserActivityRepository;
 import com.usrun.core.repository.UserRepository;
 import com.usrun.core.utility.CacheClient;
 import java.nio.charset.StandardCharsets;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Comparator;
@@ -32,6 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,8 @@ import org.springframework.util.StringUtils;
 @Slf4j
 @Service
 public class TeamService {
+    
+    private static final Logger logger = LoggerFactory.getLogger(TeamService.class);
 
     @Autowired
     private TeamRepository teamRepository;
@@ -292,12 +295,14 @@ public class TeamService {
     }
 
     public void buildTeamLeaderBoard() {
+        logger.info("start build teamLeaderBoard");
         List<Team> teams = teamRepository.findAllTeam();
         List<Long> listTeamId = teams.stream()
                 .map(team -> team.getId())
                 .collect(Collectors.toList());
         List<TeamLeaderBoardDTO> teamLeaderBoardDTO = new ArrayList<>();
         listTeamId.forEach(teamId -> {
+            Team team = teamRepository.findTeamById(teamId);
             List<Long> ids = teamMemberRepository.getAllIdMemberOfTeam(teamId);
             List<UserActivity> activities = acticityRepository.findByIds(ids);
             int numberActivity = activities.size();
@@ -316,14 +321,17 @@ public class TeamService {
             TeamLeaderBoardDTO itemLeaderBoard = new TeamLeaderBoardDTO();
             itemLeaderBoard.distance = totalDistance;
             itemLeaderBoard.teamId = teamId;
+            itemLeaderBoard.name = team.getTeamName();
+            itemLeaderBoard.avatar = team.getThumbnail();
             teamLeaderBoardDTO.add(itemLeaderBoard);
             List<TeamLeaderBoardDTO> sortedTeamLeaderBoard = teamLeaderBoardDTO
                     .stream()
-                    .sorted(Comparator.comparingLong(TeamLeaderBoardDTO::getDistance))
+                    .sorted(Comparator.comparingLong(TeamLeaderBoardDTO::getDistance).reversed())
                     .collect(Collectors.toList());
 
             cacheClient.setTeamLeaderBoard( sortedTeamLeaderBoard);
         });
+        logger.info("finish build teamLeaderBoard");
     }
 }
 

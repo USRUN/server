@@ -124,7 +124,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     @Override
     public List<UserActivity> findByIds(List<Long> ids) {
         MapSqlParameterSource params = new MapSqlParameterSource("ids", ids);
-        String sql = "SELECT * FROM userActivity WHERE userActivityId IN (:ids)";
+        String sql = "SELECT * FROM userActivity WHERE userId IN (:ids)";
         return findUserActivity(sql, params);
     }
 

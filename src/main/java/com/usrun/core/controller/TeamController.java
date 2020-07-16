@@ -9,6 +9,7 @@ import com.usrun.core.payload.CodeResponse;
 import com.usrun.core.payload.TeamStatResponse;
 import com.usrun.core.payload.dto.TeamDTO;
 import com.usrun.core.payload.dto.TeamLeaderBoardDTO;
+import com.usrun.core.payload.dto.TeamLeaderBoardResp;
 import com.usrun.core.payload.dto.TeamStatDTO;
 import com.usrun.core.payload.dto.UserFilterDTO;
 import com.usrun.core.payload.dto.UserLeaderBoardInfo;
@@ -26,11 +27,11 @@ import com.usrun.core.security.CurrentUser;
 import com.usrun.core.security.UserPrincipal;
 import com.usrun.core.service.TeamService;
 import com.usrun.core.utility.CacheClient;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.codecs.CollectibleCodec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
@@ -357,6 +358,58 @@ public class TeamController {
 
             TeamStatResponse resp = new TeamStatResponse(rank, teamStat.getTotalDistance(), teamStat.getMaxTime(), teamStat.getMaxDistance(), teamStat.getMemInWeek(), teamStat.getTotalMember(), teamStat.getTotalActivity());
             return ResponseEntity.ok(new CodeResponse(resp));
+        } catch (CodeException ex) {
+            return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
+                    HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
+            log.error("", ex);
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/getTeamLeaderBoard")
+    public ResponseEntity<?> getTeamLeaderBoard(@RequestBody GetLeaderBoardRequest request) {
+        try {
+            long teamId = request.getTeamId();
+            if (teamId < 0) {
+                return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_NOT_FOUND),
+                        HttpStatus.BAD_REQUEST);
+            }
+
+            List<TeamLeaderBoardDTO> teamList = cacheClient.getTeamLeaderBoard(teamId);
+            List<TeamLeaderBoardResp> teamLeaderBoardResp = new ArrayList<>();
+            if (teamList == null || teamList.size() <= 0) {
+                teamService.buildTeamLeaderBoard();
+                teamList = cacheClient.getTeamLeaderBoard(teamId);
+            }
+            List<TeamLeaderBoardDTO> top10 = teamList.subList(0, 10);
+            for (int i = 0; i < top10.size(); i++) {
+                TeamLeaderBoardResp itemResp = new TeamLeaderBoardResp();
+                itemResp.avatar = top10.get(i).avatar;
+                itemResp.name = top10.get(i).name;
+                itemResp.teamId = top10.get(i).teamId;
+                itemResp.distance = top10.get(i).distance;
+                itemResp.rank = i + 1;
+                teamLeaderBoardResp.add(itemResp);
+            }
+
+            int myTeamPosition = teamList
+                    .stream()
+                    .map(item -> item.getTeamId())
+                    .collect(Collectors.toList())
+                    .indexOf(teamId);
+            if (myTeamPosition >= 10) {
+                TeamLeaderBoardResp itemResp = new TeamLeaderBoardResp();
+                itemResp.rank = myTeamPosition + 1;
+                itemResp.avatar = teamList.get(myTeamPosition).avatar;
+                itemResp.name = teamList.get(myTeamPosition).name;
+                itemResp.teamId = teamList.get(myTeamPosition).teamId;
+                itemResp.distance = teamList.get(myTeamPosition).distance;
+                teamLeaderBoardResp.add(itemResp);
+            }
+
+            return ResponseEntity.ok(new CodeResponse(teamLeaderBoardResp));
         } catch (CodeException ex) {
             return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
                     HttpStatus.BAD_REQUEST);

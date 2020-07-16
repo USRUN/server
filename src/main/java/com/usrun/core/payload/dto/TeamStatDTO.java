@@ -31,5 +31,8 @@ public class TeamStatDTO {
         this.totalActivity = totalActivity;
     }
     
+    public TeamStatDTO(){
+        
+    }
     
 }
