@@ -166,10 +166,10 @@ public class ActivityService {
         List<UserActivity> listActivity = userActivityRepository.findAllByTimeRangeAndUserId(userId, startTime, endTime);
         UserStatResp result = new UserStatResp();
         result.setNumberActivity(listActivity.size());
-        double avgTime = 0;
-        double avgPace = 0;
-        double avgheart = 0;
-        double avgElev = 0;
+        int avgTime = 0;
+        int avgPace = 0;
+        int avgheart = 0;
+        int avgElev = 0;
         for (UserActivity userActivity : listActivity) {
             if (userActivity.getCalories() > 0) {
                 result.setTotalCal(result.getTotalCal() + userActivity.getCalories());

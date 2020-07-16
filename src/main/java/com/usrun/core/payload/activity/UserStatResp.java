@@ -19,7 +19,7 @@ public class UserStatResp {
     private long totalDistance;
     private long totalStep;
     private long totalTime;
-    private double avgTime;
+    private long avgTime;
     private double avgPace;
     private double avgheart;
     private long totalCal;
