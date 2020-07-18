@@ -7,26 +7,31 @@ import org.springframework.data.domain.Pageable;
 
 public interface UserActivityRepository {
 
-    UserActivity insert(UserActivity userActivity);
+  UserActivity insert(UserActivity userActivity);
 
-    UserActivity findById(long id);
+  UserActivity findById(long id);
 
-    List<UserActivity> findAllByUserId(long userId, int offset, int limit);
+  List<UserActivity> findAllByUserId(long userId, int offset, int limit);
 
-    List<UserActivity> findAllByTimeRangeAndUserId(long userId, Date timeFrom, Date timeTo, int offset, int limit);
+  List<UserActivity> findAllByTimeRangeAndUserId(long userId, Date timeFrom, Date timeTo,
+      int offset, int limit);
 
-    List<UserActivity> findAllByTimeRangeAndUserId(long userId, Date timeFrom, Date timeTo);
+  List<UserActivity> findAllByTimeRangeAndUserId(long userId, Date timeFrom, Date timeTo);
 
-    List<UserActivity> findAllByTimeRangeAndUserIdWithCondition(long userId, Date timeFrom,
-            Date timeTo, long distance, double pace, double elev, int offset, int limit);
+  List<UserActivity> findAllByTimeRangeAndUserIdWithCondition(long userId, Date timeFrom,
+      Date timeTo, long distance, double pace, double elev, int offset, int limit);
 
-    List<UserActivity> findNumberActivityLast(long userId, Pageable pageable);
+  List<UserActivity> findNumberActivityLast(long userId, Pageable pageable);
 
-    long countUserActivityByUser(long teamId);
+  long countUserActivityByUser(long teamId);
 
-    List<Long> findByTeamId(long teamId, long limit);
+  List<Long> findByTeamId(long teamId, long limit);
 
-    List<UserActivity> findByIds(List<Long> ids);
+  List<UserActivity> findByUserIds(List<Long> ids);
 
-    List<UserActivity> findByTeamId(long teamId);
+  List<UserActivity> findByIds(List<Long> ids);
+
+  List<UserActivity> findByTeamId(long teamId);
+
+  void updateTotalLove(long activityId, int count);
 }

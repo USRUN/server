@@ -12,6 +12,6 @@ import lombok.Setter;
 public class GetActivitiesRequest {
 
   private long teamId;
-  private int count = 30;
-  private int offset = 0;
+  private int count = 10;
+  private int offset = 1;
 }

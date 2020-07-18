@@ -34,7 +34,7 @@ public class UserActivity {
   private List<String> photos;
   private String title;
   private String description;
-  private int totalLove;
+  private long totalLove;
   private int totalComment;
   private int totalShare;
   private boolean processed;

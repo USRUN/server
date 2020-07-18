@@ -28,7 +28,6 @@ public class ObjectUtils {
         .configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true)
         .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
         .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
-        .setTimeZone(TimeZone.getTimeZone("UTC"))
         .setSerializationInclusion(Include.NON_NULL);
   }
 

@@ -284,7 +284,7 @@ public class TeamService {
         listTeamId.forEach(teamId -> {
             Team team = teamRepository.findTeamById(teamId);
             List<Long> ids = teamMemberRepository.getAllIdMemberOfTeam(teamId);
-            List<UserActivity> activities = acticityRepository.findByIds(ids);
+            List<UserActivity> activities = acticityRepository.findByUserIds(ids);
             int numberActivity = activities.size();
             long totalDistance = 0l;
             long maxTotalTime = 0l;

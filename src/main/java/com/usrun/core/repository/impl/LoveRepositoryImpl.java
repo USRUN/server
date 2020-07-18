@@ -2,12 +2,18 @@ package com.usrun.core.repository.impl;
 
 import com.usrun.core.model.Love;
 import com.usrun.core.repository.LoveRepository;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository
 public class LoveRepositoryImpl implements LoveRepository {
 
@@ -21,18 +27,13 @@ public class LoveRepositoryImpl implements LoveRepository {
     return map;
   }
 
-  private List<Love> getLove(String sql, MapSqlParameterSource params) {
-    List<Love> toReturn = namedParameterJdbcTemplate.query(
+  private List<Love> getLoves(String sql, MapSqlParameterSource params) {
+    return namedParameterJdbcTemplate.query(
         sql,
         params,
         (rs, i) -> new Love(
             rs.getLong("userId"),
             rs.getLong("activityId")));
-
-    if (toReturn != null && toReturn.size() > 0) {
-      return toReturn;
-    }
-    return null;
   }
 
 
@@ -45,21 +46,18 @@ public class LoveRepositoryImpl implements LoveRepository {
               " VALUES(:userId,:activityId)",
           map
       );
-      return loveObj;
     } catch (Exception ex) {
+      log.error("", ex);
       return null;
     }
+    return loveObj;
   }
 
   @Override
   public boolean delete(Love toDelete) {
-    int status = 0;
     MapSqlParameterSource map = mapLove(toDelete);
-    status = namedParameterJdbcTemplate.update(
-        "DELETE FROM teamMember" +
-            "WHERE  userId= :userId, activityId= :activityId",
-        map
-    );
+    String sql = "DELETE FROM love WHERE userId = :userId AND activityId = :activityId";
+    int status = namedParameterJdbcTemplate.update(sql, map);
     return status != 0;
   }
 
@@ -81,12 +79,44 @@ public class LoveRepositoryImpl implements LoveRepository {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("activityId", activityId);
     params.addValue("userId", userId);
-    String sql = "SELECT COUNT(userId) FROM love WHERE activityId = :activityId and userId = :userId";
-    Integer number = namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
-    if (number > 0) {
-      return true;
-    }
-    return false;
+    String sql = "SELECT * FROM love WHERE activityId = :activityId AND userId = :userId";
+    List<Love> loves = getLoves(sql, params);
+    return !loves.isEmpty();
   }
 
+  @Override
+  public long countLove(long activityId) {
+    MapSqlParameterSource params = new MapSqlParameterSource("activityId", activityId);
+    String sql = "SELECT COUNT(userId) as loveCount FROM love WHERE activityId = :activityId";
+    List<Long> counts = namedParameterJdbcTemplate
+        .query(sql, params, (rs, i) -> new Long(rs.getLong("loveCount")));
+    if (counts.isEmpty()) {
+      return 0;
+    }
+    return counts.get(0);
+  }
+
+  @Override
+  public List<Long> countLoves(List<Long> activityIds) {
+    if (activityIds == null || activityIds.isEmpty()) {
+      activityIds = Collections.singletonList(-1L);
+    }
+    List<Long> loveCounts = new ArrayList<>(activityIds.size());
+    Map<Long, Long> loveMap = new HashMap<>();
+    MapSqlParameterSource params = new MapSqlParameterSource("activityIds", activityIds);
+    String sql = "SELECT activityId, COUNT(userId) as loveCount FROM love "
+        + "WHERE activityId IN (:activityIds) "
+        + "GROUP BY activityId";
+    namedParameterJdbcTemplate
+        .query(sql, params,
+            (rs, i) -> loveMap.put(rs.getLong("activityId"), rs.getLong("loveCount")));
+    for (Long activityId : activityIds) {
+      if (loveMap.get(activityId) == null) {
+        loveCounts.add(0L);
+      } else {
+        loveCounts.add(loveMap.get(activityId));
+      }
+    }
+    return loveCounts;
+  }
 }

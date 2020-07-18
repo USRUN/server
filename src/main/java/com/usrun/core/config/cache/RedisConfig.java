@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
-import org.redisson.codec.KryoCodec;
+import org.redisson.client.codec.StringCodec;
 import org.redisson.config.Config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -27,9 +27,9 @@ public class RedisConfig {
         .setAddress(url)
         .setPassword(password)
         .setConnectionPoolSize(10).setConnectionMinimumIdleSize(10);
-//        config.setCodec(StringCodec.INSTANCE);
-    KryoCodec kryoCodec = new KryoCodecWithDefaultSerializer();
-    config.setCodec(kryoCodec);
+    config.setCodec(StringCodec.INSTANCE);
+//    KryoCodec kryoCodec = new KryoCodecWithDefaultSerializer();
+//    config.setCodec(kryoCodec);
     return Redisson.create(config);
   }
 }

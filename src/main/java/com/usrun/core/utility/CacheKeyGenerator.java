@@ -56,4 +56,8 @@ public class CacheKeyGenerator {
   public String keyTeamLeaderBoard(){
       return"team:leaderBoard:";
   }
+
+  public String keyLoveCount(long activityId) {
+    return "activity:love:" + activityId;
+  }
 }

@@ -14,4 +14,8 @@ public interface LoveRepository {
   List<Long> getNumberLoveOfActivity(long activityId);
 
   boolean isUserLoveActivity(long userId, long activityId);
+
+  long countLove(long activityId);
+
+  List<Long> countLoves(List<Long> activityIds);
 }

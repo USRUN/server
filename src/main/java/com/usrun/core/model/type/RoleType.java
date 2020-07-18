@@ -1,5 +1,6 @@
 package com.usrun.core.model.type;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.HashMap;
 
@@ -19,6 +20,7 @@ public enum RoleType {
     this.value = value;
   }
 
+  @JsonCreator
   public static RoleType fromInt(int iValue) {
     return returnMap.get(iValue);
   }
