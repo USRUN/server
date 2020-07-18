@@ -27,7 +27,7 @@ public class TeamLeaderBoardWorker {
     public boolean run() {
         System.out.println("Run worker");
         System.out.println(teamService);
-        BackgroundService.schedule("BuildTeamLeaderBoard", new LeaderBoardBuilder(), 0, 30, TimeUnit.MINUTES);
+        BackgroundService.schedule("BuildTeamLeaderBoard", new LeaderBoardBuilder(), 0, 2, TimeUnit.MINUTES);
         return true;
     }
 
