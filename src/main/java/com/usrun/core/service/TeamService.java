@@ -9,6 +9,7 @@ import com.usrun.core.model.UserActivity;
 import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.dto.LeaderBoardTeamDTO;
+import com.usrun.core.payload.dto.TeamDTO;
 import com.usrun.core.payload.dto.TeamLeaderBoardDTO;
 import com.usrun.core.payload.dto.TeamStatDTO;
 import com.usrun.core.payload.dto.UserFilterDTO;
@@ -128,6 +129,10 @@ public class TeamService {
 
     public List<Team> getTeamByUser(long userId) {
         return teamRepository.getTeamsByUserReturnTeam(userId);
+    }
+
+    public List<TeamDTO> getTeamDTOByUserAndNotEqualTeamMemberType(long userId, TeamMemberType teamMemberType) {
+      return teamRepository.getTeamsByUserAndNotEqualTeamMemberTypeReturnTeam(userId, teamMemberType);
     }
 
     public TeamMember getTeamMemberById(long teamId, long userId) {

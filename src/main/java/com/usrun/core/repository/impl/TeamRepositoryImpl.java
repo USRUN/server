@@ -5,6 +5,7 @@ import com.usrun.core.model.User;
 import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.dto.LeaderBoardTeamDTO;
+import com.usrun.core.payload.dto.TeamDTO;
 import com.usrun.core.repository.TeamMemberRepository;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserRepository;
@@ -180,6 +181,18 @@ public class TeamRepositoryImpl implements TeamRepository {
   }
 
   @Override
+  public List<TeamDTO> getTeamsByUserAndNotEqualTeamMemberTypeReturnTeam(long userId,
+      TeamMemberType teamMemberType) {
+    MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+    params.addValue("teamMemberType", teamMemberType.toValue());
+    String sql = "SELECT t.*, tm.teamMemberType FROM team t, teamMember tm "
+        + "WHERE tm.userId = :userId "
+        + "AND tm.teamId = t.teamId "
+        + "AND tm.teamMemberType != :teamMemberType";
+    return getTeamDTOsSQLParamMap(sql, params);
+  }
+
+  @Override
   public List<LeaderBoardTeamDTO> getLeaderBoard(long teamId) {
     MapSqlParameterSource params = new MapSqlParameterSource("teamId", teamId);
     String sql = "SELECT ua.userId, SUM(ua.totalDistance) as total "
@@ -295,6 +308,26 @@ public class TeamRepositoryImpl implements TeamRepository {
             rs.getDate("createTime"),
             rs.getInt("province"),
             rs.getString("description")
+        ));
+  }
+
+  private List<TeamDTO> getTeamDTOsSQLParamMap(String sql, MapSqlParameterSource params) {
+    return namedParameterJdbcTemplate.query(
+        sql,
+        params,
+        (rs, i) -> new TeamDTO(
+            rs.getLong("teamId"),
+            rs.getInt("privacy"),
+            rs.getInt("totalMember"),
+            rs.getString("teamName"),
+            rs.getString("thumbnail"),
+            rs.getString("banner"),
+            rs.getBoolean("verified"),
+            rs.getBoolean("deleted"),
+            rs.getDate("createTime"),
+            rs.getInt("province"),
+            rs.getString("description"),
+            TeamMemberType.fromInt(rs.getInt("teamMemberType"))
         ));
   }
 
