@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -165,6 +166,16 @@ public class TeamService {
 
   public boolean requestToJoinTeam(Long requestId, Long teamId) {
     return teamRepository.joinTeam(requestId, teamId);
+  }
+
+  public void inviteToTeam(long userId, long teamId) {
+    try {
+      teamMemberRepository
+          .insert(new TeamMember(userId, teamId, TeamMemberType.INVITED, new Date()));
+    } catch (DuplicateKeyException ex) {
+      log.error("", ex);
+      throw new CodeException(ErrorCode.TEAM_USER_EXISTED);
+    }
   }
 
   public boolean updateTeamRole(Long teamId, Long memberId, TeamMemberType toChangeInto) {

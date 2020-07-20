@@ -2,6 +2,7 @@ package com.usrun.core.model.junction;
 
 import com.usrun.core.model.type.TeamMemberType;
 import java.util.Date;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.data.annotation.Id;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class TeamMember {
 
   @Id

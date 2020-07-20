@@ -21,6 +21,7 @@ import com.usrun.core.payload.team.GetAllTeamMemberRequest;
 import com.usrun.core.payload.team.GetLeaderBoardRequest;
 import com.usrun.core.payload.team.GetTeamByIdRequest;
 import com.usrun.core.payload.team.GetUserByMemberTypeRequest;
+import com.usrun.core.payload.team.InviteTeamRequest;
 import com.usrun.core.payload.team.JoinTeamRequest;
 import com.usrun.core.payload.team.SuggestTeamRequest;
 import com.usrun.core.payload.team.UpdateMemberRequest;
@@ -123,6 +124,31 @@ public class TeamController {
       return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
           HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @PostMapping("/invite")
+  @PreAuthorize("hasRole('USER') && @teamAuthorization.authorize(authentication,'MEMBER',#request.getTeamId())")
+  public ResponseEntity<?> inviteToTeam(
+      @RequestBody InviteTeamRequest request
+  ) {
+    try {
+      long userId = request.getUserId();
+      long teamId = request.getTeamId();
+      if (userId <= 0 || teamId <= 0) {
+        return new ResponseEntity<>(new CodeResponse(ErrorCode.INVALID_PARAM),
+            HttpStatus.BAD_REQUEST);
+      }
+      teamService.inviteToTeam(userId, teamId);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SUCCESS));
+    } catch (CodeException ex) {
+      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
+          HttpStatus.BAD_REQUEST);
+    } catch (Exception ex) {
+      log.error("", ex);
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
+          HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
   }
 
   @PostMapping("/cancelJoin")
