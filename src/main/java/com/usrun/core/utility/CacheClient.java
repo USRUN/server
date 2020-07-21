@@ -72,8 +72,8 @@ public class CacheClient {
         RBucket<String> rUser = redissonClient.getBucket(key);
         rUser.set(ObjectUtils.toJsonString(user), 14, TimeUnit.DAYS);
 
-        RBucket<Long> rUserEmail = redissonClient.getBucket(keyUserEmail);
-        rUserEmail.set(user.getId(), 14, TimeUnit.DAYS);
+        RBucket<String> rUserEmail = redissonClient.getBucket(keyUserEmail);
+        rUserEmail.set(String.valueOf(user.getId()), 14, TimeUnit.DAYS);
         return user;
     }
 
@@ -88,10 +88,12 @@ public class CacheClient {
 
     public User getUser(String email) {
         String keyUserEmail = cacheKeyGenerator.keyUserEmail(email);
-        RBucket<Long> rUserEmail = redissonClient.getBucket(keyUserEmail);
-        Long userId = rUserEmail.get();
-        if (userId == null) {
-            return null;
+        RBucket<String> rUserEmail = redissonClient.getBucket(keyUserEmail);
+        long userId;
+        if(rUserEmail.isExists()) {
+          userId = Long.parseLong(rUserEmail.get());
+        } else {
+          return null;
         }
         String key = cacheKeyGenerator.keyUser(userId);
         RBucket<String> rUser = redissonClient.getBucket(key);
