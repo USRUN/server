@@ -2,11 +2,14 @@ package com.usrun.core.repository.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.usrun.core.model.UserActivity;
+import com.usrun.core.payload.dto.UserActivityStatDTO;
 import com.usrun.core.repository.UserActivityRepository;
 import com.usrun.core.utility.ObjectUtils;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -232,6 +235,22 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
         + "(SELECT totalLove FROM userActivity WHERE userActivityId = :activityId FOR UPDATE) + :count "
         + "WHERE userActivityId = :activityId";
     namedParameterJdbcTemplate.update(sql, params);
+  }
+
+  @Override
+  public List<UserActivityStatDTO> getStat() {
+    String sql = "SELECT userId, SUM(totalDistance) as totalDistance, "
+        + "SUM(totalTime) as totalTime, MAX(totalDistance) as maxDistance, "
+        + "MAX(totalTime) as maxTime, COUNT(userActivityId) as userActivityCount "
+        + "FROM userActivity GROUP BY userId";
+    return namedParameterJdbcTemplate.query(sql, (rs, i) -> new UserActivityStatDTO(
+        rs.getLong("userId"),
+        rs.getLong("totalDistance"),
+        rs.getLong("totalTime"),
+        rs.getLong("maxDistance"),
+        rs.getLong("maxTime"),
+        rs.getLong("userActivityCount")
+    ));
   }
 
 }

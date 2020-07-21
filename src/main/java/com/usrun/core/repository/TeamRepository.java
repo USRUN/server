@@ -44,4 +44,6 @@ public interface TeamRepository {
   List<TeamDTO> getTeamsByUserAndNotEqualTeamMemberTypeReturnTeam(long userId, TeamMemberType teamMemberType);
 
   List<LeaderBoardTeamDTO> getLeaderBoard(long teamId);
+
+
 }

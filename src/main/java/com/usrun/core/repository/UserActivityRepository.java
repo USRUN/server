@@ -1,6 +1,7 @@
 package com.usrun.core.repository;
 
 import com.usrun.core.model.UserActivity;
+import com.usrun.core.payload.dto.UserActivityStatDTO;
 import java.util.Date;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
@@ -34,4 +35,6 @@ public interface UserActivityRepository {
   List<UserActivity> findByTeamId(long teamId);
 
   void updateTotalLove(long activityId, int count);
+
+  List<UserActivityStatDTO> getStat();
 }

@@ -27,5 +27,7 @@ public interface TeamMemberRepository {
   List<TeamMember> getMemberAvailable(long teamId); // member, admin, owner
   
   List<TeamStatDTO> getTeamStat();
+
+  List<TeamMember> getAll();
   
 }
