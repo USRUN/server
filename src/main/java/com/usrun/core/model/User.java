@@ -28,7 +28,6 @@ public class User {
   @Email
   private String email;
 
-  @JsonIgnore
   private String password;
 
   private AuthType type;
