@@ -115,7 +115,7 @@ public class TeamRepositoryImpl implements TeamRepository {
   public boolean cancelJoinTeam(Long requestingId, Long teamId) {
     TeamMember toDelete = teamMemberRepository.findById(teamId, requestingId);
     if (toDelete == null) {
-      throw new DataRetrievalFailureException("Can't find teamMember");
+      return false;
     }
     return teamMemberRepository.delete(toDelete);
   }

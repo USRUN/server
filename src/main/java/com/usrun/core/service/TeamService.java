@@ -163,8 +163,15 @@ public class TeamService {
     cacheClient.setUser(current);
   }
 
-  public boolean requestToJoinTeam(Long requestId, Long teamId) {
-    return teamRepository.joinTeam(requestId, teamId);
+  public void requestToJoinTeam(Long requestId, Long teamId) {
+    try {
+      teamRepository.joinTeam(requestId, teamId);
+      User user = userService.loadUser(requestId);
+
+    } catch (DuplicateKeyException ex) {
+      log.error("", ex);
+      throw new CodeException(ErrorCode.TEAM_USER_EXISTED);
+    }
   }
 
   public void inviteToTeam(long userId, long teamId) {
@@ -175,6 +182,10 @@ public class TeamService {
       log.error("", ex);
       throw new CodeException(ErrorCode.TEAM_USER_EXISTED);
     }
+  }
+
+  public void cancelJoinTeam(Long requestId, Long teamId) {
+    teamRepository.cancelJoinTeam(requestId, teamId);
   }
 
   public boolean updateTeamRole(Long teamId, Long memberId, TeamMemberType toChangeInto) {
@@ -198,10 +209,6 @@ public class TeamService {
       cacheClient.setTeamMemberType(teamId, memberId, toChangeInto);
     }
     return updated;
-  }
-
-  public boolean cancelJoinTeam(Long requestId, Long teamId) {
-    return teamRepository.cancelJoinTeam(requestId, teamId);
   }
 
   public TeamMemberType loadTeamMemberType(Long teamId, Long userId) {

@@ -7,6 +7,7 @@ import com.usrun.core.model.User;
 import com.usrun.core.model.type.AuthType;
 import com.usrun.core.model.type.RoleType;
 import com.usrun.core.repository.UserRepository;
+import com.usrun.core.service.UserService;
 import com.usrun.core.utility.CacheClient;
 import com.usrun.core.utility.ObjectUtils;
 import com.usrun.core.utility.UniqueGenerator;
@@ -33,8 +34,10 @@ public class OAuth2UserDetailsService {
 
   private final UniqueGenerator uniqueGenerator;
 
+  private final UserService userService;
+
   public OAuth2UserDetailsService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-      CacheClient cacheClient, UniqueGenerator uniqueGenerator) {
+      CacheClient cacheClient, UniqueGenerator uniqueGenerator, UserService userService) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.cacheClient = cacheClient;
@@ -42,6 +45,7 @@ public class OAuth2UserDetailsService {
     this.verifyMap.put(AuthType.google, new GoogleOAuth2Verify());
     this.verifyMap.put(AuthType.facebook, new FacebookOAuth2Verify());
     this.uniqueGenerator = uniqueGenerator;
+    this.userService = userService;
   }
 
   public User loadUser(String token, AuthType type) {
@@ -72,7 +76,15 @@ public class OAuth2UserDetailsService {
       throw new CodeException(ErrorCode.USER_CREATE_FAIL);
     }
 
-    User user = userRepository.findUserByEmail(oAuth2UserInfo.getEmail());
+    User user = null;
+
+    try {
+      user = userService.loadUser(oAuth2UserInfo.getEmail());
+    } catch (CodeException ex) {
+      if (ex.getErrorCode() == ErrorCode.USER_EMAIL_NOT_FOUND) {
+        user = null;
+      }
+    }
 
     if (user != null) {
       if (!user.getType().equals(oAuth2UserInfo.getType())) {
