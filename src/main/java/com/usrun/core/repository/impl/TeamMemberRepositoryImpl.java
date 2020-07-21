@@ -2,6 +2,8 @@ package com.usrun.core.repository.impl;
 
 import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
+import com.usrun.core.payload.dto.TeamNewMemberDTO;
+import com.usrun.core.payload.dto.TeamStatDTO;
 import com.usrun.core.repository.TeamMemberRepository;
 import static java.time.DayOfWeek.MONDAY;
 import static java.time.DayOfWeek.SUNDAY;
@@ -161,24 +163,38 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
     }
 
     @Override
-    public List<TeamMember> getNewMemberInWeek(long teamId) {
+    public List<TeamNewMemberDTO> getNewMemberInWeek() {
         LocalDate today = LocalDate.now();
 
         LocalDate monday = today.with(previousOrSame(MONDAY));
         Date mondayDate = Date.from(monday.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        MapSqlParameterSource params = new MapSqlParameterSource("teamId", teamId);
-        params.addValue("monday", mondayDate);
+        MapSqlParameterSource params = new MapSqlParameterSource("monday", mondayDate);
 
-        String sql = "SELECT * FROM teamMember WHERE teamId = :teamId AND addTime >= :monday";
+        String sql = "SELECT teamId, count(userId) as newUser FROM teamMember WHERE addTime >= :monday group by teamId";
 
-        List<TeamMember> toReturn = namedParameterJdbcTemplate.query(
+        List<TeamNewMemberDTO> toReturn = namedParameterJdbcTemplate.query(
                 sql,
                 params,
-                (rs, i) -> new TeamMember(
+                (rs, i) -> new TeamNewMemberDTO(
                         rs.getLong("teamId"),
-                        rs.getLong("userId"),
-                        rs.getInt("teamMemberType"),
-                        rs.getDate("addTime")));
+                        rs.getInt("newUser")));
+        return toReturn;
+    }
+
+    @Override
+    public List<TeamStatDTO> getTeamStat() {
+        String sql = "select tm.teamId,t.teamName, t.thumbnail, sum(ua.totalDistance) as totalDistance, max(ua.totalTime) as maxTime, max(ua.totalDistance) as maxDistance, count(userActivityId) as numActivity, count(distinct(tm.userId)) as numberUser from teamMember tm, userActivity ua, team t where ua.userId = tm.userId and t.teamId = tm.teamId group by tm.teamId order by totalDistance DESC;";
+        List<TeamStatDTO> toReturn = namedParameterJdbcTemplate.query(
+                sql,
+                (rs, i) -> new TeamStatDTO(rs.getLong("teamId"),
+                        rs.getString("teamName"),
+                        rs.getString("thumbnail"),
+                        rs.getLong("totalDistance"), 
+                        rs.getLong("maxTime"),  
+                        rs.getLong("maxDistance") , 
+                        0,  
+                        rs.getInt("numberUser"), 
+                        rs.getLong("numActivity")));
         return toReturn;
     }
 }
