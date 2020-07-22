@@ -29,5 +29,7 @@ public interface TeamMemberRepository {
   List<TeamStatDTO> getTeamStat();
 
   List<TeamMember> getAll();
+
+  List<TeamMember> getAllByLessEqualTeamMemberType(TeamMemberType teamMemberType);
   
 }

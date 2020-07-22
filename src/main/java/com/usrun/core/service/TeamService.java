@@ -174,10 +174,17 @@ public class TeamService {
     }
   }
 
-  public void inviteToTeam(long userId, long teamId) {
+  public void inviteToTeam(String emailOrUserCode, long teamId) {
     try {
-      teamMemberRepository
-          .insert(new TeamMember(userId, teamId, TeamMemberType.INVITED, new Date()));
+      User user = userRepository.findByEmailOrUserCode(emailOrUserCode);
+      if (user != null) {
+        teamMemberRepository
+            .insert(new TeamMember(teamId, user.getId(), TeamMemberType.INVITED, new Date()));
+      } else {
+        log.error("Invite to team, user not found, emailOrUserCode {}, teamId {}", emailOrUserCode,
+            teamId);
+        throw new CodeException(ErrorCode.USER_NOT_FOUND);
+      }
     } catch (DuplicateKeyException ex) {
       log.error("", ex);
       throw new CodeException(ErrorCode.TEAM_USER_EXISTED);
@@ -296,7 +303,8 @@ public class TeamService {
     long startTime = System.currentTimeMillis();
     logger.info("start build teamLeaderBoard");
     List<Team> teams = teamRepository.findAllTeam();
-    Map<Long, List<TeamMember>> teamMembersByTeam = teamMemberRepository.getAll().stream()
+    Map<Long, List<TeamMember>> teamMembersByTeam = teamMemberRepository
+        .getAllByLessEqualTeamMemberType(TeamMemberType.MEMBER).stream()
         .collect(Collectors.groupingBy(TeamMember::getTeamId));
     Map<Long, UserActivityStatDTO> userActivityStats = userActivityRepository.getStat().stream()
         .collect(Collectors.toMap(UserActivityStatDTO::getUserId,

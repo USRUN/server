@@ -30,7 +30,7 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
     MapSqlParameterSource map = mapTeamMember(toInsert);
     namedParameterJdbcTemplate.update(
         "INSERT INTO teamMember(teamId, userId, teamMemberType, addTime)"
-            + " VALUES(:teamId,:userId,:teamMemberType,:addTime)",
+            + " VALUES(:teamId, :userId, :teamMemberType, :addTime)",
         map
     );
     return toInsert;
@@ -190,8 +190,14 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
   @Override
   public List<TeamMember> getAll() {
     String sql = "SELECT * FROM teamMember";
-
     return getTeamMembers(sql, new MapSqlParameterSource());
+  }
+
+  @Override
+  public List<TeamMember> getAllByLessEqualTeamMemberType(TeamMemberType teamMemberType) {
+    String sql = "SELECT * FROM teamMember WHERE teamMemberType <= :teamMemberType";
+    return getTeamMembers(sql,
+        new MapSqlParameterSource("teamMemberType", teamMemberType.toValue()));
   }
 
   private List<TeamMember> getTeamMembers(String sql, MapSqlParameterSource params) {

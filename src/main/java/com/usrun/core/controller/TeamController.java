@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
@@ -131,13 +132,13 @@ public class TeamController {
       @RequestBody InviteTeamRequest request
   ) {
     try {
-      long userId = request.getUserId();
+      String emailOrUserCode = request.getEmailOrUserCode();
       long teamId = request.getTeamId();
-      if (userId <= 0 || teamId <= 0) {
+      if (StringUtils.isBlank(emailOrUserCode) || teamId <= 0) {
         return new ResponseEntity<>(new CodeResponse(ErrorCode.INVALID_PARAM),
             HttpStatus.BAD_REQUEST);
       }
-      teamService.inviteToTeam(userId, teamId);
+      teamService.inviteToTeam(emailOrUserCode, teamId);
       return ResponseEntity.ok(new CodeResponse(ErrorCode.SUCCESS));
     } catch (CodeException ex) {
       return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),

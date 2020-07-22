@@ -187,6 +187,13 @@ public class UserRepositoryImpl implements UserRepository {
     return getUserFilterWithTypeDTO(sql, params);
   }
 
+  @Override
+  public User findByEmailOrUserCode(String emailOrUserCode) {
+    MapSqlParameterSource params = new MapSqlParameterSource("emailOrUserCode", emailOrUserCode);
+    String sql = "SELECT * FROM user WHERE email = :emailOrUserCode OR userCode = :emailOrUserCode";
+    return getUser(sql, params);
+  }
+
   private List<User> getUsers(String sql, MapSqlParameterSource params) {
     return namedParameterJdbcTemplate.query(
         sql,

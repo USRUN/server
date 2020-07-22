@@ -32,4 +32,6 @@ public interface UserRepository {
 
   List<UserFilterWithTypeDTO> getAllMemberByLessEqualTeamMemberType(long teamId,
       TeamMemberType teamMemberType, int offset, int limit);
+
+  User findByEmailOrUserCode(String emailOrUserCode);
 }
