@@ -225,11 +225,11 @@ public class ActivityService {
         avgElev++;
       }
       if (userActivity.getAvgPace() > 0) {
-        result.setAvgPace(result.getAvgPace() + userActivity.getAvgPace());
+        result.setAvgPace(result.getAvgPace() + (long)userActivity.getAvgPace());
         avgPace++;
       }
       if (userActivity.getAvgHeart() > 0) {
-        result.setAvgheart(result.getAvgheart() + userActivity.getAvgHeart());
+        result.setAvgHeart(result.getAvgHeart() + userActivity.getAvgHeart());
         avgheart++;
       }
       if (userActivity.getElevMax() > 0) {
@@ -257,7 +257,7 @@ public class ActivityService {
       result.setAvgTime(result.getAvgTime() / avgTime);
     }
     if (avgheart != 0) {
-      result.setAvgheart(result.getAvgheart() / avgheart);
+      result.setAvgHeart(result.getAvgHeart() / avgheart);
     }
     return result;
   }
