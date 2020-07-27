@@ -20,8 +20,8 @@ public class UserStatResp {
     private long totalStep;
     private long totalTime;
     private long avgTime;
-    private double avgPace;
-    private double avgheart;
+    private long avgPace;
+    private double avgHeart;
     private long totalCal;
     private double avgElev;
     private long maxElev;
@@ -30,7 +30,7 @@ public class UserStatResp {
         this.avgElev = 0;
         this.avgPace = 0;
         this.avgTime = 0;
-        this.avgheart = 0;
+        this.avgHeart = 0;
         this.maxElev = 0;
         this.numberActivity = 0;
         this.totalCal = 0;
