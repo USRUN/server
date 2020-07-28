@@ -53,7 +53,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
     params.addValue("offset", offset * limit);
     params.addValue("limit", limit);
-    String sql = "SELECT * FROM userActivity WHERE userId = :userId LIMIT :limit OFFSET :offset";
+    String sql = "SELECT * FROM userActivity WHERE userId= :userId ORDER BY createTime DESC LIMIT :limit OFFSET :offset";
     List<UserActivity> userActivity = findUserActivity(sql, params);
     return userActivity;
   }
@@ -67,7 +67,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     params.addValue("timeTo", timeTo);
     params.addValue("offset", offset * limit);
     params.addValue("limit", limit);
-    String sql = "SELECT * FROM userActivity WHERE userId = :userId AND createTime >= :timeFrom AND createTime <= :timeTo LIMIT :limit OFFSET :offset";
+    String sql = "SELECT * FROM userActivity WHERE userId= :userId AND createTime >= :timeFrom AND createTime <= :timeTo LIMIT :limit OFFSET :offset";
     List<UserActivity> userActivity = findUserActivity(sql, params);
     return userActivity;
   }
