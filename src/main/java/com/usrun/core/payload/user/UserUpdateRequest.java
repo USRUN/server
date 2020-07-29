@@ -14,7 +14,7 @@ public class UserUpdateRequest {
   private String name;
   private String avatar;
   private Integer gender;
-  private Long birthdayNum;
+  private Long birthday;
   private Double weight;
   private Double height;
   private String deviceToken;

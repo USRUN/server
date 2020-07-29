@@ -95,8 +95,8 @@ public class UserController {
   ) {
     try {
       Date birthday = null;
-      if (userUpdateRequest.getBirthdayNum() != null) {
-        birthday = new Date(userUpdateRequest.getBirthdayNum());
+      if (userUpdateRequest.getBirthday() != null) {
+        birthday = new Date(userUpdateRequest.getBirthday());
       }
 
       User user = userService.updateUser(userPrincipal.getId(),
