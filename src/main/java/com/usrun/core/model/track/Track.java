@@ -58,7 +58,7 @@ public class Track {
     this.trackId = trackId;
     this.userId = userId;
     this.description = description;
-    this.time = new Date();
+    this.time = new Date(System.currentTimeMillis());
     if (splitDistance != null) {
       for (Map.Entry<String, Double> entry : splitDistance.entrySet()) {
         Double distance = Double.parseDouble(entry.getKey());
