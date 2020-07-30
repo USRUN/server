@@ -107,7 +107,8 @@ public class UserController {
           userUpdateRequest.getHeight(),
           userUpdateRequest.getAvatar(),
           userUpdateRequest.getProvince());
-      return ResponseEntity.ok(new CodeResponse(new UserInfoResponse(user)));
+      String jwt = tokenProvider.createTokenUserId(user.getId());
+      return ResponseEntity.ok(new CodeResponse(new UserInfoResponse(user, jwt)));
     } catch (CodeException ex) {
       return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
     } catch (Exception ex) {
