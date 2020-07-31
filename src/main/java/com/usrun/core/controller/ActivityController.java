@@ -104,10 +104,10 @@ public class ActivityController {
       valueSum.setAvgHeart(valueSum.getAvgHeart() / allByTimeRangeAndUserId.size());
       return new ResponseEntity<>(new CodeResponse(valueSum), HttpStatus.OK);
     } catch (CodeException ex) {
-      return ResponseEntity.status(400).body(new CodeResponse(ex.getErrorCode()));
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       logger.error("", ex);
-      return ResponseEntity.status(500).body(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -148,10 +148,10 @@ public class ActivityController {
         return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.BAD_REQUEST);
       }
     } catch (CodeException ex) {
-      return ResponseEntity.status(400).body(new CodeResponse(ex.getErrorCode()));
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       logger.error("", ex);
-      return ResponseEntity.status(500).body(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -165,10 +165,10 @@ public class ActivityController {
               activityReq.getLimit());
       return new ResponseEntity<>(new CodeResponse(allByTimeRangeAndUserId), HttpStatus.OK);
     } catch (CodeException ex) {
-      return ResponseEntity.status(400).body(new CodeResponse(ex.getErrorCode()));
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       logger.error("", ex);
-      return ResponseEntity.status(500).body(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -184,10 +184,10 @@ public class ActivityController {
               timeRequest.getOffset(), timeRequest.getLimit());
       return new ResponseEntity<>(new CodeResponse(allByTimeRangeAndUserId), HttpStatus.OK);
     } catch (CodeException ex) {
-      return ResponseEntity.status(400).body(new CodeResponse(ex.getErrorCode()));
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       logger.error("", ex);
-      return ResponseEntity.status(500).body(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -205,10 +205,10 @@ public class ActivityController {
               conditionRequest.getOffset(), conditionRequest.getLimit());
       return new ResponseEntity<>(new CodeResponse(allByTimeRangeAndUserId), HttpStatus.OK);
     } catch (CodeException ex) {
-      return ResponseEntity.status(400).body(new CodeResponse(ex.getErrorCode()));
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       logger.error("", ex);
-      return ResponseEntity.status(500).body(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -225,10 +225,10 @@ public class ActivityController {
           .findNumberActivityLast(userId, pageable);
       return new ResponseEntity<>(new CodeResponse(allByTimeRangeAndUserId), HttpStatus.OK);
     } catch (CodeException ex) {
-      return ResponseEntity.status(400).body(new CodeResponse(ex.getErrorCode()));
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       logger.error("", ex);
-      return ResponseEntity.status(500).body(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
 
   }
@@ -242,10 +242,10 @@ public class ActivityController {
       UserActivity userActivity = activityService.loadActivity(request.getActivityId());
       return ResponseEntity.ok(new CodeResponse(userActivity));
     } catch (CodeException ex) {
-      return ResponseEntity.status(400).body(new CodeResponse(ex.getErrorCode()));
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       logger.error("", ex);
-      return ResponseEntity.status(500).body(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -261,10 +261,10 @@ public class ActivityController {
           .getActivitiesByTeam(request.getTeamId(), count, offset);
       return ResponseEntity.ok(new CodeResponse(activities));
     } catch (CodeException ex) {
-      return ResponseEntity.status(400).body(new CodeResponse(ex.getErrorCode()));
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       logger.error("", ex);
-      return ResponseEntity.status(500).body(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -281,10 +281,10 @@ public class ActivityController {
       boolean r = activityService.loveActivity(userId, activityId, true);
       return new ResponseEntity<>(new CodeResponse(r), HttpStatus.OK);
     } catch (CodeException ex) {
-      return ResponseEntity.status(400).body(new CodeResponse(ex.getErrorCode()));
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       logger.error("", ex);
-      return ResponseEntity.status(500).body(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -297,10 +297,10 @@ public class ActivityController {
           .getNumberLoveOfActivity(request.getActivityId());
       return new ResponseEntity<>(new CodeResponse(numberLoveOfActivity), HttpStatus.OK);
     } catch (CodeException ex) {
-      return ResponseEntity.status(400).body(new CodeResponse(ex.getErrorCode()));
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       logger.error("", ex);
-      return ResponseEntity.status(500).body(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -314,10 +314,10 @@ public class ActivityController {
       boolean userLoveActivity = loveRepository.isUserLoveActivity(userId, request.getActivityId());
       return new ResponseEntity<>(new CodeResponse(userLoveActivity), HttpStatus.OK);
     } catch (CodeException ex) {
-      return ResponseEntity.status(400).body(new CodeResponse(ex.getErrorCode()));
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       logger.error("", ex);
-      return ResponseEntity.status(500).body(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -332,10 +332,10 @@ public class ActivityController {
       boolean remove = loveRepository.delete(loveObject);
       return new ResponseEntity<>(new CodeResponse(remove), HttpStatus.OK);
     } catch (CodeException ex) {
-      return ResponseEntity.status(400).body(new CodeResponse(ex.getErrorCode()));
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       logger.error("", ex);
-      return ResponseEntity.status(500).body(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -350,10 +350,10 @@ public class ActivityController {
           .getUserStat(userId, userStatRequest.getFromTime(), userStatRequest.getToTime());
       return new ResponseEntity<>(new CodeResponse(resp), HttpStatus.OK);
     } catch (CodeException ex) {
-      return ResponseEntity.status(400).body(new CodeResponse(ex.getErrorCode()));
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       logger.error("", ex);
-      return ResponseEntity.status(500).body(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 }

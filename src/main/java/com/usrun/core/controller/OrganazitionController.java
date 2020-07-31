@@ -5,6 +5,7 @@
  */
 package com.usrun.core.controller;
 
+import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.Organization;
 import com.usrun.core.model.Sponsor;
@@ -52,10 +53,13 @@ public class OrganazitionController {
       if (resp >= 0) {
         return ResponseEntity.ok(new CodeResponse("add success"));
       } else {
-        return new ResponseEntity<>(new CodeResponse(resp), HttpStatus.BAD_REQUEST);
+        return ResponseEntity.ok(new CodeResponse(resp));
       }
     } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
+    } catch (Exception ex) {
+      logger.error("", ex);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -69,7 +73,10 @@ public class OrganazitionController {
       }
       return ResponseEntity.ok(new CodeResponse(""));
     } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
+    } catch (Exception ex) {
+      logger.error("", ex);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 

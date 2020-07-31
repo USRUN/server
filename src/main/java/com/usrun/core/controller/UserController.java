@@ -58,13 +58,12 @@ public class UserController {
       Long userId = userPrincipal.getId();
       User user = userService.loadUser(userId);
       String jwt = tokenProvider.createTokenUserId(user.getId());
-      return new ResponseEntity<>(new UserInfoResponse(user, jwt), HttpStatus.OK);
+      return ResponseEntity.ok(new UserInfoResponse(user, jwt));
     } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
 
   }
@@ -77,13 +76,12 @@ public class UserController {
       int offset = Math.max(0, request.getOffset() - 1);
       List<UserFilterDTO> users = userRepository
           .findUserIsEnable('%' + request.getKey() + '%', offset, count);
-      return new ResponseEntity<>(new CodeResponse(users), HttpStatus.OK);
+      return ResponseEntity.ok(new CodeResponse(users));
     } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -110,11 +108,10 @@ public class UserController {
       String jwt = tokenProvider.createTokenUserId(user.getId());
       return ResponseEntity.ok(new CodeResponse(new UserInfoResponse(user, jwt)));
     } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -128,13 +125,12 @@ public class UserController {
       Boolean verified = userService.verifyOTP(userId, request.getOtp());
       return verified ?
           ResponseEntity.ok(new CodeResponse(ErrorCode.SUCCESS)) :
-          new ResponseEntity<>(new CodeResponse(ErrorCode.OTP_INVALID), HttpStatus.BAD_REQUEST);
+          ResponseEntity.ok(new CodeResponse(ErrorCode.OTP_INVALID));
     } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -143,27 +139,24 @@ public class UserController {
   public ResponseEntity<?> resendOTP(@CurrentUser UserPrincipal userPrincipal) {
     try {
       if (userPrincipal.isHcmus()) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_VERIFIED),
-            HttpStatus.BAD_REQUEST);
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.USER_EMAIL_VERIFIED));
       }
 
       if (!userPrincipal.getEmail().endsWith("@student.hcmus.edu.vn")) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_IS_NOT_STUDENT_EMAIL),
-            HttpStatus.BAD_REQUEST);
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.USER_EMAIL_IS_NOT_STUDENT_EMAIL));
       }
 
       if (!cacheClient.expireOTP(userPrincipal.getId())) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.OTP_SENT), HttpStatus.BAD_REQUEST);
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.OTP_SENT));
       }
 
       userService.sendEmailOTP(userPrincipal.getId(), userPrincipal.getEmail());
       return ResponseEntity.ok(new CodeResponse(0));
     } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -178,11 +171,10 @@ public class UserController {
       userService.changePassword(userId, oldPassword, newPassword);
       return ResponseEntity.ok(new CodeResponse(ErrorCode.SUCCESS));
     } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -194,17 +186,15 @@ public class UserController {
       User user = userService.loadUser(email);
       if (user.getType() != AuthType.local) {
         log.error("Reset password failed, email: {}, authType: {}", email, user.getType().name());
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_RESET_PASSWORD_FAIL),
-            HttpStatus.BAD_REQUEST);
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.USER_RESET_PASSWORD_FAIL));
       }
       userService.resetPassword(user);
       return ResponseEntity.ok(new CodeResponse(ErrorCode.SUCCESS));
     } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 }

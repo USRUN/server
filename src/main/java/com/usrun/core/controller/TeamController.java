@@ -70,16 +70,14 @@ public class TeamController {
           createTeamRequest.getTeamName(),
           createTeamRequest.getProvince(),
           createTeamRequest.getThumbnail());
-      return new ResponseEntity<>(new CodeResponse(team), HttpStatus.CREATED);
+      return ResponseEntity.ok(new CodeResponse(team));
     } catch (DuplicateKeyException e) {
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_EXISTED), HttpStatus.BAD_REQUEST);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.TEAM_EXISTED));
     } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
-          HttpStatus.BAD_REQUEST);
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -98,13 +96,11 @@ public class TeamController {
           updateTeamRequest.getProvince(),
           updateTeamRequest.getDescription());
       return new ResponseEntity<>(new CodeResponse(updated), HttpStatus.OK);
-    } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
-          HttpStatus.BAD_REQUEST);
+    }  catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -116,13 +112,11 @@ public class TeamController {
     try {
       teamService.requestToJoinTeam(userPrincipal.getId(), joinTeamRequest.getTeamId());
       return ResponseEntity.ok(new CodeResponse(0));
-    } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
-          HttpStatus.BAD_REQUEST);
+    }  catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -135,18 +129,15 @@ public class TeamController {
       String emailOrUserCode = request.getEmailOrUserCode();
       long teamId = request.getTeamId();
       if (StringUtils.isBlank(emailOrUserCode) || teamId <= 0) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.INVALID_PARAM),
-            HttpStatus.BAD_REQUEST);
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.INVALID_PARAM));
       }
       teamService.inviteToTeam(emailOrUserCode, teamId);
       return ResponseEntity.ok(new CodeResponse(ErrorCode.SUCCESS));
-    } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
-          HttpStatus.BAD_REQUEST);
+    }  catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
 
   }
@@ -159,13 +150,11 @@ public class TeamController {
     try {
       teamService.cancelJoinTeam(userPrincipal.getId(), joinTeamRequest.getTeamId());
       return ResponseEntity.ok(new CodeResponse(0));
-    } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
-          HttpStatus.BAD_REQUEST);
+    }  catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -179,17 +168,14 @@ public class TeamController {
           updateMemberRequest.getMemberId(),
           TeamMemberType.fromInt(updateMemberRequest.getMemberType()));
       if (!updateRole) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_UPDATE_ROLE_FAILED),
-            HttpStatus.BAD_REQUEST);
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.TEAM_UPDATE_ROLE_FAILED));
       }
       return ResponseEntity.ok(new CodeResponse(0));
-    } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
-          HttpStatus.BAD_REQUEST);
+    }  catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -213,13 +199,11 @@ public class TeamController {
 
       TeamDTO teamDTO = new TeamDTO(team, teamMember);
       return new ResponseEntity<>(new CodeResponse(teamDTO), HttpStatus.OK);
-    } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
-          HttpStatus.BAD_REQUEST);
+    }  catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
 
   }
@@ -240,13 +224,11 @@ public class TeamController {
           count);
 
       return new ResponseEntity<>(new CodeResponse(teams), HttpStatus.OK);
-    } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
-          HttpStatus.BAD_REQUEST);
+    }  catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
 
   }
@@ -264,13 +246,11 @@ public class TeamController {
       Set<Team> toGet = teamService
           .findTeamWithNameContains(findTeamRequest.getTeamName(), offset, count);
       return new ResponseEntity<>(new CodeResponse(toGet), HttpStatus.OK);
-    } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
-          HttpStatus.BAD_REQUEST);
+    }  catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -287,13 +267,11 @@ public class TeamController {
       List<UserFilterWithTypeDTO> toGet = teamService
           .getAllTeamMemberPaged(getAllTeamMemberRequest.getTeamId(), offset, count);
       return new ResponseEntity<>(new CodeResponse(toGet), HttpStatus.OK);
-    } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
-          HttpStatus.BAD_REQUEST);
+    }  catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -305,13 +283,11 @@ public class TeamController {
       List<TeamDTO> teams = teamService
           .getTeamDTOByUserAndNotEqualTeamMemberType(userId, TeamMemberType.BLOCKED);
       return ResponseEntity.ok(new CodeResponse(teams));
-    } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
-          HttpStatus.BAD_REQUEST);
+    }  catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -322,13 +298,11 @@ public class TeamController {
       long teamId = request.getTeamId();
       List<UserLeaderBoardInfo> leaderBoards = teamService.getLeaderBoard(teamId, 100);
       return ResponseEntity.ok(new CodeResponse(leaderBoards));
-    } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
-          HttpStatus.BAD_REQUEST);
+    }  catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -338,8 +312,7 @@ public class TeamController {
     try {
       TeamMemberType memberType = TeamMemberType.fromInt(request.getMemberType());
       if (memberType == null) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_MEMBER_TYPE_NOT_FOUND),
-            HttpStatus.BAD_REQUEST);
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.TEAM_MEMBER_TYPE_NOT_FOUND));
       }
 
       long teamId = request.getTeamId();
@@ -350,13 +323,11 @@ public class TeamController {
           .getUserByMemberType(teamId, memberType, offset, limit);
 
       return ResponseEntity.ok(new CodeResponse(users));
-    } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
-          HttpStatus.BAD_REQUEST);
+    }  catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -371,13 +342,11 @@ public class TeamController {
       List<UserFilterWithTypeDTO> users = teamService
           .findTeamMember(keyword, teamId, offset, count);
       return ResponseEntity.ok(new CodeResponse(users));
-    } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
-          HttpStatus.BAD_REQUEST);
+    }  catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -386,8 +355,7 @@ public class TeamController {
     try {
       long teamId = request.getTeamId();
       if (teamId < 0) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_NOT_FOUND),
-            HttpStatus.BAD_REQUEST);
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.TEAM_NOT_FOUND));
       }
 
       List<TeamStatDTO> teamStat = cacheClient.getTeamStat();
@@ -408,13 +376,11 @@ public class TeamController {
           teamStatValue.getMaxTime(), teamStatValue.getMaxDistance(), teamStatValue.getMemInWeek(),
           teamStatValue.getTotalMember(), teamStatValue.getTotalActivity());
       return ResponseEntity.ok(new CodeResponse(resp));
-    } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
-          HttpStatus.BAD_REQUEST);
+    }  catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -423,8 +389,7 @@ public class TeamController {
     try {
       long teamId = request.getTeamId();
       if (teamId < 0) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.TEAM_NOT_FOUND),
-            HttpStatus.BAD_REQUEST);
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.TEAM_NOT_FOUND));
       }
 
       List<TeamStatDTO> teamList = cacheClient.getTeamStat();
@@ -460,13 +425,11 @@ public class TeamController {
       }
 
       return ResponseEntity.ok(new CodeResponse(teamLeaderBoardResp));
-    } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
-          HttpStatus.BAD_REQUEST);
+    }  catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 }

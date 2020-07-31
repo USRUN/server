@@ -57,8 +57,7 @@ public class AuthController {
       AuthType authType = AuthType.fromInt(loginRequest.getType());
 
       if (authType == null) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_OAUTH2_TYPE_NOT_SUPPORT),
-            HttpStatus.BAD_REQUEST);
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.USER_OAUTH2_TYPE_NOT_SUPPORT));
       }
 
       if (AuthType.local == authType) {
@@ -74,11 +73,10 @@ public class AuthController {
       String jwt = tokenProvider.createTokenUserId(user.getId());
       return ResponseEntity.ok(new CodeResponse(new UserInfoResponse(user, jwt)));
     } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
@@ -86,8 +84,7 @@ public class AuthController {
   public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
     try {
       if (userRepository.findUserByEmail(registerRequest.getEmail()) != null) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_EMAIL_IS_USED),
-            HttpStatus.BAD_REQUEST);
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.USER_EMAIL_IS_USED));
       }
 
       User user = userService.createUser(registerRequest.getName(), registerRequest.getEmail(),
@@ -97,11 +94,10 @@ public class AuthController {
 
       return ResponseEntity.ok(new CodeResponse(new UserInfoResponse(user, jwt)));
     } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
 
   }

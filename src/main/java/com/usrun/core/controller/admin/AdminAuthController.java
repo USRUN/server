@@ -39,21 +39,18 @@ public class AdminAuthController {
     try {
       User user = userService.verifyUser(request.getEmail(), request.getPassword());
       if (user == null) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_LOGIN_FAIL),
-            HttpStatus.BAD_REQUEST);
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.USER_LOGIN_FAIL));
       } else if (!user.getRoles().contains(new Role(RoleType.ROLE_ADMIN))) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(new CodeResponse(ErrorCode.USER_DOES_NOT_PERMISSION));
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.USER_DOES_NOT_PERMISSION));
       }
 
       String jwt = tokenProvider.createTokenUserId(user.getId());
       return ResponseEntity.ok(new CodeResponse(new UserInfoResponse(user, jwt)));
     } catch (CodeException ex) {
-      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-          HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 }

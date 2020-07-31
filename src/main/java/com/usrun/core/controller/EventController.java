@@ -6,6 +6,7 @@
 package com.usrun.core.controller;
 
 import com.usrun.core.config.ErrorCode;
+import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.Event;
 import com.usrun.core.model.EventParticipant;
 import com.usrun.core.model.User;
@@ -23,7 +24,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,22 +51,29 @@ public class EventController {
   public ResponseEntity<?> createEvent(
       @RequestBody EventReq eventReq
   ) {
-    Event event = new Event(
-        (short) 1,
-        new Date(System.currentTimeMillis()),
-        eventReq.getEventName(),
-        eventReq.getSubtitle(),
-        eventReq.getThumbnail(),
-        0,
-        eventReq.getStartTime(),
-        eventReq.getEndTime(),
-        eventReq.getDelete()
-    );
-    int putError = eventRepository.insert(event);
-    if (putError >= 0) {
-      return new ResponseEntity<>(new CodeResponse("put success"), HttpStatus.OK);
+    try {
+      Event event = new Event(
+          (short) 1,
+          new Date(System.currentTimeMillis()),
+          eventReq.getEventName(),
+          eventReq.getSubtitle(),
+          eventReq.getThumbnail(),
+          0,
+          eventReq.getStartTime(),
+          eventReq.getEndTime(),
+          eventReq.getDelete()
+      );
+      int putError = eventRepository.insert(event);
+      if (putError >= 0) {
+        return ResponseEntity.ok(new CodeResponse("put success"));
+      }
+      return ResponseEntity.ok(new CodeResponse(""));
+    } catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
+    } catch (Exception ex) {
+      logger.error("", ex);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
-    return new ResponseEntity<>(new CodeResponse(""), HttpStatus.BAD_REQUEST);
   }
 
   @PostMapping("/joinEvent")
@@ -81,23 +88,25 @@ public class EventController {
 
       Event event = eventRepository.findById(eventId);
       if (event == null) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.EVENT_NOT_EXISTED), HttpStatus.OK);
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.EVENT_NOT_EXISTED));
       }
 
       User user = userService.loadUser(userId);
       if (!user.getTeams().contains(teamId)) {
-        return ResponseEntity.status(400).body(new CodeResponse(ErrorCode.TEAM_USER_NOT_FOUND));
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.TEAM_USER_NOT_FOUND));
       }
 
       EventParticipant eventParticipant = new EventParticipant(eventId, userId, teamId, 0);
       int put = eventParticipantRepository.insert(eventParticipant);
       if (put >= 0) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.SUCCESS), HttpStatus.OK);
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.SUCCESS));
       }
-      return new ResponseEntity<>(new CodeResponse(""), HttpStatus.BAD_REQUEST);
+      return ResponseEntity.ok(new CodeResponse(""));
+    } catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
-      logger.error(ex.getMessage(), ex);
-      return new ResponseEntity<>(new CodeResponse(""), HttpStatus.BAD_REQUEST);
+      logger.error("", ex);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
 
   }
@@ -115,10 +124,12 @@ public class EventController {
       listEventPart.stream().forEach(item -> ids.add(item.getEventId()));
       logger.info("list Ids: " + ids);
       List<Event> listEvent = eventRepository.mFindById(ids);
-      return new ResponseEntity<>(new CodeResponse(listEvent), HttpStatus.OK);
+      return ResponseEntity.ok(new CodeResponse(listEvent));
+    } catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
-      logger.error(ex.getMessage(), ex);
-      return new ResponseEntity<>(new CodeResponse(""), HttpStatus.BAD_REQUEST);
+      logger.error("", ex);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
 
