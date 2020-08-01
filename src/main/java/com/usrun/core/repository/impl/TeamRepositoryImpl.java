@@ -205,6 +205,21 @@ public class TeamRepositoryImpl implements TeamRepository {
   }
 
   @Override
+  public boolean acceptTeam(long userId, long teamId) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("userId", userId);
+    params.addValue("teamId", teamId);
+    params.addValue("memberType", TeamMemberType.MEMBER.toValue());
+    params.addValue("invitedType", TeamMemberType.INVITED.toValue());
+    String sql = "UPDATE teamMember SET teamMemberType = :memberType "
+        + "WHERE userId = :userId "
+        + "AND teamId = :teamId "
+        + "AND teamMemberType = :invitedType";
+    int effected = namedParameterJdbcTemplate.update(sql, params);
+    return effected != 0;
+  }
+
+  @Override
   public Set<Long> getTeamsByUser(long userId) {
     MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
     String sql = "SELECT teamId FROM teamMember WHERE teamMember.userId = :userId";

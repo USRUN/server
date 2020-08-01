@@ -67,7 +67,7 @@ public class AuthController {
       }
 
       if (user == null) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.USER_LOGIN_FAIL), HttpStatus.BAD_REQUEST);
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.USER_LOGIN_FAIL));
       }
 
       String jwt = tokenProvider.createTokenUserId(user.getId());

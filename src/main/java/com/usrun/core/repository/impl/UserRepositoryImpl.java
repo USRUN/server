@@ -6,6 +6,7 @@ import com.usrun.core.model.type.AuthType;
 import com.usrun.core.model.type.Gender;
 import com.usrun.core.model.type.RoleType;
 import com.usrun.core.model.type.TeamMemberType;
+import com.usrun.core.payload.dto.UserDTO;
 import com.usrun.core.payload.dto.UserFilterDTO;
 import com.usrun.core.payload.dto.UserFilterWithTypeDTO;
 import com.usrun.core.payload.dto.UserLeaderBoardDTO;
@@ -192,6 +193,22 @@ public class UserRepositoryImpl implements UserRepository {
     MapSqlParameterSource params = new MapSqlParameterSource("emailOrUserCode", emailOrUserCode);
     String sql = "SELECT * FROM user WHERE email = :emailOrUserCode OR userCode = :emailOrUserCode";
     return getUser(sql, params);
+  }
+
+  @Override
+  public List<UserDTO> findAll(Set<Long> users) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    if (users == null || users.isEmpty()) {
+      users = Collections.singleton(-1L);
+    }
+    params.addValue("users", users);
+    String sql = "SELECT userId, displayName, avatar, hcmus FROM user WHERE userId IN (:users)";
+    return namedParameterJdbcTemplate.query(sql, params, (rs, i) ->
+        new UserDTO(
+            rs.getLong("userId"),
+            rs.getString("displayName"),
+            rs.getString("avatar"),
+            rs.getBoolean("hcmus")));
   }
 
   private List<User> getUsers(String sql, MapSqlParameterSource params) {

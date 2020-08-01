@@ -8,6 +8,7 @@ import com.usrun.core.model.User;
 import com.usrun.core.model.type.AuthType;
 import com.usrun.core.model.type.Gender;
 import com.usrun.core.model.type.RoleType;
+import com.usrun.core.payload.dto.UserDTO;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserRepository;
 import com.usrun.core.security.TokenProvider;
@@ -15,6 +16,8 @@ import com.usrun.core.utility.CacheClient;
 import com.usrun.core.utility.UniqueGenerator;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -123,7 +126,7 @@ public class UserService {
       cacheClient.setUser(user);
     }
 
-    if (passwordEncoder.matches(password, user.getPassword())) {
+    if (passwordEncoder.matches(password, user.getPassword()) && user.isEnabled()) {
       return user;
     } else {
       return null;
@@ -183,6 +186,14 @@ public class UserService {
     userRepository.update(user);
     cacheClient.setUser(user);
 
+    return user;
+  }
+
+  public User banUser(long userId, boolean isBanned) {
+    User user = loadUser(userId);
+    user.setEnabled(!isBanned);
+    userRepository.update(user);
+    cacheClient.setUser(user);
     return user;
   }
 
@@ -259,5 +270,14 @@ public class UserService {
     } catch (MessagingException e) {
       e.printStackTrace();
     }
+  }
+
+  public List<UserDTO> getUserDTOs(Set<Long> users) {
+    return userRepository.findAll(users);
+  }
+
+  public UserDTO getUserDTO(long userId) {
+    List<UserDTO> userDTOS = userRepository.findAll(Collections.singleton(userId));
+    return userDTOS.isEmpty() ? null : userDTOS.get(0);
   }
 }

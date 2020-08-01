@@ -3,10 +3,12 @@ package com.usrun.core.repository;
 import com.usrun.core.model.User;
 import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
+import com.usrun.core.payload.dto.UserDTO;
 import com.usrun.core.payload.dto.UserFilterDTO;
 import com.usrun.core.payload.dto.UserFilterWithTypeDTO;
 import com.usrun.core.payload.dto.UserLeaderBoardDTO;
 import java.util.List;
+import java.util.Set;
 import org.springframework.data.domain.Pageable;
 
 public interface UserRepository {
@@ -34,4 +36,6 @@ public interface UserRepository {
       TeamMemberType teamMemberType, int offset, int limit);
 
   User findByEmailOrUserCode(String emailOrUserCode);
+
+  List<UserDTO> findAll(Set<Long> users);
 }

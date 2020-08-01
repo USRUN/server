@@ -96,7 +96,7 @@ public class TeamController {
           updateTeamRequest.getProvince(),
           updateTeamRequest.getDescription());
       return new ResponseEntity<>(new CodeResponse(updated), HttpStatus.OK);
-    }  catch (CodeException ex) {
+    } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
@@ -112,7 +112,23 @@ public class TeamController {
     try {
       teamService.requestToJoinTeam(userPrincipal.getId(), joinTeamRequest.getTeamId());
       return ResponseEntity.ok(new CodeResponse(0));
-    }  catch (CodeException ex) {
+    } catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
+    } catch (Exception ex) {
+      log.error("", ex);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+    }
+  }
+
+  @PostMapping("/accept")
+  @PreAuthorize("hasRole('USER')")
+  public ResponseEntity<?> acceptTeam(
+      @CurrentUser UserPrincipal userPrincipal,
+      @RequestBody JoinTeamRequest request) {
+    try {
+      teamService.requestToAcceptTeam(userPrincipal.getId(), request.getTeamId());
+      return ResponseEntity.ok(new CodeResponse(0));
+    } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
@@ -133,7 +149,7 @@ public class TeamController {
       }
       teamService.inviteToTeam(emailOrUserCode, teamId);
       return ResponseEntity.ok(new CodeResponse(ErrorCode.SUCCESS));
-    }  catch (CodeException ex) {
+    } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
@@ -150,7 +166,7 @@ public class TeamController {
     try {
       teamService.cancelJoinTeam(userPrincipal.getId(), joinTeamRequest.getTeamId());
       return ResponseEntity.ok(new CodeResponse(0));
-    }  catch (CodeException ex) {
+    } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
@@ -171,7 +187,7 @@ public class TeamController {
         return ResponseEntity.ok(new CodeResponse(ErrorCode.TEAM_UPDATE_ROLE_FAILED));
       }
       return ResponseEntity.ok(new CodeResponse(0));
-    }  catch (CodeException ex) {
+    } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
@@ -199,7 +215,7 @@ public class TeamController {
 
       TeamDTO teamDTO = new TeamDTO(team, teamMember);
       return new ResponseEntity<>(new CodeResponse(teamDTO), HttpStatus.OK);
-    }  catch (CodeException ex) {
+    } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
@@ -224,7 +240,7 @@ public class TeamController {
           count);
 
       return new ResponseEntity<>(new CodeResponse(teams), HttpStatus.OK);
-    }  catch (CodeException ex) {
+    } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
@@ -246,7 +262,7 @@ public class TeamController {
       Set<Team> toGet = teamService
           .findTeamWithNameContains(findTeamRequest.getTeamName(), offset, count);
       return new ResponseEntity<>(new CodeResponse(toGet), HttpStatus.OK);
-    }  catch (CodeException ex) {
+    } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
@@ -267,7 +283,7 @@ public class TeamController {
       List<UserFilterWithTypeDTO> toGet = teamService
           .getAllTeamMemberPaged(getAllTeamMemberRequest.getTeamId(), offset, count);
       return new ResponseEntity<>(new CodeResponse(toGet), HttpStatus.OK);
-    }  catch (CodeException ex) {
+    } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
@@ -283,7 +299,7 @@ public class TeamController {
       List<TeamDTO> teams = teamService
           .getTeamDTOByUserAndNotEqualTeamMemberType(userId, TeamMemberType.BLOCKED);
       return ResponseEntity.ok(new CodeResponse(teams));
-    }  catch (CodeException ex) {
+    } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
@@ -298,7 +314,7 @@ public class TeamController {
       long teamId = request.getTeamId();
       List<UserLeaderBoardInfo> leaderBoards = teamService.getLeaderBoard(teamId, 100);
       return ResponseEntity.ok(new CodeResponse(leaderBoards));
-    }  catch (CodeException ex) {
+    } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
@@ -323,7 +339,7 @@ public class TeamController {
           .getUserByMemberType(teamId, memberType, offset, limit);
 
       return ResponseEntity.ok(new CodeResponse(users));
-    }  catch (CodeException ex) {
+    } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
@@ -342,7 +358,7 @@ public class TeamController {
       List<UserFilterWithTypeDTO> users = teamService
           .findTeamMember(keyword, teamId, offset, count);
       return ResponseEntity.ok(new CodeResponse(users));
-    }  catch (CodeException ex) {
+    } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
@@ -375,7 +391,7 @@ public class TeamController {
           teamStatValue.getMaxTime(), teamStatValue.getMaxDistance(), teamStatValue.getMemInWeek(),
           teamStatValue.getTotalMember(), teamStatValue.getTotalActivity());
       return ResponseEntity.ok(new CodeResponse(resp));
-    }  catch (CodeException ex) {
+    } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);
@@ -423,7 +439,7 @@ public class TeamController {
       }
 
       return ResponseEntity.ok(new CodeResponse(teamLeaderBoardResp));
-    }  catch (CodeException ex) {
+    } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
       log.error("", ex);

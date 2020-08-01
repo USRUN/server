@@ -45,5 +45,6 @@ public interface TeamRepository {
 
   List<LeaderBoardTeamDTO> getLeaderBoard(long teamId);
 
+  boolean acceptTeam(long userId, long teamId);
 
 }

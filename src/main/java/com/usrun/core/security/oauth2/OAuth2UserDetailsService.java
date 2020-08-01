@@ -97,7 +97,7 @@ public class OAuth2UserDetailsService {
     } else {
       user = registerNewUser(oAuth2UserInfo);
     }
-    return user;
+    return user.isEnabled() ? user : null;
   }
 
   private User registerNewUser(UserInfo oAuth2UserInfo) {

@@ -170,6 +170,12 @@ public class TeamService {
     }
   }
 
+  public void requestToAcceptTeam(long userId, long teamId) {
+    if(!teamRepository.acceptTeam(userId, teamId)) {
+      throw new CodeException(ErrorCode.TEAM_ACCEPT_FAILED);
+    }
+  }
+
   public void inviteToTeam(String emailOrUserCode, long teamId) {
     try {
       User user = userRepository.findByEmailOrUserCode(emailOrUserCode);

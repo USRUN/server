@@ -17,6 +17,8 @@ import com.usrun.core.payload.activity.ConditionRequest;
 import com.usrun.core.payload.activity.LoveRequest;
 import com.usrun.core.payload.activity.UserStatRequest;
 import com.usrun.core.payload.activity.UserStatResp;
+import com.usrun.core.payload.dto.UserActivityDTO;
+import com.usrun.core.payload.dto.UserDTO;
 import com.usrun.core.payload.user.CreateActivityRequest;
 import com.usrun.core.payload.user.GetActivitiesRequest;
 import com.usrun.core.payload.user.GetActivityRequest;
@@ -31,6 +33,10 @@ import com.usrun.core.service.TrackService;
 import com.usrun.core.service.UserService;
 import com.usrun.core.utility.CacheClient;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,13 +127,11 @@ public class ActivityController {
       long time = paramActivity.getTime();
       long deltaTime = System.currentTimeMillis() - time;
       if (deltaTime > appProperties.getActivityLock()) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.ACTIVITY_REQUEST_TIME_INVALID),
-            HttpStatus.BAD_REQUEST);
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.ACTIVITY_REQUEST_TIME_INVALID));
       }
 
       if (!cacheClient.acquireActivityLock(userId, time, appProperties.getActivityLock())) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.ACTIVITY_PROCESSING_OR_DUPLICATED),
-            HttpStatus.BAD_REQUEST);
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.ACTIVITY_PROCESSING_OR_DUPLICATED));
       }
 
       String sig = paramActivity.getSig();
@@ -138,14 +142,13 @@ public class ActivityController {
               .createUserActivity(userId, paramActivity);
           User user = userService.loadUser(userId);
           cacheClient.setActivityCreated(user, userActivity);
-          return new ResponseEntity<>(new CodeResponse(userActivity), HttpStatus.OK);
+          return ResponseEntity.ok(new CodeResponse(userActivity));
         } else {
-          return new ResponseEntity<>(new CodeResponse(ErrorCode.ACTIVITY_ADD_FAIL),
-              HttpStatus.BAD_REQUEST);
+          return ResponseEntity.ok(new CodeResponse(ErrorCode.ACTIVITY_ADD_FAIL));
         }
       } catch (Exception exp) {
         logger.error("", exp);
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.FAIL), HttpStatus.BAD_REQUEST);
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.FAIL));
       }
     } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
@@ -240,7 +243,8 @@ public class ActivityController {
   ) {
     try {
       UserActivity userActivity = activityService.loadActivity(request.getActivityId());
-      return ResponseEntity.ok(new CodeResponse(userActivity));
+      UserDTO user = userService.getUserDTO(userActivity.getUserId());
+      return ResponseEntity.ok(new CodeResponse(new UserActivityDTO(userActivity, user)));
     } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
@@ -259,7 +263,17 @@ public class ActivityController {
       int offset = Math.max(request.getOffset(), 1) - 1;
       List<UserActivity> activities = activityService
           .getActivitiesByTeam(request.getTeamId(), count, offset);
-      return ResponseEntity.ok(new CodeResponse(activities));
+
+      Set<Long> users = activities.stream().map(activity -> activity.getUserId())
+          .collect(Collectors.toSet());
+
+      Map<Long, UserDTO> userMap = userService.getUserDTOs(users)
+          .stream().collect(Collectors.toMap(UserDTO::getUserId, Function.identity()));
+
+      return ResponseEntity.ok(new CodeResponse(activities.stream()
+          .map(activity -> new UserActivityDTO(activity, userMap.get(activity.getUserId())))
+          .collect(
+              Collectors.toList())));
     } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
