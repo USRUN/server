@@ -9,14 +9,14 @@ import com.usrun.core.payload.user.CreateActivityRequest;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * @author huyna
  */
-@Getter
-@Setter
+@Data
 public class UserActivity {
 
   private long userActivityId;

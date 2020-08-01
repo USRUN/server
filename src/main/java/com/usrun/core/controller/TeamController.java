@@ -361,8 +361,7 @@ public class TeamController {
       List<TeamStatDTO> teamStat = cacheClient.getTeamStat();
 
       if (teamStat == null) {
-        teamService.buildTeamLeaderBoard();
-        teamStat = cacheClient.getTeamStat();
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
       }
       AtomicInteger rank = new AtomicInteger(-1);
 
@@ -395,8 +394,7 @@ public class TeamController {
       List<TeamStatDTO> teamList = cacheClient.getTeamStat();
       List<TeamLeaderBoardResp> teamLeaderBoardResp = new ArrayList<>();
       if (teamList == null || teamList.size() <= 0) {
-        teamService.buildTeamLeaderBoard();
-        teamList = cacheClient.getTeamStat();
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
       }
       List<TeamStatDTO> top10 = teamList.subList(0, 10);
       for (int i = 0; i < top10.size(); i++) {

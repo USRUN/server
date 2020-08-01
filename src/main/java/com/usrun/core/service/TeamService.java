@@ -9,8 +9,6 @@ import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.dto.LeaderBoardTeamDTO;
 import com.usrun.core.payload.dto.TeamDTO;
-import com.usrun.core.payload.dto.TeamStatDTO;
-import com.usrun.core.payload.dto.UserActivityStatDTO;
 import com.usrun.core.payload.dto.UserFilterDTO;
 import com.usrun.core.payload.dto.UserFilterWithTypeDTO;
 import com.usrun.core.payload.dto.UserLeaderBoardDTO;
@@ -22,14 +20,12 @@ import com.usrun.core.repository.UserRepository;
 import com.usrun.core.utility.CacheClient;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -299,54 +295,6 @@ public class TeamService {
     return toGet;
   }
 
-  public void buildTeamLeaderBoard() {
-    long startTime = System.currentTimeMillis();
-    logger.info("start build teamLeaderBoard");
-    List<Team> teams = teamRepository.findAllTeam();
-    Map<Long, List<TeamMember>> teamMembersByTeam = teamMemberRepository
-        .getAllByLessEqualTeamMemberType(TeamMemberType.MEMBER).stream()
-        .collect(Collectors.groupingBy(TeamMember::getTeamId));
-    Map<Long, UserActivityStatDTO> userActivityStats = userActivityRepository.getStat().stream()
-        .collect(Collectors.toMap(UserActivityStatDTO::getUserId,
-            Function.identity()));
-    long firstDayOfWeek = getFirstDayOfWeek();
-
-    List<TeamStatDTO> teamStats = teams.stream().map(team -> {
-      long totalDistance = 0;
-      long maxTime = 0;
-      long maxDistance = 0;
-      int totalActivity = 0;
-      int memInWeek = 0;
-      int totalMember = 0;
-
-      List<TeamMember> teamMembers = teamMembersByTeam.get(team.getId());
-      if (teamMembers != null && !teamMembers.isEmpty()) {
-        for (TeamMember teamMember : teamMembers) {
-          long addDate = teamMember.getAddTime().getTime();
-          if (addDate > firstDayOfWeek) {
-            memInWeek++;
-          }
-          UserActivityStatDTO userActivityStat = userActivityStats.get(teamMember.getUserId());
-          if (userActivityStat != null) {
-            totalDistance += userActivityStat.getTotalDistance();
-            maxTime = Math.max(maxTime, userActivityStat.getMaxTime());
-            maxDistance = Math.max(maxDistance, userActivityStat.getMaxDistance());
-            totalActivity += userActivityStat.getTotalUserAcitivity();
-          }
-        }
-        totalMember = teamMembers.size();
-      }
-
-      TeamStatDTO teamStat = new TeamStatDTO(team.getId(), team.getTeamName(), team.getThumbnail(),
-          totalDistance, maxTime, maxDistance, memInWeek, totalMember, totalActivity);
-      return teamStat;
-    }).sorted((a, b) -> Long.compare(b.getTotalDistance(), a.getTotalDistance()))
-        .collect(Collectors.toList());
-
-    cacheClient.setTeamStat(teamStats);
-    logger.info("finish build teamLeaderBoard in {} ms", System.currentTimeMillis() - startTime);
-  }
-
   public List<UserFilterWithTypeDTO> getAllTeamMemberPaged(Long teamId, int offset, int limit) {
     return userRepository
         .getAllMemberByLessEqualTeamMemberType(teamId, TeamMemberType.MEMBER, offset, limit);
@@ -377,15 +325,5 @@ public class TeamService {
   public List<UserFilterDTO> getUserByMemberType(long teamId, TeamMemberType teamMemberType,
       int offset, int limit) {
     return userRepository.getUserByMemberType(teamId, teamMemberType, offset, limit);
-  }
-
-  private long getFirstDayOfWeek() {
-    Calendar cal = Calendar.getInstance();
-    cal.set(Calendar.HOUR_OF_DAY, 0);
-    cal.clear(Calendar.MINUTE);
-    cal.clear(Calendar.SECOND);
-    cal.clear(Calendar.MILLISECOND);
-    cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-    return cal.getTimeInMillis();
   }
 }
