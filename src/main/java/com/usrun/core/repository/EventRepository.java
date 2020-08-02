@@ -6,6 +6,7 @@
 package com.usrun.core.repository;
 
 import com.usrun.core.model.Event;
+import com.usrun.core.payload.event.EventWithCheckJoin;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 
@@ -15,13 +16,23 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EventRepository {
 
-  int insert(Event event);
+    int insert(Event event);
 
-  Event findById(long id);
+    Event findById(long id);
 
-  List<Event> findByName(String name);
+    List<Event> findByName(String name);
 
-  boolean delete(Event delete);
-  
-  List<Event> mFindById(List<Long> ids);
+    boolean delete(Event delete);
+
+    List<Event> mFindById(List<Long> ids);
+
+    List<EventWithCheckJoin> getAllEvent(long userId, int offset, int limit);
+
+    List<Event> getMyEvent(long userId, int offset, int limit);
+
+    List<EventWithCheckJoin> searchEvent(long userId, String name, int offset, int limit);
+
+    boolean leaveEvent(long userId, long teamId, long eventId);
+    
+    boolean inscreaseEventParticipant(long eventId);
 }

@@ -22,4 +22,6 @@ public interface EventParticipantRepository {
   List<EventParticipant> findByUserId(long userId);
 
   boolean delete(EventParticipant eventParticipant);
+  
+  boolean updateDistance(long userId, long eventId, long distance);
 }

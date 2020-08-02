@@ -5,6 +5,7 @@
  */
 package com.usrun.core.model;
 
+import com.usrun.core.model.type.SponsorType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,11 +18,11 @@ public class Sponsor {
 
   private long eventId;
   private long organizationId;
+  private SponsorType role;
 
-  public Sponsor(long eventId, long organizationId) {
+  public Sponsor(long eventId, long organizationId, SponsorType role) {
     this.eventId = eventId;
     this.organizationId = organizationId;
+    this.role = role;
   }
-
-
 }

@@ -37,8 +37,8 @@ public class Event {
   private Date endTime;
   private int deleted;
 
-  public Event(Long eventId, int status, Date createTime, String eventName, String subtitle,
-      String thumbnail, int totalParticipant, Date startTime, Date endTime, int deleted) {
+  public Event(Long eventId, int status, Date createTime, String eventName, String subtitle, String thumbnail,
+      int totalParticipant, Date startTime, Date endTime, int deleted) {
     this.eventId = eventId;
     this.status = status;
     this.createTime = createTime;

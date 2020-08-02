@@ -10,41 +10,43 @@ import java.util.Set;
 
 public interface TeamRepository {
 
-  Team insert(Team toInsert, Long ownerUserId);
+    Team insert(Team toInsert, Long ownerUserId);
 
-  Team update(Team toUpdate);
+    Team update(Team toUpdate);
 
-  boolean delete(Team toDelete);
+    boolean delete(Team toDelete);
 
-  Team findTeamById(Long teamId);
+    Team findTeamById(Long teamId);
 
-  Team findTeamByName(String teamName);
+    Team findTeamByName(String teamName);
 
-  boolean joinTeam(Long requestingId, Long teamId);
+    boolean joinTeam(Long requestingId, Long teamId);
 
-  boolean cancelJoinTeam(Long requestingId, Long teamId);
+    boolean cancelJoinTeam(Long requestingId, Long teamId);
 
-  int changeTotalMember(Long teamId, int changeAmount);
+    int changeTotalMember(Long teamId, int changeAmount);
 
-  List<User> getMemberListByType(Long teamId, TeamMemberType toGet);
-  
-  boolean updateTeamMemberType(Long teamId, Long memberId, TeamMemberType action);
+    List<User> getMemberListByType(Long teamId, TeamMemberType toGet);
 
-  Set<Team> findTeamWithNameContains(String searchString, int offset, int count);
+    boolean updateTeamMemberType(Long teamId, Long memberId, TeamMemberType action);
 
-  Set<Long> getTeamsByUser(long userId);
+    Set<Team> findTeamWithNameContains(String searchString, int offset, int count);
 
-  Set<Team> getTeamSuggestionByUserLocation(int province, int count,
-      Set<Long> toExclude);
+    Set<Long> getTeamsByUser(long userId);
 
-  List<Team> findAllTeam();
+    Set<Team> getTeamSuggestionByUserLocation(int province, int count,
+            Set<Long> toExclude);
 
-  List<Team> getTeamsByUserReturnTeam(long userId);
+    List<Team> findAllTeam();
 
-  List<TeamDTO> getTeamsByUserAndNotEqualTeamMemberTypeReturnTeam(long userId, TeamMemberType teamMemberType);
+    List<Team> getTeamsByUserReturnTeam(long userId);
 
-  List<LeaderBoardTeamDTO> getLeaderBoard(long teamId);
+    List<TeamDTO> getTeamsByUserAndNotEqualTeamMemberTypeReturnTeam(long userId, TeamMemberType teamMemberType);
 
   boolean acceptTeam(long userId, long teamId);
+
+    List<Team> getTeamOfEvent(long eventId, int offset, int limit);
+
+    List<Team> searchTeamOfEvent(long eventId, String name, int offset, int limit);
 
 }

@@ -6,6 +6,7 @@
 package com.usrun.core.repository;
 
 import com.usrun.core.model.Sponsor;
+import java.util.List;
 
 /**
  * @author huyna3
@@ -15,4 +16,6 @@ public interface SponsorRepository {
   Sponsor insert(Sponsor sponsor);
 
   Sponsor findById(long id);
+  
+  int[] addOrganizers(long eventId, List<Long> organizationIds);
 }

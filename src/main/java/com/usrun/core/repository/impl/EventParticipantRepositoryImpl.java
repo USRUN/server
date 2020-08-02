@@ -112,4 +112,17 @@ public class EventParticipantRepositoryImpl implements EventParticipantRepositor
         int effect = namedParameterJdbcTemplate.update(sql, map);
         return effect;
     }
+
+    @Override
+    public boolean updateDistance(long userId, long eventId, long distance) {
+        int effect = 0;
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue("eventId", eventId);
+        map.addValue("userId", userId);
+        map.addValue("distance", distance);
+        String sql = "UPDATE eventParticipant SET distance=  distance + :distance "
+                + "WHERE userId= :userId AND eventId = :eventId";
+        effect = namedParameterJdbcTemplate.update(sql, map);
+        return effect!=0;
+    }
 }

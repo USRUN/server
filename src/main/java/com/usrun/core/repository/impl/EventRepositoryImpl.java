@@ -6,6 +6,7 @@
 package com.usrun.core.repository.impl;
 
 import com.usrun.core.model.Event;
+import com.usrun.core.payload.event.EventWithCheckJoin;
 import com.usrun.core.repository.EventRepository;
 import java.util.Collections;
 import java.util.List;
@@ -109,6 +110,28 @@ public class EventRepositoryImpl implements EventRepository {
         }
     }
 
+    private List<EventWithCheckJoin> findEventWithCheckJoin(String sql, MapSqlParameterSource params) {
+        List<EventWithCheckJoin> listEvent = namedParameterJdbcTemplate.query(sql,
+                params,
+                (rs, i) -> new EventWithCheckJoin(rs.getLong("eventId"),
+                        rs.getInt("status"),
+                        rs.getDate("createTime"),
+                        rs.getString("eventName"),
+                        rs.getString("subtitle"),
+                        rs.getString("thumbnail"),
+                        rs.getInt("totalParticipant"),
+                        rs.getDate("startTime"),
+                        rs.getDate("endTime"),
+                        rs.getInt("status"),
+                        rs.getBoolean("isJoin")
+                ));
+        if (listEvent.size() > 0) {
+            return listEvent;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
     @Override
     public List<Event> mFindById(List<Long> ids) {
         ids.add(-1l);
@@ -116,5 +139,79 @@ public class EventRepositoryImpl implements EventRepository {
         String sql = "SELECT * FROM event WHERE eventId IN (:ids)";
         List<Event> events = findEvent(sql, parameters);
         return events;
+    }
+
+    @Override
+    public List<EventWithCheckJoin> getAllEvent(long userId, int offset, int limit) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource("userId", userId);
+        parameters.addValue("limit", limit);
+        parameters.addValue("offset", limit * offset);
+        parameters.addValue("limit", limit);
+        parameters.addValue("offset", limit * offset);
+        String sql = "select e.*, if(userId=:userId,true,false) as isJoin "
+                + "from event e "
+                + "left join eventParticipant ep "
+                + "on ep.eventId = null || ep.eventId = e.eventId "
+                + "group by e.eventId "
+                + "order by totalParticipant desc "
+                + "limit :limit offset :offset";
+        List<EventWithCheckJoin> events = findEventWithCheckJoin(sql, parameters);
+        return events;
+    }
+
+    @Override
+    public List<Event> getMyEvent(long userId, int offset, int limit) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource("userId", userId);
+        parameters.addValue("limit", limit);
+        parameters.addValue("offset", limit * offset);
+        String sql = "select * "
+                + "from eventParticipant ep, event e "
+                + "where ep.eventId = e.eventId and ep.userId=:userId "
+                + "ORDER BY e.totalParticipant DESC "
+                + "LIMIT :limit OFFSET :offset";;
+        List<Event> events = findEvent(sql, parameters);
+        return events;
+    }
+
+    @Override
+    public List<EventWithCheckJoin> searchEvent(long userId, String name, int offset, int limit) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource("userId", userId);
+        parameters.addValue("name", name);
+        parameters.addValue("limit", limit);
+        parameters.addValue("offset", limit * offset);
+        parameters.addValue("limit", limit);
+        parameters.addValue("offset", limit * offset);
+        String sql = "select e.*, if(userId=:userId,true,false) as isJoin "
+                + "from event e "
+                + "left join eventParticipant ep "
+                + "on ep.eventId = null || ep.eventId = e.eventId "
+                + "group by e.eventId "
+                + "having e.eventName like %:name% "
+                + "order by totalParticipant desc "
+                + "limit :limit offset :offset";
+        List<EventWithCheckJoin> events = findEventWithCheckJoin(sql, parameters);
+        return events;
+    }
+
+    @Override
+    public boolean leaveEvent(long userId, long teamId, long eventId) {
+        int status = 0;
+        MapSqlParameterSource parameters = new MapSqlParameterSource("userId", userId);
+        parameters.addValue("teamId", teamId);
+        parameters.addValue("eventId", eventId);
+        String sql = "DELETE FROM eventParticipant "
+                + "WHERE teamId = :teamId AND userId= :userId AND eventId:= eventId";
+        status = namedParameterJdbcTemplate.update(sql, parameters);
+        return status != 0;
+    }
+
+    @Override
+    public boolean inscreaseEventParticipant(long eventId) {
+        int status = 0;
+        MapSqlParameterSource parameters = new MapSqlParameterSource("eventId", eventId);
+        parameters.addValue("eventId", eventId);
+        String sql = "UPDATE event set totalParticipant = totalParticipant +1 where eventId = :eventId";
+        status = namedParameterJdbcTemplate.update(sql, parameters);
+        return status != 0;
     }
 }

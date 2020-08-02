@@ -52,6 +52,9 @@ public class ActivityService {
 
   @Autowired
   private TrackService trackService;
+  
+  @Autowired
+  private EventService eventService;
 
   @Autowired
   private LoveRepository loveRepository;
@@ -189,7 +192,7 @@ public class ActivityService {
             request.getTrackRequest().getSplitDistance());
     UserActivity toCreate = new UserActivity(request, track.getTrackId(), track.getTime(), photos);
     toCreate.setUserId(creatorId);
-
+    eventService.updateDistance(creatorId, request.getEventId(), request.getTotalDistance());
     toCreate = userActivityRepository.insert(toCreate);
     LOGGER.info("User activity created for userID [{}] with ID: {}", toCreate.getUserId(),
         toCreate.getUserActivityId());

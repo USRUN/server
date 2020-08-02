@@ -18,10 +18,12 @@ public class SponsorCreateReq {
 
   private long eventId;
   private List<Long> organizationId;
+  private int role;
 
-  public SponsorCreateReq(long eventId, List<Long> organizationId) {
+  public SponsorCreateReq(long eventId, List<Long> organizationId, int role) {
     this.eventId = eventId;
     this.organizationId = organizationId;
+    this.role = role;
   }
 
 
