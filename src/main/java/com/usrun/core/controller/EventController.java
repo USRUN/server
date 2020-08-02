@@ -6,7 +6,6 @@
 package com.usrun.core.controller;
 
 import com.usrun.core.config.ErrorCode;
-import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.Event;
 import com.usrun.core.model.EventParticipant;
 import com.usrun.core.model.User;
@@ -29,6 +28,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

@@ -191,32 +191,32 @@ public class TeamRepositoryImpl implements TeamRepository {
         return getTeamDTOsSQLParamMap(sql, params);
     }
 
-  @Override
-  public boolean acceptTeam(long userId, long teamId) {
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("userId", userId);
-    params.addValue("teamId", teamId);
-    params.addValue("memberType", TeamMemberType.MEMBER.toValue());
-    params.addValue("invitedType", TeamMemberType.INVITED.toValue());
-    String sql = "UPDATE teamMember SET teamMemberType = :memberType "
-        + "WHERE userId = :userId "
-        + "AND teamId = :teamId "
-        + "AND teamMemberType = :invitedType";
-    int effected = namedParameterJdbcTemplate.update(sql, params);
-    return effected != 0;
-  }
+    @Override
+    public List<LeaderBoardTeamDTO> getLeaderBoard(long teamId) {
+        MapSqlParameterSource params = new MapSqlParameterSource("teamId", teamId);
+        String sql = "SELECT ua.userId, SUM(ua.totalDistance) as total "
+                + "FROM userActivity ua, teamMember tm "
+                + "WHERE tm.teamId = :teamId AND tm.userId = ua.userId "
+                + "GROUP BY ua.userId "
+                + "ORDER BY total DESC";
+        return namedParameterJdbcTemplate.query(sql, params,
+                (rs, i) -> new LeaderBoardTeamDTO(rs.getLong("userId"), rs.getLong("total")));
+    }
 
-  @Override
-  public Set<Long> getTeamsByUser(long userId) {
-    MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
-    String sql = "SELECT teamId FROM teamMember WHERE teamMember.userId = :userId";
-    List<Long> teams = namedParameterJdbcTemplate.query(
-        sql,
-        params,
-        (rs, i) -> rs.getLong("teamId")
-    );
-    return new HashSet<>(teams);
-  }
+    @Override
+    public boolean acceptTeam(long userId, long teamId) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
+        params.addValue("teamId", teamId);
+        params.addValue("memberType", TeamMemberType.MEMBER.toValue());
+        params.addValue("invitedType", TeamMemberType.INVITED.toValue());
+        String sql = "UPDATE teamMember SET teamMemberType = :memberType "
+                + "WHERE userId = :userId "
+                + "AND teamId = :teamId "
+                + "AND teamMemberType = :invitedType";
+        int effected = namedParameterJdbcTemplate.update(sql, params);
+        return effected != 0;
+    }
 
     @Override
     public Set<Long> getTeamsByUser(long userId) {
@@ -376,5 +376,4 @@ public class TeamRepositoryImpl implements TeamRepository {
         String sql = "select t.* from team t, eventParticipant ep where ep.eventId = :eventId and ep.teamId = t.teamId and teamName like '%name%' limit :limit offset :offset";
         return getTeamsSQLParamMap(sql, params);
     }
-
 }

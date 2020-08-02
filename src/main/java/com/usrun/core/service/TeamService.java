@@ -132,7 +132,7 @@ public class TeamService {
     }
 
     public List<Team> searchTeamByEvent(long eventId, String keyword, int offset, int limit) {
-        return teamRepository.searchTeamOfEvent(eventId, keyword, offset,limit);
+        return teamRepository.searchTeamOfEvent(eventId, keyword, offset, limit);
     }
 
     public List<TeamDTO> getTeamDTOByUserAndNotEqualTeamMemberType(long userId,
@@ -178,26 +178,27 @@ public class TeamService {
         }
     }
 
-  public void requestToAcceptTeam(long userId, long teamId) {
-    if(!teamRepository.acceptTeam(userId, teamId)) {
-      throw new CodeException(ErrorCode.TEAM_ACCEPT_FAILED);
+    public void requestToAcceptTeam(long userId, long teamId) {
+        if (!teamRepository.acceptTeam(userId, teamId)) {
+            throw new CodeException(ErrorCode.TEAM_ACCEPT_FAILED);
+        }
     }
-  }
 
-  public void inviteToTeam(String emailOrUserCode, long teamId) {
-    try {
-      User user = userRepository.findByEmailOrUserCode(emailOrUserCode);
-      if (user != null) {
-        teamMemberRepository
-            .insert(new TeamMember(teamId, user.getId(), TeamMemberType.INVITED, new Date()));
-      } else {
-        log.error("Invite to team, user not found, emailOrUserCode {}, teamId {}", emailOrUserCode,
-            teamId);
-        throw new CodeException(ErrorCode.USER_NOT_FOUND);
-      }
-    } catch (DuplicateKeyException ex) {
-      log.error("", ex);
-      throw new CodeException(ErrorCode.TEAM_USER_EXISTED);
+    public void inviteToTeam(String emailOrUserCode, long teamId) {
+        try {
+            User user = userRepository.findByEmailOrUserCode(emailOrUserCode);
+            if (user != null) {
+                teamMemberRepository
+                        .insert(new TeamMember(teamId, user.getId(), TeamMemberType.INVITED, new Date()));
+            } else {
+                log.error("Invite to team, user not found, emailOrUserCode {}, teamId {}", emailOrUserCode,
+                        teamId);
+                throw new CodeException(ErrorCode.USER_NOT_FOUND);
+            }
+        } catch (DuplicateKeyException ex) {
+            log.error("", ex);
+            throw new CodeException(ErrorCode.TEAM_USER_EXISTED);
+        }
     }
 
     public void cancelJoinTeam(Long requestId, Long teamId) {
@@ -308,22 +309,16 @@ public class TeamService {
         return toGet;
     }
 
-    public void buildTeamLeaderBoard() {
-        long startTime = System.currentTimeMillis();
-        logger.info("start build teamLeaderBoard");
-        List<Team> teams = teamRepository.findAllTeam();
-        Map<Long, List<TeamMember>> teamMembersByTeam = teamMemberRepository
-                .getAllByLessEqualTeamMemberType(TeamMemberType.MEMBER).stream()
-                .collect(Collectors.groupingBy(TeamMember::getTeamId));
-        Map<Long, UserActivityStatDTO> userActivityStats = userActivityRepository.getStat().stream()
-                .collect(Collectors.toMap(UserActivityStatDTO::getUserId,
-                        Function.identity()));
-        long firstDayOfWeek = getFirstDayOfWeek();
+    public List<UserFilterWithTypeDTO> getAllTeamMemberPaged(Long teamId, int offset, int limit) {
+        return userRepository
+                .getAllMemberByLessEqualTeamMemberType(teamId, TeamMemberType.MEMBER, offset, limit);
+    }
 
-  public List<UserFilterWithTypeDTO> getAllTeamMemberPaged(Long teamId, int offset, int limit) {
-    return userRepository
-        .getAllMemberByLessEqualTeamMemberType(teamId, TeamMemberType.MEMBER, offset, limit);
-  }
+    public List<UserFilterWithTypeDTO> findTeamMember(String keyword, long teamId, int offset,
+            int limit) {
+        return userRepository
+                .findUserIsEnable(keyword, teamId, offset, limit);
+    }
 
     public List<UserLeaderBoardInfo> getLeaderBoard(long teamId, int limit) {
         List<LeaderBoardTeamDTO> leaderBoard = teamRepository.getLeaderBoard(teamId);
@@ -345,9 +340,4 @@ public class TeamService {
             int offset, int limit) {
         return userRepository.getUserByMemberType(teamId, teamMemberType, offset, limit);
     }
-
-  public List<UserFilterDTO> getUserByMemberType(long teamId, TeamMemberType teamMemberType,
-      int offset, int limit) {
-    return userRepository.getUserByMemberType(teamId, teamMemberType, offset, limit);
-  }
 }

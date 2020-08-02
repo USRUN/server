@@ -43,7 +43,9 @@ public interface TeamRepository {
 
     List<TeamDTO> getTeamsByUserAndNotEqualTeamMemberTypeReturnTeam(long userId, TeamMemberType teamMemberType);
 
-  boolean acceptTeam(long userId, long teamId);
+    List<LeaderBoardTeamDTO> getLeaderBoard(long teamId);
+
+    boolean acceptTeam(long userId, long teamId);
 
     List<Team> getTeamOfEvent(long eventId, int offset, int limit);
 
