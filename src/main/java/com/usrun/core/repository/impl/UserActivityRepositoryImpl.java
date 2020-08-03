@@ -163,7 +163,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
         params,
         (rs, i) -> new UserActivity(rs.getLong("userActivityId"),
             rs.getLong("userId"),
-            rs.getDate("createTime"),
+            rs.getTimestamp("createTime").getTime(),
             rs.getLong("totalDistance"),
             rs.getLong("totalTime"),
             rs.getLong("totalStep"),

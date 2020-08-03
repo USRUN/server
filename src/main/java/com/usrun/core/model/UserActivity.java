@@ -41,7 +41,7 @@ public class UserActivity {
   private int deleted;
   private int privacy;
 
-  public UserActivity(long userActivityId, long userId, Date createTime, long totalDistance,
+  public UserActivity(long userActivityId, long userId, long createTime, long totalDistance,
       long totalTime, long totalStep, double avgPace, double avgHeart, double maxHeart,
       int calories, double elevGain, double elevMax, List<String> photos, String title,
       String description,
@@ -49,7 +49,7 @@ public class UserActivity {
       int privacy) {
     this.userActivityId = userActivityId;
     this.userId = userId;
-    this.createTime = createTime;
+    this.createTime = new Date(createTime);
     this.totalDistance = totalDistance;
     this.totalTime = totalTime;
     this.totalStep = totalStep;
