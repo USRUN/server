@@ -10,6 +10,7 @@ import com.usrun.core.payload.dto.UserFilterDTO;
 import com.usrun.core.payload.user.ChangePasswordRequest;
 import com.usrun.core.payload.user.ResetPasswordRequest;
 import com.usrun.core.payload.user.UserFilterRequest;
+import com.usrun.core.payload.user.UserInfoRequest;
 import com.usrun.core.payload.user.UserUpdateRequest;
 import com.usrun.core.payload.user.VerifyStudentHcmusRequest;
 import com.usrun.core.repository.UserRepository;
@@ -53,12 +54,11 @@ public class UserController {
 
   @PostMapping("/info")
   @PreAuthorize("hasRole('USER')")
-  public ResponseEntity<?> getCurrentUser(@CurrentUser UserPrincipal userPrincipal) {
+  public ResponseEntity<?> getCurrentUser(@RequestBody UserInfoRequest request) {
     try {
-      Long userId = userPrincipal.getId();
+      long userId = request.getUserId();
       User user = userService.loadUser(userId);
-      String jwt = tokenProvider.createTokenUserId(user.getId());
-      return ResponseEntity.ok(new UserInfoResponse(user, jwt));
+      return ResponseEntity.ok(new UserInfoResponse(user));
     } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {

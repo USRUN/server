@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Slf4j
@@ -205,6 +206,7 @@ public class TeamService {
         teamRepository.cancelJoinTeam(requestId, teamId);
     }
 
+    @Transactional
     public boolean updateTeamRole(Long teamId, Long memberId, TeamMemberType toChangeInto) {
         if (toChangeInto == null || toChangeInto == TeamMemberType.OWNER) {
             return false;
