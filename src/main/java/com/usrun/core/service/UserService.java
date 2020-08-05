@@ -8,6 +8,7 @@ import com.usrun.core.model.User;
 import com.usrun.core.model.type.AuthType;
 import com.usrun.core.model.type.Gender;
 import com.usrun.core.model.type.RoleType;
+import com.usrun.core.payload.activity.UserFeedResp;
 import com.usrun.core.payload.dto.UserDTO;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserRepository;
@@ -280,4 +281,8 @@ public class UserService {
     List<UserDTO> userDTOS = userRepository.findAll(Collections.singleton(userId));
     return userDTOS.isEmpty() ? null : userDTOS.get(0);
   }
+
+    public List<UserFeedResp> getUserFeed(long userId, int offset, int limit) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

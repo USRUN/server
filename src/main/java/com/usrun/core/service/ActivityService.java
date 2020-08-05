@@ -5,30 +5,32 @@ import com.google.common.hash.Hashing;
 import com.usrun.core.config.AppProperties;
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
+import com.usrun.core.model.Event;
 import com.usrun.core.model.Love;
 import com.usrun.core.model.Team;
 import com.usrun.core.model.User;
 import com.usrun.core.model.UserActivity;
-import com.usrun.core.model.track.Track;
 import com.usrun.core.payload.activity.UserFeedResp;
 import com.usrun.core.payload.activity.UserStatResp;
 import com.usrun.core.payload.dto.TeamActivityCountDTO;
 import com.usrun.core.payload.user.CreateActivityRequest;
 import com.usrun.core.repository.EventParticipantRepository;
+import com.usrun.core.repository.EventRepository;
 import com.usrun.core.repository.LoveRepository;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserActivityRepository;
 import com.usrun.core.repository.UserRepository;
 import com.usrun.core.utility.CacheClient;
 import com.usrun.core.utility.ObjectUtils;
+import com.usrun.core.utility.SequenceGenerator;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import javax.jws.soap.SOAPBinding.Use;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,8 +47,8 @@ public class ActivityService {
 
     @Autowired
     private TeamRepository teamRepository;
-    
-    @Autowired 
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -69,6 +71,12 @@ public class ActivityService {
 
     @Autowired
     private LoveRepository loveRepository;
+
+    @Autowired
+    private SequenceGenerator sequenceGenerator;
+
+    @Autowired
+    private EventRepository eventRepository;
 
     public String getSigActivity(long userId, long time) {
         StringBuffer buffer = new StringBuffer(Long.toString(userId));
@@ -198,10 +206,8 @@ public class ActivityService {
             }
         }
 
-        Track track = trackService
-                .createTrack(creatorId, request.getDescription(), request.getTrackRequest().getLocations(),
-                        request.getTrackRequest().getSplitDistance());
-        UserActivity toCreate = new UserActivity(request, track.getTrackId(), track.getTime(), photos);
+        long activityId = sequenceGenerator.nextId();
+        UserActivity toCreate = new UserActivity(request, activityId, new Date(), photos);
         toCreate.setUserId(creatorId);
         eventService.updateDistance(creatorId, request.getEventId(), request.getTotalDistance());
         toCreate = userActivityRepository.insert(toCreate);
@@ -279,32 +285,39 @@ public class ActivityService {
     public List<UserFeedResp> getUserFeed(long userId, int offset, int limit) {
         List<UserActivity> userActivites = userActivityRepository.findAllByUserId(userId, offset, limit);
         User user = userRepository.findById(userId);
-        List<UserFeedResp> resp = userActivites.stream().map(item -> 
-            new UserFeedResp(item.getUserActivityId(),
+
+        List<Long> eventIds = userActivites.stream().map(item -> item.getEventId()).collect(Collectors.toList());
+        List<Event> events = eventRepository.mFindById(eventIds);
+        List<UserFeedResp> resp = new ArrayList<>();
+        for (int i = 0; i < userActivites.size(); i++) {
+            UserActivity item = userActivites.get(i);
+            Optional<Event> e = events.stream().filter(event -> event.getEventId() == item.getEventId()).findFirst();
+            UserFeedResp itemUserFeed = new UserFeedResp(item.getUserActivityId(),
                     item.getUserId(),
                     user.getName(),
                     user.getAvatar(),
                     user.isHcmus(),
-                    -1,
-                    "",
-                    "",
+                    item.getEventId(),
+                    e.isPresent() ? events.get(i).getEventName() : "",
+                    e.isPresent() ? events.get(i).getThumbnail() : "",
                     item.getCreateTime(),
                     item.getTotalDistance(),
                     item.getTotalTime(),
                     item.getTotalStep(),
-                    item.getAvgPace(), 
-                    item.getAvgHeart(), 
-                    item.getMaxHeart(), 
-                    item.getCalories(), 
-                    item.getElevGain(), 
-                    item.getElevMax(), 
-                    item.getPhotos(), 
-                    item.getTitle(), 
-                    item.getDescription(), 
-                    item.getTotalLove(), 
-                    item.getTotalComment(), 
-                    item.getTotalShare())
-        ).collect(Collectors.toList());
+                    item.getAvgPace(),
+                    item.getAvgHeart(),
+                    item.getMaxHeart(),
+                    item.getCalories(),
+                    item.getElevGain(),
+                    item.getElevMax(),
+                    item.getPhotos(),
+                    item.getTitle(),
+                    item.getDescription(),
+                    item.getTotalLove(),
+                    item.getTotalComment(),
+                    item.getTotalShare());
+            resp.add(itemUserFeed);
+        }
         return resp;
     }
 

@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class TimeRequest {
-
+  private long userId;
   private Date fromTime;
   private Date toTime;
   private int offset;

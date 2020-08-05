@@ -10,8 +10,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author huyna
@@ -40,13 +38,16 @@ public class UserActivity {
   private boolean processed;
   private int deleted;
   private int privacy;
+  private long eventId;
+  private boolean isShowMap;
+  private String splitPace;
 
   public UserActivity(long userActivityId, long userId, long createTime, long totalDistance,
       long totalTime, long totalStep, double avgPace, double avgHeart, double maxHeart,
       int calories, double elevGain, double elevMax, List<String> photos, String title,
       String description,
       int totalLove, int totalComment, int totalShare, boolean processed, int deleted,
-      int privacy) {
+      int privacy, long eventId, boolean isShowMap, String splitPace) {
     this.userActivityId = userActivityId;
     this.userId = userId;
     this.createTime = new Date(createTime);
@@ -68,6 +69,9 @@ public class UserActivity {
     this.processed = processed;
     this.deleted = deleted;
     this.privacy = privacy;
+    this.eventId = eventId;
+    this.isShowMap = isShowMap;
+    this.splitPace = splitPace;
   }
 
   public UserActivity(CreateActivityRequest createActivityRequest, long trackId, Date createTime,
@@ -92,6 +96,9 @@ public class UserActivity {
     this.processed = createActivityRequest.getProcessed();
     this.deleted = createActivityRequest.getDeleted();
     this.privacy = createActivityRequest.getPrivacy();
+    this.eventId = createActivityRequest.getEventId();
+    this.isShowMap = createActivityRequest.isShowMap();
+    this.splitPace = createActivityRequest.getTrackRequest().getSplitDistance().toString();
   }
 
   public UserActivity(long userActivityId, long userId, long totalDistance, long totalTime,

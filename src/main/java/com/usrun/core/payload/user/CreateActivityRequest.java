@@ -31,4 +31,6 @@ public class CreateActivityRequest {
     private long time;
     private String sig;
     private Long eventId;
+    private boolean isShowMap;
+    
 }

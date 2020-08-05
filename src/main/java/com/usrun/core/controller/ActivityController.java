@@ -89,7 +89,7 @@ public class ActivityController {
         try {
             Long userId = userPrincipal.getId();
             List<UserActivity> allByTimeRangeAndUserId = userActivityRepository
-                    .findAllByTimeRangeAndUserId(userId, timeRequest.getFromTime(), timeRequest.getToTime(),
+                    .findAllByTimeRangeAndUserId(timeRequest.getUserId(), timeRequest.getFromTime(), timeRequest.getToTime(),
                             timeRequest.getOffset(), timeRequest.getLimit());
             UserActivity valueSum = new UserActivity();
             for (UserActivity item : allByTimeRangeAndUserId) {

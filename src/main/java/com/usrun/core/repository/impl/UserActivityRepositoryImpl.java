@@ -28,9 +28,9 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     namedParameterJdbcTemplate.update(
         "INSERT INTO userActivity (userActivityId, userId,createTime, totalDistance, totalTime, "
             + "totalStep, avgPace, avgHeart, maxHeart, calories, "
-            + "elevGain, elevMax, photo, title, description, totalLove, totalComment,totalShare, processed,deleted, privacy ) values ("
+            + "elevGain, elevMax, photo, title, description, totalLove, totalComment,totalShare, processed,deleted, privacy, eventId, isShowMap, splitPace ) values ("
             + ":userActivityId ,:userId,:createTime,  :totalDistance, :totalTime, :totalStep, :avgPace, :avgHeart, :maxHeart, "
-            + ":calories, :elevGain, :elevMax, :photo, :title, :description, :totalLove, :totalComment, :totalShare, :processed, :deleted, :privacy)",
+            + ":calories, :elevGain, :elevMax, :photo, :title, :description, :totalLove, :totalComment, :totalShare, :processed, :deleted, :privacy, :eventId, :isShowMap, :splitPace)",
         map
     );
     return userActivity;
@@ -182,7 +182,10 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
             rs.getInt("totalShare"),
             rs.getBoolean("processed"),
             rs.getInt("deleted"),
-            rs.getInt("privacy")
+            rs.getInt("privacy"),
+            rs.getLong("eventId"),
+            rs.getBoolean("isShowMap"),
+            rs.getString("splitPace")
         ));
     if (listUserActivity.size() > 0) {
       return listUserActivity;
@@ -214,6 +217,9 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     map.addValue("processed", userActivity.isProcessed());
     map.addValue("deleted", userActivity.getDeleted());
     map.addValue("privacy", userActivity.getPrivacy());
+    map.addValue("eventId", userActivity.getEventId());
+    map.addValue("isShowMap", userActivity.isShowMap());
+    map.addValue("splitPace", userActivity.getSplitPace());
     return map;
   }
 
