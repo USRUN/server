@@ -285,6 +285,7 @@ public class ActivityService {
         }
         return result;
     }
+
     public List<UserFeedResp> getUserFeed(long userId, int offset, int limit) {
         List<UserActivity> userActivites = userActivityRepository.findAllByUserId(userId, offset, limit);
         User user = userRepository.findById(userId);
@@ -303,11 +304,14 @@ public class ActivityService {
                     photos.set(0, IMAGE_DEFAULT);
                 }
             }
-            
+
             String splitData = item.getSplitPace();
-            Map<String, Object> result = ObjectUtils.fromJsonString(splitData, new TypeReference<HashMap<String, Object>>() {
-            });
-            List<SplitPaceDTO> splitResp= new ArrayList<>();
+            Map<String, Object> result = new HashMap<>();
+            if (splitData != null) {
+                result = ObjectUtils.fromJsonString(splitData, new TypeReference<HashMap<String, Object>>() {
+                });
+            }
+            List<SplitPaceDTO> splitResp = new ArrayList<>();
             for (Map.Entry<String, Object> entry : result.entrySet()) {
                 Double km = Double.valueOf(entry.getKey());
                 int pace = (int) entry.getValue();
