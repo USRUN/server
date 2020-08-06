@@ -5,8 +5,10 @@
  */
 package com.usrun.core.payload.activity;
 
+import com.usrun.core.payload.dto.SplitPaceDTO;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -41,9 +43,9 @@ public class UserFeedResp {
     long totalLove;
     long totalComment;
     long totalShare;
-    String splitPace;
+    List<SplitPaceDTO> splitPace;
 
-    public UserFeedResp(long userActivityId, long userId, String userDisplayName, String userAvatar, boolean userHcmus, long eventId, String eventName, String eventThumbnail, Date createTime, long totalDistance, long totalTime, long totalStep, double avgPace, double avgHeart, double maxHeart, long calories, double elevGain, double elevMax, List<String> photos, String title, String description, long totalLove, long totalComment, long totalShare, String splitPace) {
+    public UserFeedResp(long userActivityId, long userId, String userDisplayName, String userAvatar, boolean userHcmus, long eventId, String eventName, String eventThumbnail, Date createTime, long totalDistance, long totalTime, long totalStep, double avgPace, double avgHeart, double maxHeart, long calories, double elevGain, double elevMax, List<String> photos, String title, String description, long totalLove, long totalComment, long totalShare, List<SplitPaceDTO> splitPace) {
         this.userActivityId = userActivityId;
         this.userId = userId;
         this.userDisplayName = userDisplayName;

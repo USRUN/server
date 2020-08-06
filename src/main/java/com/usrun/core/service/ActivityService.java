@@ -12,6 +12,7 @@ import com.usrun.core.model.User;
 import com.usrun.core.model.UserActivity;
 import com.usrun.core.payload.activity.UserFeedResp;
 import com.usrun.core.payload.activity.UserStatResp;
+import com.usrun.core.payload.dto.SplitPaceDTO;
 import com.usrun.core.payload.dto.TeamActivityCountDTO;
 import com.usrun.core.payload.user.CreateActivityRequest;
 import com.usrun.core.repository.EventParticipantRepository;
@@ -26,8 +27,10 @@ import com.usrun.core.utility.SequenceGenerator;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -282,7 +285,6 @@ public class ActivityService {
         }
         return result;
     }
-
     public List<UserFeedResp> getUserFeed(long userId, int offset, int limit) {
         List<UserActivity> userActivites = userActivityRepository.findAllByUserId(userId, offset, limit);
         User user = userRepository.findById(userId);
@@ -293,14 +295,26 @@ public class ActivityService {
         for (int i = 0; i < userActivites.size(); i++) {
             UserActivity item = userActivites.get(i);
             Optional<Event> e = events.stream().filter(event -> event.getEventId() == item.getEventId()).findFirst();
-            if(!item.isShowMap()){
+            if (!item.isShowMap()) {
                 List<String> photos = item.getPhotos();
-                if(photos.isEmpty()){
+                if (photos.isEmpty()) {
                     photos.add(IMAGE_DEFAULT);
-                }else{
+                } else {
                     photos.set(0, IMAGE_DEFAULT);
                 }
             }
+            
+            String splitData = item.getSplitPace();
+            Map<String, Object> result = ObjectUtils.fromJsonString(splitData, new TypeReference<HashMap<String, Object>>() {
+            });
+            List<SplitPaceDTO> splitResp= new ArrayList<>();
+            for (Map.Entry<String, Object> entry : result.entrySet()) {
+                Double km = Double.valueOf(entry.getKey());
+                int pace = (int) entry.getValue();
+                SplitPaceDTO itemSplit = new SplitPaceDTO(km, pace);
+                splitResp.add(itemSplit);
+            }
+
             UserFeedResp itemUserFeed = new UserFeedResp(item.getUserActivityId(),
                     item.getUserId(),
                     user.getName(),
@@ -325,7 +339,7 @@ public class ActivityService {
                     item.getTotalLove(),
                     item.getTotalComment(),
                     item.getTotalShare(),
-            item.getSplitPace());
+                    splitResp);
             resp.add(itemUserFeed);
         }
         return resp;

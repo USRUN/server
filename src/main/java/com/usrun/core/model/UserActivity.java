@@ -6,6 +6,7 @@
 package com.usrun.core.model;
 
 import com.usrun.core.payload.user.CreateActivityRequest;
+import com.usrun.core.utility.ObjectUtils;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -98,7 +99,7 @@ public class UserActivity {
     this.privacy = createActivityRequest.getPrivacy();
     this.eventId = createActivityRequest.getEventId();
     this.isShowMap = createActivityRequest.isShowMap();
-    this.splitPace = createActivityRequest.getTrackRequest().getSplitDistance().toString();
+    this.splitPace = ObjectUtils.toJsonString(createActivityRequest.getTrackRequest().getSplitDistance());
   }
 
   public UserActivity(long userActivityId, long userId, long totalDistance, long totalTime,

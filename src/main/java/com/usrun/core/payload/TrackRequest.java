@@ -14,6 +14,6 @@ import lombok.Setter;
 public class TrackRequest {
 
     private List<List<Location>> locations;
-    private Map<String, Double> splitDistance;
+    private Map<String, Object> splitDistance;
     private double time;
 }
