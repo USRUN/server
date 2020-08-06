@@ -77,6 +77,7 @@ public class ActivityService {
 
     @Autowired
     private EventRepository eventRepository;
+    private static final String IMAGE_DEFAULT = "https://s3-ap-southeast-1.amazonaws.com/usrun-photo/activity-1ae77e32-65c9-4dfe-b34a-1e965726b6b7";
 
     public String getSigActivity(long userId, long time) {
         StringBuffer buffer = new StringBuffer(Long.toString(userId));
@@ -292,6 +293,14 @@ public class ActivityService {
         for (int i = 0; i < userActivites.size(); i++) {
             UserActivity item = userActivites.get(i);
             Optional<Event> e = events.stream().filter(event -> event.getEventId() == item.getEventId()).findFirst();
+            if(!item.isShowMap()){
+                List<String> photos = item.getPhotos();
+                if(photos.isEmpty()){
+                    photos.add(IMAGE_DEFAULT);
+                }else{
+                    photos.set(0, IMAGE_DEFAULT);
+                }
+            }
             UserFeedResp itemUserFeed = new UserFeedResp(item.getUserActivityId(),
                     item.getUserId(),
                     user.getName(),
@@ -315,7 +324,8 @@ public class ActivityService {
                     item.getDescription(),
                     item.getTotalLove(),
                     item.getTotalComment(),
-                    item.getTotalShare());
+                    item.getTotalShare(),
+            item.getSplitPace());
             resp.add(itemUserFeed);
         }
         return resp;
