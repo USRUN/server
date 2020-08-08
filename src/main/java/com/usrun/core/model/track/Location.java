@@ -13,11 +13,11 @@ import lombok.ToString;
 @ToString
 public class Location {
 
-  private Float latitude;
-  private Float longitude;
+  private Double latitude;
+  private Double longitude;
   private long time;
 
-  public Location(Float latitude, Float longitude, long time) {
+  public Location(Double latitude, Double longitude, long time) {
     this.latitude = latitude;
     this.longitude = longitude;
     this.time = time;

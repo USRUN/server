@@ -15,6 +15,7 @@ public class AppProperties {
   private final Auth auth = new Auth();
   private int node;
   private final Activity activity = new Activity();
+  private String googleMapKey;
 
   @Data
   public static class Auth {

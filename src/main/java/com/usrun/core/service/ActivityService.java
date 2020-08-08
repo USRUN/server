@@ -24,6 +24,7 @@ import com.usrun.core.repository.UserRepository;
 import com.usrun.core.utility.CacheClient;
 import com.usrun.core.utility.ObjectUtils;
 import com.usrun.core.utility.SequenceGenerator;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
@@ -80,7 +81,10 @@ public class ActivityService {
 
     @Autowired
     private EventRepository eventRepository;
-    private static final String IMAGE_DEFAULT = "https://s3-ap-southeast-1.amazonaws.com/usrun-photo/activity-1ae77e32-65c9-4dfe-b34a-1e965726b6b7";
+
+    @Autowired
+    private GoogleMapService googleMapService;
+    public final String IMAGE_DEFAULT = "https://s3-ap-southeast-1.amazonaws.com/usrun-photo/activity-1ae77e32-65c9-4dfe-b34a-1e965726b6b7";
 
     public String getSigActivity(long userId, long time) {
         StringBuffer buffer = new StringBuffer(Long.toString(userId));
@@ -198,6 +202,12 @@ public class ActivityService {
             CreateActivityRequest request) {
         List<String> photosBase64 = request.getPhotosBase64();
         List<String> photos = new ArrayList<>();
+        try {
+            String photoTrack = googleMapService.getRouteImage(request.getTrackRequest().getLocations());
+            photos.add(photoTrack);
+        }catch(IOException ex){
+            LOGGER.error("fail to parse image track: "+ex.getMessage());
+        }
         for (String photoBase64 : photosBase64) {
             if (photoBase64.length() <= appProperties.getMaxImageSize()) {
                 String fileUrl = amazonClient
@@ -209,7 +219,6 @@ public class ActivityService {
                 throw new CodeException(ErrorCode.INVALID_IMAGE_SIZE);
             }
         }
-
         long activityId = sequenceGenerator.nextId();
         UserActivity toCreate = new UserActivity(request, activityId, new Date(), photos);
         toCreate.setUserId(creatorId);
