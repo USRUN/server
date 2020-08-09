@@ -6,10 +6,7 @@ import com.usrun.core.model.type.AuthType;
 import com.usrun.core.model.type.Gender;
 import com.usrun.core.model.type.RoleType;
 import com.usrun.core.model.type.TeamMemberType;
-import com.usrun.core.payload.dto.UserDTO;
-import com.usrun.core.payload.dto.UserFilterDTO;
-import com.usrun.core.payload.dto.UserFilterWithTypeDTO;
-import com.usrun.core.payload.dto.UserLeaderBoardDTO;
+import com.usrun.core.payload.dto.*;
 import com.usrun.core.repository.UserRepository;
 import java.util.Collections;
 import java.util.Date;
@@ -209,6 +206,22 @@ public class UserRepositoryImpl implements UserRepository {
             rs.getString("displayName"),
             rs.getString("avatar"),
             rs.getBoolean("hcmus")));
+  }
+
+  @Override
+  public List<UserManagerDTO> getAllUsersPaged(int offset, int limit){
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("offset", offset * limit);
+    params.addValue("limit", limit);
+
+    String sql = "SELECT userId, email, displayName, userType, isEnabled FROM user LIMIT :limit OFFSET :offset";
+    return namedParameterJdbcTemplate.query(sql, params, (rs, i) ->
+            new UserManagerDTO(
+                    rs.getLong("userId"),
+                    rs.getString("email"),
+                    rs.getString("displayName"),
+                    AuthType.fromInt(rs.getInt("userType")).toString(),
+                    rs.getBoolean("isEnabled")));
   }
 
   private List<User> getUsers(String sql, MapSqlParameterSource params) {

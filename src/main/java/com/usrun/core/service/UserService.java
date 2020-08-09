@@ -10,6 +10,7 @@ import com.usrun.core.model.type.Gender;
 import com.usrun.core.model.type.RoleType;
 import com.usrun.core.payload.activity.UserFeedResp;
 import com.usrun.core.payload.dto.UserDTO;
+import com.usrun.core.payload.dto.UserManagerDTO;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserRepository;
 import com.usrun.core.security.TokenProvider;
@@ -196,6 +197,10 @@ public class UserService {
     userRepository.update(user);
     cacheClient.setUser(user);
     return user;
+  }
+
+  public List<UserManagerDTO> getAllUsersPaged(int offset, int limit){
+    return userRepository.getAllUsersPaged(offset, limit);
   }
 
   public User changePassword(long userId, String oldPassword, String newPassword) {
