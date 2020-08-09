@@ -203,6 +203,10 @@ public class UserService {
     return userRepository.getAllUsersPaged(offset, limit);
   }
 
+  public List<UserManagerDTO> findAllUsersPaged(String keyword, int offset, int limit){
+    return userRepository.findUsersPaged(keyword, offset, limit);
+  }
+
   public User changePassword(long userId, String oldPassword, String newPassword) {
     User user = loadUser(userId);
     if (passwordEncoder.matches(oldPassword, user.getPassword())) {

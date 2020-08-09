@@ -3,9 +3,11 @@ package com.usrun.core.controller.admin;
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
 import com.usrun.core.payload.CodeResponse;
+import com.usrun.core.payload.dto.UserFilterDTO;
 import com.usrun.core.payload.dto.UserManagerDTO;
 import com.usrun.core.payload.user.BanUserRequest;
 import com.usrun.core.payload.user.GetUsersRequest;
+import com.usrun.core.payload.user.UserFilterRequest;
 import com.usrun.core.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +50,7 @@ public class AdminUserController {
     }
 
     @PostMapping("/getAllUsersPaged")
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllUsersPaged(@RequestBody GetUsersRequest request) {
         try {
             int offset
@@ -59,6 +61,22 @@ public class AdminUserController {
             List<UserManagerDTO> users = userService.getAllUsersPaged(offset, count);
             return new ResponseEntity<>(new CodeResponse(users), HttpStatus.OK);
 
+        } catch (CodeException ex) {
+            return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
+        } catch (Exception ex) {
+            log.error("", ex);
+            return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+        }
+    }
+
+    @PostMapping("/findUsersPaged")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> findUsersPaged(@RequestBody UserFilterRequest request) {
+        try {
+            int count = request.getCount() > 0 ? request.getCount() : 10;
+            int offset = Math.max(0, request.getOffset() - 1);
+            List<UserManagerDTO> users = userService.findAllUsersPaged('%' + request.getKey() + '%', offset, count);
+            return ResponseEntity.ok(new CodeResponse(users));
         } catch (CodeException ex) {
             return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
         } catch (Exception ex) {

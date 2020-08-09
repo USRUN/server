@@ -224,6 +224,27 @@ public class UserRepositoryImpl implements UserRepository {
                     rs.getBoolean("isEnabled")));
   }
 
+  @Override
+  public List<UserManagerDTO> findUsersPaged(String keyword, int offset, int count) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("keyword", keyword);
+    params.addValue("count", count);
+    params.addValue("offset", offset * count);
+    String sql = "SELECT u.userId, u.email, u.displayName, u.userType, u.isEnabled " +
+            "FROM user u " +
+            "WHERE " +
+            "(u.displayName LIKE :keyword OR u.email LIKE :keyword OR u.userCode LIKE :keyword) " +
+            "LIMIT :count " +
+            "OFFSET :offset";
+    return namedParameterJdbcTemplate.query(sql, params, (rs, i) ->
+            new UserManagerDTO(
+                    rs.getLong("userId"),
+                    rs.getString("email"),
+                    rs.getString("displayName"),
+                    AuthType.fromInt(rs.getInt("userType")).toString(),
+                    rs.getBoolean("isEnabled")));
+  }
+
   private List<User> getUsers(String sql, MapSqlParameterSource params) {
     return namedParameterJdbcTemplate.query(
         sql,
