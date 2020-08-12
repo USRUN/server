@@ -12,19 +12,10 @@ import com.usrun.core.model.Love;
 import com.usrun.core.model.User;
 import com.usrun.core.model.UserActivity;
 import com.usrun.core.payload.CodeResponse;
-import com.usrun.core.payload.activity.ActivityRequest;
-import com.usrun.core.payload.activity.ConditionRequest;
-import com.usrun.core.payload.activity.LoveRequest;
-import com.usrun.core.payload.activity.UserFeedResp;
-import com.usrun.core.payload.activity.UserStatRequest;
-import com.usrun.core.payload.activity.UserStatResp;
+import com.usrun.core.payload.activity.*;
 import com.usrun.core.payload.dto.UserActivityDTO;
 import com.usrun.core.payload.dto.UserDTO;
-import com.usrun.core.payload.user.CreateActivityRequest;
-import com.usrun.core.payload.user.GetActivitiesRequest;
-import com.usrun.core.payload.user.GetActivityRequest;
-import com.usrun.core.payload.user.NumberActivityRequest;
-import com.usrun.core.payload.user.TimeRequest;
+import com.usrun.core.payload.user.*;
 import com.usrun.core.repository.LoveRepository;
 import com.usrun.core.repository.UserActivityRepository;
 import com.usrun.core.security.CurrentUser;
@@ -33,11 +24,6 @@ import com.usrun.core.service.ActivityService;
 import com.usrun.core.service.TrackService;
 import com.usrun.core.service.UserService;
 import com.usrun.core.utility.CacheClient;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +36,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author anhhuy
@@ -383,6 +375,46 @@ public class ActivityController {
             UserStatResp resp = activityService
                     .getUserStat(userId, userStatRequest.getFromTime(), userStatRequest.getToTime());
             return new ResponseEntity<>(new CodeResponse(resp), HttpStatus.OK);
+        } catch (CodeException ex) {
+            return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
+        } catch (Exception ex) {
+            logger.error("", ex);
+            return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+        }
+    }
+
+    @PostMapping("/editActivity")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> editActivity(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody EditActivityRequest editActivityRequest
+    ) {
+        try {
+            Long userId = userPrincipal.getId();
+            UserActivity resp = activityService.updateActivity(editActivityRequest.getActivityId(), userId, editActivityRequest.getTitle(),
+                    editActivityRequest.getDescription(),
+                    editActivityRequest.getPhotos(),
+                    editActivityRequest.isShowMap());
+            return new ResponseEntity<>(new CodeResponse(resp), HttpStatus.OK);
+        } catch (CodeException ex) {
+            return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
+        } catch (Exception ex) {
+            logger.error("", ex);
+            return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+        }
+    }
+
+    @PostMapping("/deleteActivity")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> deleteActivity(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody DeleteActivityRequest deleteActivityRequest
+    ) {
+        try {
+            Long userId = userPrincipal.getId();
+            activityService.deleteActivity(deleteActivityRequest.getActivityId(), userId);
+
+            return ResponseEntity.ok(new CodeResponse(0));
         } catch (CodeException ex) {
             return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
         } catch (Exception ex) {
