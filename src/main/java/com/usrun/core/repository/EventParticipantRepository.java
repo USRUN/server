@@ -6,6 +6,7 @@
 package com.usrun.core.repository;
 
 import com.usrun.core.model.EventParticipant;
+import com.usrun.core.payload.dto.EventTeamStatDTO;
 import java.util.List;
 
 /**
@@ -24,4 +25,6 @@ public interface EventParticipantRepository {
   boolean delete(EventParticipant eventParticipant);
   
   boolean updateDistance(long userId, long eventId, long distance);
+
+  List<EventTeamStatDTO> getTeamStat(long eventId, int top);
 }

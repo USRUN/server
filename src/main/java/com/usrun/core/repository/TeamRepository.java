@@ -4,6 +4,7 @@ import com.usrun.core.model.Team;
 import com.usrun.core.model.User;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.dto.LeaderBoardTeamDTO;
+import com.usrun.core.payload.dto.ShortTeamDTO;
 import com.usrun.core.payload.dto.TeamDTO;
 import java.util.List;
 import java.util.Set;
@@ -51,4 +52,5 @@ public interface TeamRepository {
 
     List<Team> searchTeamOfEvent(long eventId, String name, int offset, int limit);
 
+    List<ShortTeamDTO> getShortTeams(List<Long> teams);
 }
