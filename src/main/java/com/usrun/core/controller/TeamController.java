@@ -42,30 +42,6 @@ public class TeamController {
   @Autowired
   private CacheClient cacheClient;
 
-  @PostMapping("/create")
-  @PreAuthorize("hasRole('USER')")
-  public ResponseEntity<?> createTeam(
-      @CurrentUser UserPrincipal userPrincipal,
-      @RequestBody CreateTeamRequest createTeamRequest
-  ) {
-    try {
-      Team team = teamService.createTeam(
-          userPrincipal.getId(),
-          createTeamRequest.getPrivacy(),
-          createTeamRequest.getTeamName(),
-          createTeamRequest.getProvince(),
-          createTeamRequest.getThumbnail());
-      return ResponseEntity.ok(new CodeResponse(team));
-    } catch (DuplicateKeyException e) {
-      return ResponseEntity.ok(new CodeResponse(ErrorCode.TEAM_EXISTED));
-    } catch (CodeException ex) {
-      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
-    } catch (Exception ex) {
-      log.error("", ex);
-      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
-    }
-  }
-
   @PostMapping("/update")
   @PreAuthorize("hasRole('USER') && @teamAuthorization.authorize(authentication,'OWNER',#updateTeamRequest.getTeamId())")
   public ResponseEntity<?> updateTeam(

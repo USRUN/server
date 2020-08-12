@@ -2,17 +2,15 @@ package com.usrun.core.model;
 
 
 import java.util.Date;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Getter
-@Setter
-@Table("team")
+@Data
 public class Team {
 
-  @Id
   private Long id;
 
   private int privacy;

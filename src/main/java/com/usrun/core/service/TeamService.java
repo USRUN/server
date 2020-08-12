@@ -68,7 +68,7 @@ public class TeamService {
     private AppProperties appProperties;
 
     public Team createTeam(
-            Long ownerId, int privacy, String teamName, Integer province,
+            long ownerId, int privacy, String teamName, Integer province,
             String thumbnailBase64) {
 
         String encodedName = Base64.getEncoder()
@@ -341,5 +341,9 @@ public class TeamService {
     public List<UserFilterDTO> getUserByMemberType(long teamId, TeamMemberType teamMemberType,
             int offset, int limit) {
         return userRepository.getUserByMemberType(teamId, teamMemberType, offset, limit);
+    }
+
+    public List<Team> getAll() {
+      return teamRepository.findAllTeam();
     }
 }

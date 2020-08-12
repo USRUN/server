@@ -8,6 +8,7 @@ import lombok.Setter;
 public class CreateTeamRequest {
   // OwnerId is assumed to be the current user
 
+  private long ownerId;
   private int privacy;
   private String teamName;
   private Integer province;
