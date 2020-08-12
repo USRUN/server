@@ -7,7 +7,7 @@ import lombok.Data;
  */
 
 @Data
-public class EventTeamLeaderBoardRequest {
+public class EventLeaderBoardRequest {
   private long eventId;
   private int top;
 }

@@ -7,6 +7,7 @@ package com.usrun.core.repository;
 
 import com.usrun.core.model.EventParticipant;
 import com.usrun.core.payload.dto.EventTeamStatDTO;
+import com.usrun.core.payload.dto.EventUserStatDTO;
 import java.util.List;
 
 /**
@@ -27,4 +28,6 @@ public interface EventParticipantRepository {
   boolean updateDistance(long userId, long eventId, long distance);
 
   List<EventTeamStatDTO> getTeamStat(long eventId, int top);
+
+  List<EventUserStatDTO> getUserStat(long eventId, int top);
 }

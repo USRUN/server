@@ -11,9 +11,8 @@ import com.usrun.core.model.Event;
 import com.usrun.core.model.EventParticipant;
 import com.usrun.core.model.User;
 import com.usrun.core.payload.CodeResponse;
-import com.usrun.core.payload.dto.EventTeamStatDTO;
 import com.usrun.core.payload.event.EventReq;
-import com.usrun.core.payload.event.EventTeamLeaderBoardRequest;
+import com.usrun.core.payload.event.EventLeaderBoardRequest;
 import com.usrun.core.payload.event.EventWithCheckJoin;
 import com.usrun.core.payload.event.JoinEventReq;
 import com.usrun.core.payload.event.LimitOffsetReq;
@@ -28,8 +27,6 @@ import com.usrun.core.service.EventService;
 import com.usrun.core.service.UserService;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -184,12 +181,29 @@ public class EventController {
   @PostMapping("/getTeamLeaderBoard")
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<?> getTeamLeaderBoard(
-      @RequestBody EventTeamLeaderBoardRequest request
+      @RequestBody EventLeaderBoardRequest request
   ) {
     try {
       long eventId = request.getEventId();
       int top = Math.max(request.getTop(), 10);
       return ResponseEntity.ok(eventService.getEventTeamLeaderBoard(eventId, top));
+    } catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
+    } catch (Exception ex) {
+      logger.error("", ex);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+    }
+  }
+
+  @PostMapping("/getUserLeaderBoard")
+  @PreAuthorize("hasRole('USER')")
+  public ResponseEntity<?> getUserLeaderBoard(
+      @RequestBody EventLeaderBoardRequest request
+  ) {
+    try {
+      long eventId = request.getEventId();
+      int top = Math.max(request.getTop(), 10);
+      return ResponseEntity.ok(eventService.getEventUserLeaderBoard(eventId, top));
     } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {

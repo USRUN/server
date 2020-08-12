@@ -40,4 +40,6 @@ public interface UserRepository {
   List<UserManagerDTO> getAllUsersPaged(int offset, int limit);
 
   List<UserManagerDTO> findUsersPaged(String keyword, int offset, int limit);
+
+  List<ShortUserDTO> findAll(List<Long> users);
 }

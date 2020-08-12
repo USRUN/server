@@ -209,19 +209,19 @@ public class UserRepositoryImpl implements UserRepository {
   }
 
   @Override
-  public List<UserManagerDTO> getAllUsersPaged(int offset, int limit){
+  public List<UserManagerDTO> getAllUsersPaged(int offset, int limit) {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("offset", offset * limit);
     params.addValue("limit", limit);
 
     String sql = "SELECT userId, email, displayName, userType, isEnabled FROM user LIMIT :limit OFFSET :offset";
     return namedParameterJdbcTemplate.query(sql, params, (rs, i) ->
-            new UserManagerDTO(
-                    rs.getLong("userId"),
-                    rs.getString("email"),
-                    rs.getString("displayName"),
-                    AuthType.fromInt(rs.getInt("userType")).toString(),
-                    rs.getBoolean("isEnabled")));
+        new UserManagerDTO(
+            rs.getLong("userId"),
+            rs.getString("email"),
+            rs.getString("displayName"),
+            AuthType.fromInt(rs.getInt("userType")).toString(),
+            rs.getBoolean("isEnabled")));
   }
 
   @Override
@@ -231,18 +231,30 @@ public class UserRepositoryImpl implements UserRepository {
     params.addValue("count", count);
     params.addValue("offset", offset * count);
     String sql = "SELECT u.userId, u.email, u.displayName, u.userType, u.isEnabled " +
-            "FROM user u " +
-            "WHERE " +
-            "(u.displayName LIKE :keyword OR u.email LIKE :keyword OR u.userCode LIKE :keyword) " +
-            "LIMIT :count " +
-            "OFFSET :offset";
+        "FROM user u " +
+        "WHERE " +
+        "(u.displayName LIKE :keyword OR u.email LIKE :keyword OR u.userCode LIKE :keyword) " +
+        "LIMIT :count " +
+        "OFFSET :offset";
     return namedParameterJdbcTemplate.query(sql, params, (rs, i) ->
-            new UserManagerDTO(
-                    rs.getLong("userId"),
-                    rs.getString("email"),
-                    rs.getString("displayName"),
-                    AuthType.fromInt(rs.getInt("userType")).toString(),
-                    rs.getBoolean("isEnabled")));
+        new UserManagerDTO(
+            rs.getLong("userId"),
+            rs.getString("email"),
+            rs.getString("displayName"),
+            AuthType.fromInt(rs.getInt("userType")).toString(),
+            rs.getBoolean("isEnabled")));
+  }
+
+  @Override
+  public List<ShortUserDTO> findAll(List<Long> users) {
+    if (users == null && users.isEmpty()) {
+      users = Collections.singletonList(-1L);
+    }
+    MapSqlParameterSource params = new MapSqlParameterSource("users", users);
+    String sql = "SELECT userId, displayName, avatar FROM user WHERE userId IN (:users)";
+    return namedParameterJdbcTemplate.query(sql, params,
+        (rs, i) -> new ShortUserDTO(rs.getLong("userId"), rs.getString("displayName"),
+            rs.getString("avatar")));
   }
 
   private List<User> getUsers(String sql, MapSqlParameterSource params) {

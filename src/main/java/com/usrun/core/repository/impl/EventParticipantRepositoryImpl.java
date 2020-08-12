@@ -7,6 +7,7 @@ package com.usrun.core.repository.impl;
 
 import com.usrun.core.model.EventParticipant;
 import com.usrun.core.payload.dto.EventTeamStatDTO;
+import com.usrun.core.payload.dto.EventUserStatDTO;
 import com.usrun.core.repository.EventParticipantRepository;
 import java.util.Collections;
 import java.util.List;
@@ -134,8 +135,21 @@ public class EventParticipantRepositoryImpl implements EventParticipantRepositor
     String sql = "SELECT teamId, SUM(distance) as totalDistance FROM eventParticipant "
         + "WHERE eventId = :eventId "
         + "GROUP BY teamId "
-        + "ORDER BY totalDistance LIMIT :top";
+        + "ORDER BY totalDistance DESC "
+        + "LIMIT :top";
     return namedParameterJdbcTemplate.query(sql, params,
         (rs, i) -> new EventTeamStatDTO(rs.getLong("teamId"), rs.getLong("totalDistance")));
+  }
+
+  @Override
+  public List<EventUserStatDTO> getUserStat(long eventId, int top) {
+    MapSqlParameterSource params = new MapSqlParameterSource("eventId", eventId);
+    params.addValue("top", top);
+    String sql = "SELECT userId, distance FROM eventParticipant "
+        + "WHERE eventId = :eventId "
+        + "ORDER BY distance DESC "
+        + "LIMIT :top";
+    return namedParameterJdbcTemplate.query(sql, params,
+        (rs, i) -> new EventUserStatDTO(rs.getLong("userId"), rs.getLong("distance")));
   }
 }
