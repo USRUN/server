@@ -4,11 +4,7 @@ import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.Team;
 import com.usrun.core.payload.CodeResponse;
-import com.usrun.core.payload.dto.TeamDTO;
 import com.usrun.core.payload.team.CreateTeamRequest;
-import com.usrun.core.repository.TeamRepository;
-import com.usrun.core.security.CurrentUser;
-import com.usrun.core.security.UserPrincipal;
 import com.usrun.core.service.TeamService;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/admin/team")
+@RequestMapping("/admin/teams")
 public class AdminTeamController {
 
   @Autowired
