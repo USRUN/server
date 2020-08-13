@@ -37,4 +37,8 @@ public interface UserActivityRepository {
   void updateTotalLove(long activityId, int count);
 
   List<UserActivityStatDTO> getStat();
+
+  UserActivity update(UserActivity activityId);
+
+  boolean delete(long activityId);
 }

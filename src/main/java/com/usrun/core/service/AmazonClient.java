@@ -2,12 +2,14 @@ package com.usrun.core.service;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.opsworks.model.App;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.usrun.core.config.AmazonS3Config;
+import com.usrun.core.config.AppProperties;
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
 import java.awt.image.BufferedImage;
@@ -22,6 +24,7 @@ import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.bson.types.Code;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +36,9 @@ public class AmazonClient {
 
   @Autowired
   private AmazonS3Config amazonS3Config;
+
+  @Autowired
+  private AppProperties appProperties;
 
   @PostConstruct
   private void init() {
@@ -72,6 +78,26 @@ public class AmazonClient {
     File outputFile = new File(name);
     ImageIO.write(image, extensions, outputFile);
     return outputFile;
+  }
+
+  public String uploadFile(BufferedImage bufferedImage, String fileName, String extensions){
+    String fileUrl = null;
+    File file = new File(fileName);
+    try{
+      ImageIO.write(bufferedImage, extensions, file);
+      if(file.length() > appProperties.getMaxImageSize()){
+        file.delete();
+        throw new CodeException(ErrorCode.INVALID_IMAGE_SIZE);
+      }
+
+      fileUrl =
+              amazonS3Config.getEndpointUrl() + "/" + amazonS3Config.getBucketName() + "/" + fileName;
+      uploadFileToS3Bucket(fileName, file);
+      file.delete();
+    } catch (IOException e) {
+      log.error("", e);
+    }
+    return fileUrl;
   }
 
   public String uploadFile(String base64Image, String fileName) {
