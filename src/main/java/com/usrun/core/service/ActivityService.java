@@ -179,7 +179,7 @@ public class ActivityService {
         int countActivitiesSortedSet = (Integer) rs.get(1);
         List<Long> activities = ObjectUtils.fromJsonString(String.valueOf(rs.get(2)),
                 new TypeReference<List<Long>>() {
-                });
+        });
 
         if (countActivitiesSortedSet >= stop || countActivities == countActivitiesSortedSet) {
             return loadActivities(activities);
@@ -194,7 +194,7 @@ public class ActivityService {
     }
 
     public UserActivity createUserActivity(long creatorId,
-                                           CreateActivityRequest request) {
+            CreateActivityRequest request) {
         List<String> photosBase64 = request.getPhotosBase64();
         List<String> photos = new ArrayList<>();
         try {
@@ -316,13 +316,14 @@ public class ActivityService {
                 });
             }
             List<SplitPaceDTO> splitResp = new ArrayList<>();
-            for (Map.Entry<String, Object> entry : result.entrySet()) {
-                Double km = Double.valueOf(entry.getKey());
-                int pace = (int) entry.getValue();
-                SplitPaceDTO itemSplit = new SplitPaceDTO(km, pace);
-                splitResp.add(itemSplit);
+            if (result != null) {
+                for (Map.Entry<String, Object> entry : result.entrySet()) {
+                    Double km = Double.valueOf(entry.getKey());
+                    int pace = (int) entry.getValue();
+                    SplitPaceDTO itemSplit = new SplitPaceDTO(km, pace);
+                    splitResp.add(itemSplit);
+                }
             }
-
             UserFeedResp itemUserFeed = new UserFeedResp(item.getUserActivityId(),
                     item.getUserId(),
                     user.getName(),
@@ -352,7 +353,6 @@ public class ActivityService {
         }
         return resp;
     }
-
 
     public UserActivity updateActivity(long activityId, long userId, String title, String description, List<String> photos, boolean isShowMap) {
         UserActivity toUpdate = userActivityRepository.findById(activityId);
@@ -398,7 +398,7 @@ public class ActivityService {
         return updated;
     }
 
-    public boolean deleteActivity(long activityId, long userId){
+    public boolean deleteActivity(long activityId, long userId) {
         UserActivity toUpdate = userActivityRepository.findById(activityId);
 
         if (toUpdate == null) {
@@ -409,7 +409,7 @@ public class ActivityService {
             throw new CodeException(ErrorCode.ACTIVITY_DOESNT_BELONG_TO_USER);
         }
 
-        if(userActivityRepository.delete(activityId)){
+        if (userActivityRepository.delete(activityId)) {
             return true;
         } else {
             throw new CodeException(ErrorCode.ACTIVITY_DELETE_FAIL);
