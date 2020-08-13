@@ -60,6 +60,7 @@ app:
     key: activityusrun1620
   activityLock: 30000
   googleMapKey: AIzaSyCxxnmYcixQiUd_8VONtIIFyGwEppgOan0
+  maxImageSize: 1048576
 redis:
   url: ${REDIS_URL:redis://128.199.168.137:6379}
   password: ${REDIS_PASSWORD:1daf4caa4f13089d72cb3b5224f0b1d0e0b7619a3a404319e5d4fdb192f08c48}
