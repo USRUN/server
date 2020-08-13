@@ -57,7 +57,7 @@ public class GoogleMapService {
         mergeData.stream().forEach(item -> params.append("|").append(item.getLatitude()).append(",").append(item.getLongitude()));
         String query = URLEncoder.encode(params.toString(), StandardCharsets.UTF_8.name());
         String key = appProperties.getGoogleMapKey();
-        query = "size=1280x720&path=" + query + "&key=" + key;
+        query = "size=720x720&path=" + query + "&key=" + key;
         BufferedImage resultImage = ImageIO.read(new URL(url + query));
         String fileName = "activity-track-" + UUID.randomUUID().toString() + "." + "png";
         String fileUrl = amazonClient.uploadFile(resultImage, fileName, "png");
