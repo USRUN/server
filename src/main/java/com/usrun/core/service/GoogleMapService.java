@@ -9,10 +9,14 @@ import com.usrun.core.config.AppProperties;
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.track.Location;
+
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -24,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -51,20 +57,11 @@ public class GoogleMapService {
         mergeData.stream().forEach(item -> params.append("|").append(item.getLatitude()).append(",").append(item.getLongitude()));
         String query = URLEncoder.encode(params.toString(), StandardCharsets.UTF_8.name());
         String key = appProperties.getGoogleMapKey();
-        query = "size=400x400&path=" + query + "&key=" + key;
-        HttpGet httpPost = new HttpGet(url + query);
-        String result = "";
-        String fileUrl = "";
-        try (CloseableHttpClient httpClient = HttpClients.createDefault();
-                CloseableHttpResponse response = httpClient.execute(httpPost)) {
-            result = EntityUtils.toString(response.getEntity());
-            if (result.length() <= appProperties.getMaxImageSize()) {
-                fileUrl = amazonClient
-                        .uploadFile(result, "activity-track-" + UUID.randomUUID().toString());
-            } else {
-                throw new CodeException(ErrorCode.INVALID_IMAGE_SIZE);
-            }
-        }
+        query = "size=720x720&path=" + query + "&key=" + key;
+        BufferedImage resultImage = ImageIO.read(new URL(url + query));
+        String fileName = "activity-track-" + UUID.randomUUID().toString() + "." + "png";
+        String fileUrl = amazonClient.uploadFile(resultImage, fileName, "png");
+
         return fileUrl.isEmpty() ? activityService.IMAGE_DEFAULT : fileUrl;
     }
 

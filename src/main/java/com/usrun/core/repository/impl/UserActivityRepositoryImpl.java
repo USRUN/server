@@ -259,4 +259,25 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     ));
   }
 
+    @Override
+    public UserActivity update(UserActivity toUpdate) {
+        MapSqlParameterSource params = getMapUserActivity(toUpdate);
+
+        int affected = namedParameterJdbcTemplate.update(
+                "UPDATE userActivity SET title = :title, description = :description, photo = :photo, isShowMap = :isShowMap",
+                params
+        );
+
+        return affected == 0 ? null : toUpdate;
+    }
+    @Override
+    public boolean delete(long activityId) {
+        MapSqlParameterSource params = new MapSqlParameterSource("activityId", activityId);
+
+
+        String sql = "UPDATE userActivity SET isDeleted = true WHERE activityId = :activityId";
+
+        int affected = namedParameterJdbcTemplate.update(sql, params);
+        return affected != 0;
+    }
 }

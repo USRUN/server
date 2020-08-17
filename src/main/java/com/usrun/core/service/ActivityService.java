@@ -24,17 +24,12 @@ import com.usrun.core.repository.UserRepository;
 import com.usrun.core.utility.CacheClient;
 import com.usrun.core.utility.ObjectUtils;
 import com.usrun.core.utility.SequenceGenerator;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -205,8 +200,8 @@ public class ActivityService {
         try {
             String photoTrack = googleMapService.getRouteImage(request.getTrackRequest().getLocations());
             photos.add(photoTrack);
-        }catch(IOException ex){
-            LOGGER.error("fail to parse image track: "+ex.getMessage());
+        } catch (IOException ex) {
+            LOGGER.error("fail to parse image track: " + ex.getMessage());
         }
         for (String photoBase64 : photosBase64) {
             if (photoBase64.length() <= appProperties.getMaxImageSize()) {
@@ -321,21 +316,22 @@ public class ActivityService {
                 });
             }
             List<SplitPaceDTO> splitResp = new ArrayList<>();
-            for (Map.Entry<String, Object> entry : result.entrySet()) {
-                Double km = Double.valueOf(entry.getKey());
-                int pace = (int) entry.getValue();
-                SplitPaceDTO itemSplit = new SplitPaceDTO(km, pace);
-                splitResp.add(itemSplit);
+            if (result != null) {
+                for (Map.Entry<String, Object> entry : result.entrySet()) {
+                    Double km = Double.valueOf(entry.getKey());
+                    int pace = (int) entry.getValue();
+                    SplitPaceDTO itemSplit = new SplitPaceDTO(km, pace);
+                    splitResp.add(itemSplit);
+                }
             }
-
             UserFeedResp itemUserFeed = new UserFeedResp(item.getUserActivityId(),
                     item.getUserId(),
                     user.getName(),
                     user.getAvatar(),
                     user.isHcmus(),
                     item.getEventId(),
-                    e.isPresent() ? events.get(i).getEventName() : "",
-                    e.isPresent() ? events.get(i).getThumbnail() : "",
+                    e.isPresent() ? e.get().getEventName() : "",
+                    e.isPresent() ? e.get().getThumbnail() : "",
                     item.getCreateTime(),
                     item.getTotalDistance(),
                     item.getTotalTime(),
@@ -358,4 +354,65 @@ public class ActivityService {
         return resp;
     }
 
+    public UserActivity updateActivity(long activityId, long userId, String title, String description, List<String> photos, boolean isShowMap) {
+        UserActivity toUpdate = userActivityRepository.findById(activityId);
+
+        if (toUpdate == null) {
+            throw new CodeException(ErrorCode.ACTIVITY_NOT_FOUND);
+        }
+
+        if (toUpdate.getUserId() != userId) {
+            throw new CodeException(ErrorCode.ACTIVITY_DOESNT_BELONG_TO_USER);
+        }
+
+        if (title != null && !title.isEmpty()) {
+            toUpdate.setTitle(title);
+        }
+
+        if (description != null && !description.isEmpty()) {
+            toUpdate.setDescription(description);
+        }
+
+        if (photos != null) {
+            for (int i = 0; i < photos.size(); i++) {
+                if (!photos.get(i).startsWith("http")) {
+                    if (photos.get(i).length() <= appProperties.getMaxImageSize()) {
+                        String fileUrl = amazonClient
+                                .uploadFile(photos.get(i), "activity-" + UUID.randomUUID().toString());
+                        if (fileUrl != null) {
+                            photos.add(fileUrl);
+                        }
+                    } else {
+                        throw new CodeException(ErrorCode.INVALID_IMAGE_SIZE);
+                    }
+                }
+            }
+            toUpdate.setPhotos(photos);
+        }
+
+        toUpdate.setShowMap(isShowMap);
+
+        UserActivity updated = userActivityRepository.update(toUpdate);
+        LOGGER.info("Update activity {}", activityId);
+
+        return updated;
+    }
+
+    public boolean deleteActivity(long activityId, long userId) {
+        UserActivity toUpdate = userActivityRepository.findById(activityId);
+
+        if (toUpdate == null) {
+            throw new CodeException(ErrorCode.ACTIVITY_NOT_FOUND);
+        }
+
+        if (toUpdate.getUserId() != userId) {
+            throw new CodeException(ErrorCode.ACTIVITY_DOESNT_BELONG_TO_USER);
+        }
+
+        if (userActivityRepository.delete(activityId)) {
+            return true;
+        } else {
+            throw new CodeException(ErrorCode.ACTIVITY_DELETE_FAIL);
+        }
+    }
 }
