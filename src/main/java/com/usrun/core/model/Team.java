@@ -11,7 +11,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @Data
 public class Team {
 
-  private Long id;
+  private long id;
 
   private int privacy;
 
