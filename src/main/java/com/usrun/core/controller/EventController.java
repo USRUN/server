@@ -40,206 +40,239 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/event")
 public class EventController {
 
-  private static final Logger logger = LoggerFactory.getLogger(EventController.class);
-  @Autowired
-  private EventRepository eventRepository;
+    private static final Logger logger = LoggerFactory.getLogger(EventController.class);
+    @Autowired
+    private EventRepository eventRepository;
 
-  @Autowired
-  private SponsorRepository sponsor;
+    @Autowired
+    private SponsorRepository sponsor;
 
-  @Autowired
-  private EventParticipantRepository eventParticipantRepository;
+    @Autowired
+    private EventParticipantRepository eventParticipantRepository;
 
-  @Autowired
-  private UserService userService;
+    @Autowired
+    private UserService userService;
 
-  @Autowired
-  private EventService eventService;
-  @Autowired
-  private TeamRepository teamMember;
+    @Autowired
+    private EventService eventService;
+    @Autowired
+    private TeamRepository teamMember;
 
-  @PostMapping("/createEvent")
-  public ResponseEntity<?> createEvent(
-      @RequestBody EventReq eventReq
-  ) {
-    int putError = eventService.createEvent(eventReq);
-    if (putError > 0) {
-      return new ResponseEntity<>(new CodeResponse("put success"), HttpStatus.OK);
-    }
-    return new ResponseEntity<>(new CodeResponse(ErrorCode.ADD_EVENT_FAIL), HttpStatus.OK);
-  }
-
-  @PostMapping("/joinEvent")
-  public ResponseEntity<?> joinEvent(
-      @CurrentUser UserPrincipal userPrincipal,
-      @RequestBody JoinEventReq joinEventReq
-  ) {
-    try {
-      long userId = userPrincipal.getId();
-      long teamId = joinEventReq.getTeamId();
-      long eventId = joinEventReq.getEventId();
-
-      Event event = eventRepository.findById(eventId);
-      if (event == null) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.EVENT_NOT_EXISTED), HttpStatus.OK);
-      }
-
-      User user = userService.loadUser(userId);
-      if (!user.getTeams().contains(teamId)) {
-        return ResponseEntity.status(400).body(new CodeResponse(ErrorCode.TEAM_USER_NOT_FOUND));
-      }
-
-      EventParticipant eventParticipant = new EventParticipant(eventId, userId, teamId, 0);
-      int put = eventParticipantRepository.insert(eventParticipant);
-      if (put >= 0) {
-        return new ResponseEntity<>(new CodeResponse(ErrorCode.SUCCESS), HttpStatus.OK);
-      }
-      return new ResponseEntity<>(new CodeResponse(""), HttpStatus.BAD_REQUEST);
-    } catch (Exception ex) {
-      logger.error(ex.getMessage(), ex);
-      return new ResponseEntity<>(new CodeResponse(""), HttpStatus.BAD_REQUEST);
+    @PostMapping("/createEvent")
+    public ResponseEntity<?> createEvent(
+            @RequestBody EventReq eventReq
+    ) {
+        int putError = eventService.createEvent(eventReq);
+        if (putError > 0) {
+            return new ResponseEntity<>(new CodeResponse("put success"), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new CodeResponse(ErrorCode.ADD_EVENT_FAIL), HttpStatus.OK);
     }
 
-  }
+    @PostMapping("/joinEvent")
+    public ResponseEntity<?> joinEvent(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody JoinEventReq joinEventReq
+    ) {
+        try {
+            long userId = userPrincipal.getId();
+            long teamId = joinEventReq.getTeamId();
+            long eventId = joinEventReq.getEventId();
 
-  @PostMapping("/getEventOfUser")
-  public ResponseEntity<?> getEventOfUser(
-      @CurrentUser UserPrincipal userPrincipal
-  ) {
-    try {
-      long userId = userPrincipal.getId();
+            Event event = eventRepository.findById(eventId);
+            if (event == null) {
+                return new ResponseEntity<>(new CodeResponse(ErrorCode.EVENT_NOT_EXISTED), HttpStatus.OK);
+            }
 
-      List<EventParticipant> listEventPart = eventParticipantRepository.findByUserId(userId);
-      logger.info("listEventPart : " + listEventPart.size());
-      List<Long> ids = new ArrayList<>();
-      listEventPart.stream().forEach(item -> ids.add(item.getEventId()));
-      logger.info("list Ids: " + ids);
-      List<Event> listEvent = eventRepository.mFindById(ids);
-      return new ResponseEntity<>(new CodeResponse(listEvent), HttpStatus.OK);
-    } catch (Exception ex) {
-      logger.error(ex.getMessage(), ex);
-      return new ResponseEntity<>(new CodeResponse(""), HttpStatus.BAD_REQUEST);
+            User user = userService.loadUser(userId);
+            if (!user.getTeams().contains(teamId)) {
+                return ResponseEntity.status(400).body(new CodeResponse(ErrorCode.TEAM_USER_NOT_FOUND));
+            }
+
+            EventParticipant eventParticipant = new EventParticipant(eventId, userId, teamId, 0);
+            int put = eventParticipantRepository.insert(eventParticipant);
+            if (put >= 0) {
+                return new ResponseEntity<>(new CodeResponse(ErrorCode.SUCCESS), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(new CodeResponse(""), HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+            return new ResponseEntity<>(new CodeResponse(""), HttpStatus.BAD_REQUEST);
+        }
+
     }
-  }
 
-  @PostMapping("/getAllEvent")
-  public ResponseEntity<?> getAllEvent(
-      @CurrentUser UserPrincipal userPrincipal,
-      @RequestBody LimitOffsetReq limitOffsetReq
-  ) {
-    try {
-      long userId = userPrincipal.getId();
+    @PostMapping("/leaveEvent")
+    public ResponseEntity<?> leaveEvent(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody JoinEventReq joinEventReq
+    ) {
+        try {
+            long userId = userPrincipal.getId();
+            long teamId = joinEventReq.getTeamId();
+            long eventId = joinEventReq.getEventId();
 
-      List<EventWithCheckJoin> listEventPart = eventRepository
-          .getAllEvent(userId, limitOffsetReq.offset, limitOffsetReq.limit);
-      return new ResponseEntity<>(new CodeResponse(listEventPart), HttpStatus.OK);
-    } catch (Exception ex) {
-      logger.error(ex.getMessage(), ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.GET_EVENT_FAIL), HttpStatus.OK);
+            Event event = eventRepository.findById(eventId);
+            if (event == null) {
+                return new ResponseEntity<>(new CodeResponse(ErrorCode.EVENT_NOT_EXISTED), HttpStatus.OK);
+            }
+
+            User user = userService.loadUser(userId);
+            if (!user.getTeams().contains(teamId)) {
+                return ResponseEntity.status(400).body(new CodeResponse(ErrorCode.TEAM_USER_NOT_FOUND));
+            }
+
+            EventParticipant eventParticipant = new EventParticipant(eventId, userId, teamId, 0);
+            boolean put = eventParticipantRepository.delete(eventParticipant);
+            if (put) {
+                return new ResponseEntity<>(new CodeResponse(ErrorCode.SUCCESS), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(new CodeResponse(""), HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+            return new ResponseEntity<>(new CodeResponse(""), HttpStatus.BAD_REQUEST);
+        }
+
     }
-  }
 
-  @PostMapping("/getMyEvent")
-  public ResponseEntity<?> getMyEvent(
-      @CurrentUser UserPrincipal userPrincipal,
-      @RequestBody LimitOffsetReq limitOffsetReq
-  ) {
-    try {
-      long userId = userPrincipal.getId();
+    @PostMapping("/getEventOfUser")
+    public ResponseEntity<?> getEventOfUser(
+            @CurrentUser UserPrincipal userPrincipal
+    ) {
+        try {
+            long userId = userPrincipal.getId();
 
-      List<Event> listEventPart = eventRepository
-          .getMyEvent(userId, limitOffsetReq.offset, limitOffsetReq.limit);
-      return new ResponseEntity<>(new CodeResponse(listEventPart), HttpStatus.OK);
-    } catch (Exception ex) {
-      logger.error(ex.getMessage(), ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.GET_EVENT_FAIL), HttpStatus.OK);
+            List<EventParticipant> listEventPart = eventParticipantRepository.findByUserId(userId);
+            logger.info("listEventPart : " + listEventPart.size());
+            List<Long> ids = new ArrayList<>();
+            listEventPart.stream().forEach(item -> ids.add(item.getEventId()));
+            logger.info("list Ids: " + ids);
+            List<Event> listEvent = eventRepository.mFindById(ids);
+            return new ResponseEntity<>(new CodeResponse(listEvent), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+            return new ResponseEntity<>(new CodeResponse(""), HttpStatus.BAD_REQUEST);
+        }
     }
-  }
 
-  @PostMapping("/searchEvent")
-  public ResponseEntity<?> searchEvent(
-      @CurrentUser UserPrincipal userPrincipal,
-      @RequestBody SearchEventReq searchReq
-  ) {
-    try {
-      long userId = userPrincipal.getId();
+    @PostMapping("/getAllEvent")
+    public ResponseEntity<?> getAllEvent(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody LimitOffsetReq limitOffsetReq
+    ) {
+        try {
+            long userId = userPrincipal.getId();
 
-      List<EventWithCheckJoin> listEventPart = eventRepository
-          .searchEvent(userId, searchReq.getName(), searchReq.offset, searchReq.limit);
-      return new ResponseEntity<>(new CodeResponse(listEventPart), HttpStatus.OK);
-    } catch (Exception ex) {
-      logger.error(ex.getMessage(), ex);
-      return new ResponseEntity<>(new CodeResponse(ErrorCode.GET_EVENT_FAIL), HttpStatus.OK);
+            List<EventWithCheckJoin> listEventPart = eventRepository
+                    .getAllEvent(userId, limitOffsetReq.offset, limitOffsetReq.limit);
+            return new ResponseEntity<>(new CodeResponse(listEventPart), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.GET_EVENT_FAIL), HttpStatus.OK);
+        }
     }
-  }
 
-  @PostMapping("/getTeamLeaderBoard")
-  @PreAuthorize("hasRole('USER')")
-  public ResponseEntity<?> getTeamLeaderBoard(
-      @RequestBody EventLeaderBoardRequest request
-  ) {
-    try {
-      long eventId = request.getEventId();
-      int top = Math.max(request.getTop(), 10);
-      return ResponseEntity.ok(eventService.getEventTeamLeaderBoard(eventId, top));
-    } catch (CodeException ex) {
-      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
-    } catch (Exception ex) {
-      logger.error("", ex);
-      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
-    }
-  }
+    @PostMapping("/getMyEvent")
+    public ResponseEntity<?> getMyEvent(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody LimitOffsetReq limitOffsetReq
+    ) {
+        try {
+            long userId = userPrincipal.getId();
 
-  @PostMapping("/getUserLeaderBoard")
-  @PreAuthorize("hasRole('USER')")
-  public ResponseEntity<?> getUserLeaderBoard(
-      @RequestBody EventLeaderBoardRequest request
-  ) {
-    try {
-      long eventId = request.getEventId();
-      int top = Math.max(request.getTop(), 10);
-      return ResponseEntity.ok(eventService.getEventUserLeaderBoard(eventId, top));
-    } catch (CodeException ex) {
-      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
-    } catch (Exception ex) {
-      logger.error("", ex);
-      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+            List<Event> listEventPart = eventRepository
+                    .getMyEvent(userId, limitOffsetReq.offset, limitOffsetReq.limit);
+            return new ResponseEntity<>(new CodeResponse(listEventPart), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.GET_EVENT_FAIL), HttpStatus.OK);
+        }
     }
-  }
 
-  @PostMapping("/getEventAthletes")
-  @PreAuthorize("hasRole('USER')")
-  public ResponseEntity<?> getEventAthletes(
-          @RequestBody EventParticipantRequest eventParticipantRequest
-          ){
-    try {
-      long eventId = eventParticipantRequest.getEventId();
-      int offset = Math.max(eventParticipantRequest.getOffset(), 0);
-      int count = eventParticipantRequest.getCount() <= 0 ? 10 : eventParticipantRequest.getCount();
-      return ResponseEntity.ok(eventService.getUserEvent(eventId,offset,count));
-    } catch (CodeException ex) {
-      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
-    } catch (Exception ex) {
-      logger.error("", ex);
-      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
-    }
-  }
+    @PostMapping("/searchEvent")
+    public ResponseEntity<?> searchEvent(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody SearchEventReq searchReq
+    ) {
+        try {
+            long userId = userPrincipal.getId();
 
-  @PostMapping("/getEventTeams")
-  @PreAuthorize("hasRole('USER')")
-  public ResponseEntity<?> getEventTeams(
-          @RequestBody EventParticipantRequest eventParticipantRequest
-  ){
-    try {
-      long eventId = eventParticipantRequest.getEventId();
-      int offset = Math.max(eventParticipantRequest.getOffset(), 0);
-      int count = eventParticipantRequest.getCount() <= 0 ? 10 : eventParticipantRequest.getCount();
-      return ResponseEntity.ok(eventService.getTeamEvent(eventId,offset,count));
-    } catch (CodeException ex) {
-      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
-    } catch (Exception ex) {
-      logger.error("", ex);
-      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+            List<EventWithCheckJoin> listEventPart = eventRepository
+                    .searchEvent(userId, searchReq.getName(), searchReq.offset, searchReq.limit);
+            return new ResponseEntity<>(new CodeResponse(listEventPart), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.GET_EVENT_FAIL), HttpStatus.OK);
+        }
     }
-  }
+
+    @PostMapping("/getTeamLeaderBoard")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getTeamLeaderBoard(
+            @RequestBody EventLeaderBoardRequest request
+    ) {
+        try {
+            long eventId = request.getEventId();
+            int top = Math.max(request.getTop(), 10);
+            return ResponseEntity.ok(eventService.getEventTeamLeaderBoard(eventId, top));
+        } catch (CodeException ex) {
+            return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
+        } catch (Exception ex) {
+            logger.error("", ex);
+            return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+        }
+    }
+
+    @PostMapping("/getUserLeaderBoard")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getUserLeaderBoard(
+            @RequestBody EventLeaderBoardRequest request
+    ) {
+        try {
+            long eventId = request.getEventId();
+            int top = Math.max(request.getTop(), 10);
+            return ResponseEntity.ok(eventService.getEventUserLeaderBoard(eventId, top));
+        } catch (CodeException ex) {
+            return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
+        } catch (Exception ex) {
+            logger.error("", ex);
+            return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+        }
+    }
+
+    @PostMapping("/getEventAthletes")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getEventAthletes(
+            @RequestBody EventParticipantRequest eventParticipantRequest
+    ) {
+        try {
+            long eventId = eventParticipantRequest.getEventId();
+            int offset = Math.max(eventParticipantRequest.getOffset(), 0);
+            int count = eventParticipantRequest.getCount() <= 0 ? 10 : eventParticipantRequest.getCount();
+            return ResponseEntity.ok(eventService.getUserEvent(eventId, offset, count));
+        } catch (CodeException ex) {
+            return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
+        } catch (Exception ex) {
+            logger.error("", ex);
+            return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+        }
+    }
+
+    @PostMapping("/getEventTeams")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getEventTeams(
+            @RequestBody EventParticipantRequest eventParticipantRequest
+    ) {
+        try {
+            long eventId = eventParticipantRequest.getEventId();
+            int offset = Math.max(eventParticipantRequest.getOffset(), 0);
+            int count = eventParticipantRequest.getCount() <= 0 ? 10 : eventParticipantRequest.getCount();
+            return ResponseEntity.ok(eventService.getTeamEvent(eventId, offset, count));
+        } catch (CodeException ex) {
+            return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
+        } catch (Exception ex) {
+            logger.error("", ex);
+            return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+        }
+    }
 }
