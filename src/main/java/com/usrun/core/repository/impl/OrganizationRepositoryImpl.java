@@ -22,68 +22,81 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class OrganizationRepositoryImpl implements OrganizationRepository {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(OrganizationRepositoryImpl.class);
-  @Autowired
-  private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrganizationRepositoryImpl.class);
+    @Autowired
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-  private MapSqlParameterSource mapOrganization(Organization organization) {
-    MapSqlParameterSource map = new MapSqlParameterSource();
-    map.addValue("id", organization.getId());
-    map.addValue("name", organization.getName());
-    return map;
-  }
-
-  @Override
-  public int insert(Organization organization) {
-    MapSqlParameterSource map = mapOrganization(organization);
-    try {
-      int resp = namedParameterJdbcTemplate.update(
-          "INSERT INTO organization(id,name)"
-              + " VALUES(:id, :name)",
-          map
-      );
-      return resp;
-    } catch (Exception ex) {
-      LOGGER.error(ex.getMessage(), ex);
-      return -1;
+    private MapSqlParameterSource mapOrganization(Organization organization) {
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue("id", organization.getId());
+        map.addValue("name", organization.getName());
+        return map;
     }
-  }
 
-  @Override
-  public Organization findById(long id) {
-    MapSqlParameterSource params = new MapSqlParameterSource("id", id);
-    String sql = "SELECT * FROM Organization WHERE id = :id";
-    List<Organization> organization = findOrganization(sql, params);
-    if (organization.size() > 0) {
-      return organization.get(0);
-    } else {
-      return null;
+    @Override
+    public int insert(Organization organization) {
+        MapSqlParameterSource map = mapOrganization(organization);
+        try {
+            int resp = namedParameterJdbcTemplate.update(
+                    "INSERT INTO organization(id,name)"
+                    + " VALUES(:id, :name)",
+                    map
+            );
+            return resp;
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage(), ex);
+            return -1;
+        }
     }
-  }
 
-  @Override
-  public Organization findByName(String name) {
-    MapSqlParameterSource params = new MapSqlParameterSource("name", name);
-    String sql = "SELECT * FROM Organization WHERE name = :name";
-    List<Organization> organization = findOrganization(sql, params);
-    if (organization.size() > 0) {
-      return organization.get(0);
-    } else {
-      return null;
+    @Override
+    public Organization findById(long id) {
+        MapSqlParameterSource params = new MapSqlParameterSource("id", id);
+        String sql = "SELECT * FROM organization WHERE id = :id";
+        List<Organization> organization = findOrganization(sql, params);
+        if (organization.size() > 0) {
+            return organization.get(0);
+        } else {
+            return null;
+        }
     }
-  }
 
-  private List<Organization> findOrganization(String sql, MapSqlParameterSource params) {
-    List<Organization> listOrganization = namedParameterJdbcTemplate.query(sql,
-        params,
-        (rs, i) -> new Organization(rs.getLong("id"),
-            rs.getString("name")
-        ));
-    if (listOrganization.size() > 0) {
-      return listOrganization;
-    } else {
-      return Collections.emptyList();
+    @Override
+    public Organization findByName(String name) {
+        MapSqlParameterSource params = new MapSqlParameterSource("name", name);
+        String sql = "SELECT * FROM organization WHERE name = :name";
+        List<Organization> organization = findOrganization(sql, params);
+        if (organization.size() > 0) {
+            return organization.get(0);
+        } else {
+            return null;
+        }
     }
-  }
+
+    private List<Organization> findOrganization(String sql, MapSqlParameterSource params) {
+        List<Organization> listOrganization = namedParameterJdbcTemplate.query(sql,
+                params,
+                (rs, i) -> new Organization(rs.getLong("id"),
+                        rs.getString("name"),
+                        rs.getString("avatar"),
+                        rs.getString("website"),
+                        rs.getString("description")
+                ));
+        if (listOrganization.size() > 0) {
+            return listOrganization;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<Organization> listOrganization(int offset, int limit, String keyword) {
+        MapSqlParameterSource params = new MapSqlParameterSource("name", "%"+keyword+"%");
+        params.addValue("limit", limit);
+        params.addValue("offset", offset);
+        String sql = "SELECT * FROM organization WHERE name LIKE :name limit :limit offset :offset";
+        List<Organization> organization = findOrganization(sql, params);
+        return organization;
+    }
 
 }

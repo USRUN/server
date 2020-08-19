@@ -6,6 +6,7 @@
 package com.usrun.core.repository;
 
 import com.usrun.core.model.Organization;
+import java.util.List;
 
 /**
  * @author huyna3
@@ -17,4 +18,7 @@ public interface OrganizationRepository {
   Organization findById(long id);
 
   Organization findByName(String name);
+  
+  List<Organization> listOrganization(int offset, int limit, String keyword);
+  
 }

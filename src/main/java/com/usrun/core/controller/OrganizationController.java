@@ -7,12 +7,12 @@ package com.usrun.core.controller;
 
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
-import com.usrun.core.model.Event;
 import com.usrun.core.model.Organization;
 import com.usrun.core.model.Sponsor;
 import com.usrun.core.model.type.SponsorType;
 import com.usrun.core.payload.CodeResponse;
 import com.usrun.core.payload.sponsor.OrganizationCreateReq;
+import com.usrun.core.payload.sponsor.OrganizationListReq;
 import com.usrun.core.payload.sponsor.SponsorCreateReq;
 import com.usrun.core.repository.OrganizationRepository;
 import com.usrun.core.repository.SponsorRepository;
@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,14 +33,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/sponsor")
-public class OrganazitionController {
+public class OrganizationController {
 
-    private static final Logger logger = LoggerFactory.getLogger(OrganazitionController.class);
-
-    private static final OrganazitionController INSTANCE = new OrganazitionController();
-
-    private OrganazitionController() {
-    }
+    private static final Logger logger = LoggerFactory.getLogger(OrganizationController.class);
 
     @Autowired
     private OrganizationRepository organizationRepository;
@@ -48,6 +44,7 @@ public class OrganazitionController {
     private SponsorRepository sponsorRepository;
 
     @PostMapping("/createOrganization")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> createOrganization(@RequestBody OrganizationCreateReq organizationReq) {
         try {
             Organization organization = new Organization(organizationReq.getName());
@@ -63,6 +60,7 @@ public class OrganazitionController {
     }
 
     @PostMapping("/addSponsor")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> addSponsor(@RequestBody SponsorCreateReq sponsorCreateReq) {
         try {
             if (sponsorCreateReq.getRole() > 5 || sponsorCreateReq.getRole() < 1) {
@@ -79,5 +77,14 @@ public class OrganazitionController {
         }
     }
 
-
+    @PostMapping("/listOrganization")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> listOrganization(@RequestBody OrganizationListReq organizationListReq) {
+        try {
+            List<Organization> result = organizationRepository.listOrganization(organizationListReq.getOffset(), organizationListReq.getLimit(), organizationListReq.getKeyword());
+                return new ResponseEntity<>(new CodeResponse(result), HttpStatus.OK);
+        } catch (CodeException ex) {
+            return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
+        }
+    }
 }
