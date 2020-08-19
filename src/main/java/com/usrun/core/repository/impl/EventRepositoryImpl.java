@@ -5,9 +5,11 @@
  */
 package com.usrun.core.repository.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.usrun.core.model.Event;
 import com.usrun.core.payload.event.EventWithCheckJoin;
 import com.usrun.core.repository.EventRepository;
+import com.usrun.core.utility.ObjectUtils;
 import java.util.Collections;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,16 +94,24 @@ public class EventRepositoryImpl implements EventRepository {
     private List<Event> findEvent(String sql, MapSqlParameterSource params) {
         List<Event> listEvent = namedParameterJdbcTemplate.query(sql,
                 params,
-                (rs, i) -> new Event(rs.getLong("eventId"),
+                (rs, i) -> new Event(
+                        rs.getLong("eventId"),
                         rs.getInt("status"),
                         rs.getDate("createTime"),
                         rs.getString("eventName"),
                         rs.getString("subtitle"),
                         rs.getString("thumbnail"),
+                        rs.getString("poster"),
+                        rs.getLong("totalDistance"),
+                        rs.getInt("totalTeamParticipant"),
                         rs.getInt("totalParticipant"),
                         rs.getDate("startTime"),
                         rs.getDate("endTime"),
-                        rs.getInt("status")
+                        rs.getInt("delete"),
+                        rs.getString("banner"),
+                        rs.getString("poweredBy"),
+                        ObjectUtils.fromJsonString(rs.getString("eventDetail"), new TypeReference<List<String>>() {
+                        })
                 ));
         if (listEvent.size() > 0) {
             return listEvent;
