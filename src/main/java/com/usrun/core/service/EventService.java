@@ -9,10 +9,7 @@ import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.Event;
 import com.usrun.core.model.EventParticipant;
-import com.usrun.core.payload.dto.EventTeamStatDTO;
-import com.usrun.core.payload.dto.EventUserStatDTO;
-import com.usrun.core.payload.dto.ShortTeamDTO;
-import com.usrun.core.payload.dto.ShortUserDTO;
+import com.usrun.core.payload.dto.*;
 import com.usrun.core.payload.event.EventReq;
 import com.usrun.core.repository.EventParticipantRepository;
 import com.usrun.core.repository.EventRepository;
@@ -177,5 +174,13 @@ public class EventService {
             user.getAvatar());
       }
     }).collect(Collectors.toList());
+  }
+
+  public List<TeamEventDTO> getTeamEvent(long eventId, int offset, int count){
+    return eventParticipantRepository.getTeamParticipant(eventId,offset,count);
+  }
+
+  public List<UserEventDTO> getUserEvent(long eventId, int offset, int count){
+    return eventParticipantRepository.getUserParticipant(eventId,offset,count);
   }
 }
