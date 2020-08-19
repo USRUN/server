@@ -11,12 +11,7 @@ import com.usrun.core.model.Event;
 import com.usrun.core.model.EventParticipant;
 import com.usrun.core.model.User;
 import com.usrun.core.payload.CodeResponse;
-import com.usrun.core.payload.event.EventReq;
-import com.usrun.core.payload.event.EventLeaderBoardRequest;
-import com.usrun.core.payload.event.EventWithCheckJoin;
-import com.usrun.core.payload.event.JoinEventReq;
-import com.usrun.core.payload.event.LimitOffsetReq;
-import com.usrun.core.payload.event.SearchEventReq;
+import com.usrun.core.payload.event.*;
 import com.usrun.core.repository.EventParticipantRepository;
 import com.usrun.core.repository.EventRepository;
 import com.usrun.core.repository.SponsorRepository;
@@ -204,6 +199,42 @@ public class EventController {
       long eventId = request.getEventId();
       int top = Math.max(request.getTop(), 10);
       return ResponseEntity.ok(eventService.getEventUserLeaderBoard(eventId, top));
+    } catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
+    } catch (Exception ex) {
+      logger.error("", ex);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+    }
+  }
+
+  @PostMapping("/getEventAthletes")
+  @PreAuthorize("hasRole('USER')")
+  public ResponseEntity<?> getEventAthletes(
+          @RequestBody EventParticipantRequest eventParticipantRequest
+          ){
+    try {
+      long eventId = eventParticipantRequest.getEventId();
+      int offset = Math.max(eventParticipantRequest.getOffset(), 0);
+      int count = eventParticipantRequest.getCount() <= 0 ? 10 : eventParticipantRequest.getCount();
+      return ResponseEntity.ok(eventService.getUserEvent(eventId,offset,count));
+    } catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
+    } catch (Exception ex) {
+      logger.error("", ex);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+    }
+  }
+
+  @PostMapping("/getEventTeams")
+  @PreAuthorize("hasRole('USER')")
+  public ResponseEntity<?> getEventTeams(
+          @RequestBody EventParticipantRequest eventParticipantRequest
+  ){
+    try {
+      long eventId = eventParticipantRequest.getEventId();
+      int offset = Math.max(eventParticipantRequest.getOffset(), 0);
+      int count = eventParticipantRequest.getCount() <= 0 ? 10 : eventParticipantRequest.getCount();
+      return ResponseEntity.ok(eventService.getTeamEvent(eventId,offset,count));
     } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {

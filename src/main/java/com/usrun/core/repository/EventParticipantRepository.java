@@ -6,8 +6,13 @@
 package com.usrun.core.repository;
 
 import com.usrun.core.model.EventParticipant;
+import com.usrun.core.model.Team;
+import com.usrun.core.model.User;
 import com.usrun.core.payload.dto.EventTeamStatDTO;
 import com.usrun.core.payload.dto.EventUserStatDTO;
+import com.usrun.core.payload.dto.TeamEventDTO;
+import com.usrun.core.payload.dto.UserEventDTO;
+
 import java.util.List;
 
 /**
@@ -30,4 +35,8 @@ public interface EventParticipantRepository {
   List<EventTeamStatDTO> getTeamStat(long eventId, int top);
 
   List<EventUserStatDTO> getUserStat(long eventId, int top);
+
+  List<UserEventDTO> getUserParticipant(long eventId, int offset, int count);
+
+  List<TeamEventDTO> getTeamParticipant(long eventId, int offset, int count);
 }
