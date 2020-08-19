@@ -111,7 +111,8 @@ public class EventRepositoryImpl implements EventRepository {
                         rs.getString("banner"),
                         rs.getString("poweredBy"),
                         ObjectUtils.fromJsonString(rs.getString("eventDetail"), new TypeReference<List<String>>() {
-                        })
+                        }),
+                        rs.getString("reward")
                 ));
         if (listEvent.size() > 0) {
             return listEvent;

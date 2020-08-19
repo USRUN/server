@@ -115,7 +115,8 @@ public class EventService {
                     eventReq.getDelete(),
                     eventReq.getBanner(),
                     eventReq.getPoweredBy(),
-                    eventReq.getEventDetail()
+                    eventReq.getEventDetail(),
+                    eventReq.getReward()
             );
 
             int[] listResultInsertSponsor = sponsorRepository
