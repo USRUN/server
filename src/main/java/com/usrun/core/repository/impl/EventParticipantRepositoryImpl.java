@@ -8,6 +8,8 @@ package com.usrun.core.repository.impl;
 import com.usrun.core.model.EventParticipant;
 import com.usrun.core.payload.dto.EventTeamStatDTO;
 import com.usrun.core.payload.dto.EventUserStatDTO;
+import com.usrun.core.payload.dto.TeamEventDTO;
+import com.usrun.core.payload.dto.UserEventDTO;
 import com.usrun.core.repository.EventParticipantRepository;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +41,55 @@ public class EventParticipantRepositoryImpl implements EventParticipantRepositor
   }
 
   @Override
+  public List<UserEventDTO> getUserParticipant(long eventId, int offset, int count) {
+    MapSqlParameterSource map = new MapSqlParameterSource("eventId", eventId);
+    map.addValue("offset",offset);
+    map.addValue("count",count);
+
+    try{
+      List<UserEventDTO> users = namedParameterJdbcTemplate.query("SELECT user.userId,displayName,province,avatar  FROM user LEFT JOIN eventParticipant" +
+              " ON user.userId = eventParticipant.userId" +
+              " WHERE eventId = :eventId " +
+                      "LIMIT :offset, :count ",map,
+              (rs,i) -> new UserEventDTO(
+                      rs.getLong("userId"),
+                      rs.getString("displayName"),
+                      rs.getInt("province"),
+                      rs.getString("avatar")
+              ));
+      return users;
+    } catch (Exception ex){
+      logger.error(ex.getMessage(),ex);
+      return null;
+    }
+  }
+
+  @Override
+  public List<TeamEventDTO> getTeamParticipant(long eventId, int offset, int count) {
+    MapSqlParameterSource map = new MapSqlParameterSource("eventId", eventId);
+    map.addValue("offset",offset);
+    map.addValue("count",count);
+
+    try{
+      List<TeamEventDTO> teams = namedParameterJdbcTemplate.query("SELECT team.teamId,teamName,province,thumbnail,totalMember  FROM team LEFT JOIN eventParticipant" +
+                      " ON team.teamId = eventParticipant.teamId" +
+                      " WHERE eventId = :eventId " +
+                      "LIMIT :offset, :count ",map,
+              (rs,i) -> new TeamEventDTO(
+                      rs.getLong("teamId"),
+                      rs.getString("teamName"),
+                      rs.getString("thumbnail"),
+                      rs.getInt("totalMember"),
+                      rs.getInt("province")
+              ));
+      return teams;
+    } catch (Exception ex){
+      logger.error(ex.getMessage(),ex);
+      return null;
+    }
+  }
+
+  @Override
   public int insert(EventParticipant eventParticipant) {
     MapSqlParameterSource map = mapEvent(eventParticipant);
     try {
@@ -59,7 +110,7 @@ public class EventParticipantRepositoryImpl implements EventParticipantRepositor
     int status = 0;
     MapSqlParameterSource map = mapEvent(eventParticipant);
     status = namedParameterJdbcTemplate.update(
-        "DELETE FROM eventParticipant"
+        "DELETE FROM eventParticipant "
             + "WHERE  eventId= :eventId AND teamId= :teamId AND userId= :userId",
         map
     );

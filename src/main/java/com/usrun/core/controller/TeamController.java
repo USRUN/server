@@ -192,7 +192,7 @@ public class TeamController {
       @RequestBody SuggestTeamRequest request
   ) {
     try {
-      int count = request.getCount() <= 0 ? 10 : request.getCount();
+       int count = request.getCount() <= 0 ? 10 :request.getCount();
       int province
           = request.getProvince() >= 1 && request.getProvince() <= 63 ? request.getProvince() : 0;
       Set<Team> teams = teamService.getTeamSuggestion(
