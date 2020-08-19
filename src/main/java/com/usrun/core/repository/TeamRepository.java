@@ -40,6 +40,8 @@ public interface TeamRepository {
 
     List<Team> findAllTeam();
 
+    List<Team> findAllTeam(String teamName, int offset, int limit);
+
     List<Team> getTeamsByUserReturnTeam(long userId);
 
     List<TeamDTO> getTeamsByUserAndNotEqualTeamMemberTypeReturnTeam(long userId, TeamMemberType teamMemberType);

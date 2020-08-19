@@ -343,7 +343,7 @@ public class TeamService {
         return userRepository.getUserByMemberType(teamId, teamMemberType, offset, limit);
     }
 
-    public List<Team> getAll() {
-      return teamRepository.findAllTeam();
+    public List<Team> getAll(String teamName, int offset, int limit) {
+      return teamRepository.findAllTeam(teamName, offset, limit);
     }
 }

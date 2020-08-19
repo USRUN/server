@@ -19,7 +19,6 @@ import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -171,6 +170,16 @@ public class TeamRepositoryImpl implements TeamRepository {
   public List<Team> findAllTeam() {
     MapSqlParameterSource params = new MapSqlParameterSource();
     String sql = "SELECT * FROM team";
+    return getTeamsSQLParamMap(sql, params);
+  }
+
+  @Override
+  public List<Team> findAllTeam(String teamName, int offset, int limit) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("offset", offset * limit);
+    params.addValue("limit", limit);
+    params.addValue("teamName", "%" + teamName + "%");
+    String sql = "SELECT * FROM team WHERE teamName LIKE :teamName LIMIT :limit OFFSET :offset";
     return getTeamsSQLParamMap(sql, params);
   }
 
