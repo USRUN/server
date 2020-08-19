@@ -21,7 +21,7 @@ public class FacebookOAuth2Verify implements OAuth2Verify {
   public UserInfo verify(String accessToken) {
     RestTemplate restTemplate = new RestTemplate();
     String url = "https://graph.facebook.com/me?access_token=" + accessToken
-        + "&fields=email,id,picture,name";
+        + "&fields=email,id,picture.width(300).height(300),name";
     try {
       ResponseEntity<String> response = restTemplate
           .getForEntity(url, String.class);

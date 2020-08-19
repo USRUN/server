@@ -4,6 +4,7 @@ import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
 import com.usrun.core.model.Team;
 import com.usrun.core.payload.CodeResponse;
+import com.usrun.core.payload.team.AdminGetAllTeamRequest;
 import com.usrun.core.payload.team.CreateTeamRequest;
 import com.usrun.core.service.TeamService;
 import java.util.List;
@@ -54,9 +55,12 @@ public class AdminTeamController {
 
   @PostMapping("/getAll")
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<?> getAll() {
+  public ResponseEntity<?> getAll(@RequestBody AdminGetAllTeamRequest request) {
     try {
-      List<Team> teams = teamService.getAll();
+      int offset = Math.max(request.getOffset() - 1, 0);
+      int limit = request.getLimit() <= 0 ? 10 : request.getLimit();
+      String teamName = request.getTeamName() == null ? "" : request.getTeamName();
+      List<Team> teams = teamService.getAll(teamName, offset, limit);
       return ResponseEntity.ok(new CodeResponse(teams));
     } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
