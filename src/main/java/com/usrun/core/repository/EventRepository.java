@@ -29,10 +29,12 @@ public interface EventRepository {
     List<EventWithCheckJoin> getAllEvent(long userId, int offset, int limit);
 
     List<Event> getMyEvent(long userId, int offset, int limit);
+    
+    List<Event> getMyEventNotJoin(long userId, int offset, int limit);
 
     List<EventWithCheckJoin> searchEvent(long userId, String name, int offset, int limit);
 
-    boolean leaveEvent(long userId, long teamId, long eventId);
+    boolean leaveEvent(long userId, long eventId);
     
     boolean inscreaseEventParticipant(long eventId);
 }

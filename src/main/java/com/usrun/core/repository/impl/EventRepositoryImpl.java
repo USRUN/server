@@ -205,13 +205,12 @@ public class EventRepositoryImpl implements EventRepository {
     }
 
     @Override
-    public boolean leaveEvent(long userId, long teamId, long eventId) {
+    public boolean leaveEvent(long userId, long eventId) {
         int status = 0;
         MapSqlParameterSource parameters = new MapSqlParameterSource("userId", userId);
-        parameters.addValue("teamId", teamId);
         parameters.addValue("eventId", eventId);
         String sql = "DELETE FROM eventParticipant "
-                + "WHERE teamId = :teamId AND userId= :userId AND eventId:= eventId";
+                + "WHERE userId= :userId AND eventId:= eventId";
         status = namedParameterJdbcTemplate.update(sql, parameters);
         return status != 0;
     }
@@ -224,5 +223,10 @@ public class EventRepositoryImpl implements EventRepository {
         String sql = "UPDATE event set totalParticipant = totalParticipant +1 where eventId = :eventId";
         status = namedParameterJdbcTemplate.update(sql, parameters);
         return status != 0;
+    }
+
+    @Override
+    public List<Event> getMyEventNotJoin(long userId, int offset, int limit) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

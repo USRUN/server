@@ -105,25 +105,17 @@ public class EventController {
     @PostMapping("/leaveEvent")
     public ResponseEntity<?> leaveEvent(
             @CurrentUser UserPrincipal userPrincipal,
-            @RequestBody JoinEventReq joinEventReq
+            @RequestBody EventIdReq eventIdReq
     ) {
         try {
             long userId = userPrincipal.getId();
-            long teamId = joinEventReq.getTeamId();
-            long eventId = joinEventReq.getEventId();
+            long eventId = eventIdReq.getEventId();
 
             Event event = eventRepository.findById(eventId);
             if (event == null) {
                 return new ResponseEntity<>(new CodeResponse(ErrorCode.EVENT_NOT_EXISTED), HttpStatus.OK);
             }
-
-            User user = userService.loadUser(userId);
-            if (!user.getTeams().contains(teamId)) {
-                return ResponseEntity.status(400).body(new CodeResponse(ErrorCode.TEAM_USER_NOT_FOUND));
-            }
-
-            EventParticipant eventParticipant = new EventParticipant(eventId, userId, teamId, 0);
-            boolean put = eventParticipantRepository.delete(eventParticipant);
+            boolean put =eventRepository.leaveEvent(userId, eventId);
             if (put) {
                 return new ResponseEntity<>(new CodeResponse(ErrorCode.SUCCESS), HttpStatus.OK);
             }
