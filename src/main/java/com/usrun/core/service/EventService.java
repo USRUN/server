@@ -147,18 +147,18 @@ public class EventService {
         //get leader board
         List<EventTeamStatDTO> eventTeamStats = eventParticipantRepository.getTeamStat(eventId, top);
         List<Long> teamIds = eventTeamStats.stream()
-                .map(eventTeamStat -> eventTeamStat.getTeamId())
+                .map(eventTeamStat -> eventTeamStat.getItemId())
                 .collect(Collectors.toList());
         //get Team info in leader board
         Map<Long, ShortTeamDTO> teamMap = teamRepository.getShortTeams(teamIds)
                 .stream().collect(Collectors.toMap(ShortTeamDTO::getTeamId, Function.identity()));
 
         return eventTeamStats.stream().map(e -> {
-            ShortTeamDTO team = teamMap.get(e.getTeamId());
+            ShortTeamDTO team = teamMap.get(e.getItemId());
             if (team == null) {
                 return e;
             } else {
-                return new EventTeamStatDTO(e.getTeamId(), e.getDistance(), team.getTeamName(),
+                return new EventTeamStatDTO(e.getItemId(), e.getDistance(), team.getTeamName(),
                         team.getThumbnail());
             }
         }).collect(Collectors.toList());
@@ -168,17 +168,17 @@ public class EventService {
     //get leader board
     List<EventUserStatDTO> eventUserStats = eventParticipantRepository.getUserStat(eventId, top);
     List<Long> userIds = eventUserStats.stream()
-        .map(e -> e.getUserId())
+        .map(e -> e.getItemId())
         .collect(Collectors.toList());
     //get User info in leader board
     Map<Long, ShortUserDTO> userMap = userRepository.findAll(userIds)
         .stream().collect(Collectors.toMap(ShortUserDTO::getUserId, Function.identity()));
     return eventUserStats.stream().map(e -> {
-      ShortUserDTO user = userMap.get(e.getUserId());
+      ShortUserDTO user = userMap.get(e.getItemId());
       if (user == null) {
         return e;
       } else {
-        return new EventUserStatDTO(e.getUserId(), e.getDistance(), user.getDisplayName(),
+        return new EventUserStatDTO(e.getItemId(), e.getDistance(), user.getDisplayName(),
             user.getAvatar());
       }
     }).collect(Collectors.toList());
