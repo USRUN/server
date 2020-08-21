@@ -438,7 +438,7 @@ public class TeamController {
             int count = request.getLimit()> 0 ? request.getLimit() : 10;
             int offset = request.getOffset();
             long eventId =  request.getEventId();
-            String keyword = request.getName();
+            String keyword = '%' + request.getName() + '%';
             List<Team> teams = teamService.searchTeamByEvent(eventId,keyword, count, offset);
             return ResponseEntity.ok(new CodeResponse(teams));
         } catch (CodeException ex) {
