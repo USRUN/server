@@ -228,7 +228,7 @@ public class EventRepositoryImpl implements EventRepository {
         MapSqlParameterSource parameters = new MapSqlParameterSource("userId", userId);
         parameters.addValue("limit", limit);
         parameters.addValue("offset", limit * offset);
-        String sql = "select * from event where eventId not in (select eventId from eventParticipant where userId = :userId) order by e.endTime DESC limit :limit offset :offset";
+        String sql = "select * from event where eventId not in (select eventId from eventParticipant where userId = :userId) order by endTime DESC limit :limit offset :offset";
         List<Event> events = findEvent(sql, parameters);
         return events;
     }
