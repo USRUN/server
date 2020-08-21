@@ -241,12 +241,13 @@ public class EventController {
     @PostMapping("/getUserLeaderBoard")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getUserLeaderBoard(
+            @CurrentUser UserPrincipal userPrincipal,
             @RequestBody EventLeaderBoardRequest request
     ) {
         try {
             long eventId = request.getEventId();
             int top = Math.max(request.getTop(), 10);
-            return ResponseEntity.ok(new CodeResponse(eventService.getEventUserLeaderBoard(eventId, top)));
+            return ResponseEntity.ok(new CodeResponse(eventService.getEventUserLeaderBoard(eventId, userPrincipal.getId(),top)));
         } catch (CodeException ex) {
             return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
         } catch (Exception ex) {
@@ -303,11 +304,11 @@ public class EventController {
             int numberTeam = eventParticipantRepository.getTotalTeamOfEvent(eventId);
             long totalDistance = eventParticipantRepository.getTotalDistanceOfEvent(eventId);
             List<List<EventOrganization>> dataOrganization = new ArrayList<>();
-            for(int i = 0; i<5;i++){
-                List<EventOrganization> listOrganizationWithRole = sponsor.getEventOrganizationWithRole( eventId,  i);
+            for (int i = 0; i < 5; i++) {
+                List<EventOrganization> listOrganizationWithRole = sponsor.getEventOrganizationWithRole(eventId, i);
                 dataOrganization.add(listOrganizationWithRole);
             }
-            EventInfoResp resp = new EventInfoResp(event,numberTeam,totalDistance,dataOrganization);
+            EventInfoResp resp = new EventInfoResp(event, numberTeam, totalDistance, dataOrganization);
             return ResponseEntity.ok(resp);
         } catch (CodeException ex) {
             return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));

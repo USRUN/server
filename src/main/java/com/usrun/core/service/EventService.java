@@ -17,6 +17,7 @@ import com.usrun.core.repository.SponsorRepository;
 import com.usrun.core.repository.TeamRepository;
 import com.usrun.core.repository.UserRepository;
 import com.usrun.core.utility.SequenceGenerator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -162,24 +163,37 @@ public class EventService {
         }).collect(Collectors.toList());
     }
 
-    public List<EventUserStatDTO> getEventUserLeaderBoard(long eventId, int top) {
+    public List<EventUserStatDTO> getEventUserLeaderBoard(long eventId, long userId, long top) {
         //get leader board
-        List<EventUserStatDTO> eventUserStats = eventParticipantRepository.getUserStat(eventId, top);
-        List<Long> userIds = eventUserStats.stream()
+        List<EventUserStatDTO> eventUserStats = eventParticipantRepository.getUserStat(eventId);
+        List<EventUserStatDTO> topUserStats = eventUserStats.subList(0, 10);
+        int[] position = {0};
+        eventUserStats.stream().peek(x -> position[0]++) // increment every element encounter
+                .filter(item -> item.getItemId() == userId)
+                .findFirst();
+        if (position[0] <eventUserStats.size() && position[0] >= 10) {
+            topUserStats.add(eventUserStats.get(position[0]));
+        }
+        List<Long> userIds = topUserStats.stream()
                 .map(e -> e.getItemId())
                 .collect(Collectors.toList());
         //get User info in leader board
         Map<Long, ShortUserDTO> userMap = userRepository.findAll(userIds)
                 .stream().collect(Collectors.toMap(ShortUserDTO::getUserId, Function.identity()));
-        return eventUserStats.stream().map(e -> {
+        List<EventUserStatDTO> result = new ArrayList<>();
+        for (int i = 0; i < topUserStats.size(); i++) {
+            EventUserStatDTO e = topUserStats.get(i);
             ShortUserDTO user = userMap.get(e.getItemId());
+            EventUserStatDTO item;
             if (user == null) {
-                return e;
+                item = null;
             } else {
-                return new EventUserStatDTO(e.getItemId(), e.getDistance(), user.getDisplayName(),
-                        user.getAvatar());
+                item = new EventUserStatDTO(e.getItemId(), e.getDistance(), user.getDisplayName(),
+                        user.getAvatar(), i + 1);
             }
-        }).collect(Collectors.toList());
+            result.add(item);
+        }
+        return result;
     }
 
     public List<TeamEventDTO> getTeamEvent(long eventId, int offset, int count) {

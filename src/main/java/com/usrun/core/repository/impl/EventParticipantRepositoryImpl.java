@@ -194,13 +194,11 @@ public class EventParticipantRepositoryImpl implements EventParticipantRepositor
     }
 
     @Override
-    public List<EventUserStatDTO> getUserStat(long eventId, int top) {
+    public List<EventUserStatDTO> getUserStat(long eventId) {
         MapSqlParameterSource params = new MapSqlParameterSource("eventId", eventId);
-        params.addValue("top", top);
         String sql = "SELECT userId, distance FROM eventParticipant "
                 + "WHERE eventId = :eventId "
-                + "ORDER BY distance DESC "
-                + "LIMIT :top";
+                + "ORDER BY distance DESC ";
         return namedParameterJdbcTemplate.query(sql, params,
                 (rs, i) -> new EventUserStatDTO(rs.getLong("userId"), rs.getLong("distance")));
     }

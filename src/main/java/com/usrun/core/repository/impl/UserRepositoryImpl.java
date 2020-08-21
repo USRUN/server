@@ -253,8 +253,7 @@ public class UserRepositoryImpl implements UserRepository {
     MapSqlParameterSource params = new MapSqlParameterSource("users", users);
     String sql = "SELECT userId, displayName, avatar FROM user WHERE userId IN (:users)";
     return namedParameterJdbcTemplate.query(sql, params,
-        (rs, i) -> new ShortUserDTO(rs.getLong("userId"), rs.getString("displayName"),
-            rs.getString("avatar")));
+        (rs, i) -> new ShortUserDTO(rs.getLong("userId"), rs.getString("displayName"),rs.getString("avatar")));
   }
 
   private List<User> getUsers(String sql, MapSqlParameterSource params) {

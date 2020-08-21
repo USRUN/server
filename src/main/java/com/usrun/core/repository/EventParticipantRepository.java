@@ -38,7 +38,7 @@ public interface EventParticipantRepository {
 
   List<EventTeamStatDTO> getTeamStat(long eventId, int top);
 
-  List<EventUserStatDTO> getUserStat(long eventId, int top);
+  List<EventUserStatDTO> getUserStat(long eventId);
 
   List<UserEventDTO> getUserParticipant(long eventId, int offset, int count, String name);
 
