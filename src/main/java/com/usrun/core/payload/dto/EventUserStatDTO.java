@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class EventUserStatDTO {
   private long itemId;
   private long distance;
-  private String displayName;
+  private String name;
   private String avatar;
 
   public EventUserStatDTO(long userId, long distance) {
