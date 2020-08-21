@@ -176,7 +176,7 @@ public class EventRepositoryImpl implements EventRepository {
         String sql = "select * "
                 + "from eventParticipant ep, event e "
                 + "where ep.eventId = e.eventId and ep.userId=:userId "
-                + "ORDER BY e.totalParticipant DESC "
+                + "ORDER BY e.endTime DESC "
                 + "LIMIT :limit OFFSET :offset";;
         List<Event> events = findEvent(sql, parameters);
         return events;
@@ -196,7 +196,7 @@ public class EventRepositoryImpl implements EventRepository {
                 + "on ep.eventId = null || ep.eventId = e.eventId "
                 + "group by e.eventId "
                 + "having e.eventName like :name "
-                + "order by totalParticipant desc "
+                + "order by e.endTime desc "
                 + "limit :limit offset :offset";
         List<EventWithCheckJoin> events = findEventWithCheckJoin(sql, parameters);
         return events;
@@ -228,7 +228,7 @@ public class EventRepositoryImpl implements EventRepository {
         MapSqlParameterSource parameters = new MapSqlParameterSource("userId", userId);
         parameters.addValue("limit", limit);
         parameters.addValue("offset", limit * offset);
-        String sql = "select * from event where eventId not in (select eventId from eventParticipant where userId = :userId) limit :limit offset :offset";
+        String sql = "select * from event where eventId not in (select eventId from eventParticipant where userId = :userId) order by e.endTime DESC limit :limit offset :offset";
         List<Event> events = findEvent(sql, parameters);
         return events;
     }
