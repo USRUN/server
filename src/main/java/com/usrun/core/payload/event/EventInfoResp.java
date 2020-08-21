@@ -36,8 +36,9 @@ public class EventInfoResp {
     private long totalDistance;
     private String reward;
     List<List<EventOrganization>> sponsorIds;
+    private long teamId;
 
-    public EventInfoResp(int status, String eventName, String subtitle, String thumbnail, int totalTeamParticipant, int totalParticipant, Date startTime, Date endTime, String banner, String poweredBy, String description, String poster, int totalDistance, String reward) {
+    public EventInfoResp(int status, String eventName, String subtitle, String thumbnail, int totalTeamParticipant, int totalParticipant, Date startTime, Date endTime, String banner, String poweredBy, String description, String poster, int totalDistance, String reward, long teamId) {
         this.status = status;
         this.eventName = eventName;
         this.subtitle = subtitle;
@@ -52,10 +53,11 @@ public class EventInfoResp {
         this.poster = poster;
         this.totalDistance = totalDistance;
         this.reward = reward;
+        this.teamId = teamId;
     }
 
    
-    public EventInfoResp(Event event, int totalTeam, long totalDistance,    List<List<EventOrganization>> sponsorIds) {
+    public EventInfoResp(Event event, int totalTeam, long totalDistance,    List<List<EventOrganization>> sponsorIds, long teamId) {
         this.status = EventInfoResp.getStatus(event);
         this.eventName = event.getEventName();
         this.subtitle = event.getSubtitle();

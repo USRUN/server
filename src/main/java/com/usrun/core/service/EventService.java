@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,9 +141,24 @@ public class EventService {
         }
     }
 
-    public List<EventTeamStatDTO> getEventTeamLeaderBoard(long eventId, int top) {
+    public List<EventTeamStatDTO> getEventTeamLeaderBoard(long eventId, int top, long teamId) {
         //get leader board
-        List<EventTeamStatDTO> eventTeamStats = eventParticipantRepository.getTeamStat(eventId, top);
+        List<EventTeamStatDTO> eventTeamStats = eventParticipantRepository.getTeamStat(eventId);
+        List<EventTeamStatDTO> topTeamStats = eventTeamStats.subList(0, top);
+
+        int[] position = {-1};
+        eventTeamStats.stream().peek(x -> position[0]++) // increment every element encounter
+                .filter(item -> item.getItemId() == teamId)
+                .findFirst();
+        for (int i = 0; i < topTeamStats.size(); i++) {
+            topTeamStats.get(i).setRank(i + 1);
+        }
+        EventTeamStatDTO myteam = eventTeamStats.get(position[0]);
+        if (position[0] < eventTeamStats.size() && position[0] >= top && myteam.getItemId() == teamId) {
+            myteam.setRank(position[0] + 1);
+            topTeamStats.add(myteam);
+        }
+
         List<Long> teamIds = eventTeamStats.stream()
                 .map(eventTeamStat -> eventTeamStat.getItemId())
                 .collect(Collectors.toList());
@@ -152,27 +166,37 @@ public class EventService {
         Map<Long, ShortTeamDTO> teamMap = teamRepository.getShortTeams(teamIds)
                 .stream().collect(Collectors.toMap(ShortTeamDTO::getTeamId, Function.identity()));
 
-        return eventTeamStats.stream().map(e -> {
+        List<EventTeamStatDTO> result = new ArrayList<>();
+        for (int i = 0; i < topTeamStats.size(); i++) {
+            EventTeamStatDTO e = topTeamStats.get(i);
             ShortTeamDTO team = teamMap.get(e.getItemId());
+            EventTeamStatDTO item;
             if (team == null) {
-                return e;
+                item = null;
             } else {
-                return new EventTeamStatDTO(e.getItemId(), e.getDistance(), team.getTeamName(),
-                        team.getThumbnail());
+                item = new EventTeamStatDTO(e.getItemId(), e.getDistance(), team.getTeamName(),
+                        team.getThumbnail(), e.getRank());
             }
-        }).collect(Collectors.toList());
+            result.add(item);
+        }
+        return result;
     }
 
-    public List<EventUserStatDTO> getEventUserLeaderBoard(long eventId, long userId, long top) {
+    public List<EventUserStatDTO> getEventUserLeaderBoard(long eventId, long userId, int top) {
         //get leader board
         List<EventUserStatDTO> eventUserStats = eventParticipantRepository.getUserStat(eventId);
-        List<EventUserStatDTO> topUserStats = eventUserStats.subList(0, 10);
-        int[] position = {0};
+        List<EventUserStatDTO> topUserStats = eventUserStats.subList(0, top);
+        int[] position = {-1};
         eventUserStats.stream().peek(x -> position[0]++) // increment every element encounter
                 .filter(item -> item.getItemId() == userId)
                 .findFirst();
-        if (position[0] <eventUserStats.size() && position[0] >= 10) {
-            topUserStats.add(eventUserStats.get(position[0]));
+        for (int i = 0; i < topUserStats.size(); i++) {
+            topUserStats.get(i).setRank(i + 1);
+        }
+        EventUserStatDTO userStat = eventUserStats.get(position[0]);
+        if (position[0] < eventUserStats.size() && position[0] >= top && userStat.getItemId() ==userId ) {
+            userStat.setRank(position[0] + 1);
+            eventUserStats.add(userStat);
         }
         List<Long> userIds = topUserStats.stream()
                 .map(e -> e.getItemId())
@@ -189,7 +213,7 @@ public class EventService {
                 item = null;
             } else {
                 item = new EventUserStatDTO(e.getItemId(), e.getDistance(), user.getDisplayName(),
-                        user.getAvatar(), i + 1);
+                        user.getAvatar(), e.getRank());
             }
             result.add(item);
         }

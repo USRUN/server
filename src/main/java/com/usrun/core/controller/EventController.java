@@ -224,12 +224,15 @@ public class EventController {
     @PostMapping("/getTeamLeaderBoard")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getTeamLeaderBoard(
+            @CurrentUser UserPrincipal userPrincipal,
             @RequestBody EventLeaderBoardRequest request
     ) {
         try {
             long eventId = request.getEventId();
             int top = Math.max(request.getTop(), 10);
-            return ResponseEntity.ok(new CodeResponse(eventService.getEventTeamLeaderBoard(eventId, top)));
+            EventParticipant eventParticipant = eventParticipantRepository.findEventParticipant(eventId, userPrincipal.getId());
+            long teamId = eventParticipant != null? eventParticipant.getTeamId() : -1;
+            return ResponseEntity.ok(new CodeResponse(eventService.getEventTeamLeaderBoard(eventId, top,teamId)));
         } catch (CodeException ex) {
             return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
         } catch (Exception ex) {
@@ -247,7 +250,7 @@ public class EventController {
         try {
             long eventId = request.getEventId();
             int top = Math.max(request.getTop(), 10);
-            return ResponseEntity.ok(new CodeResponse(eventService.getEventUserLeaderBoard(eventId, userPrincipal.getId(),top)));
+            return ResponseEntity.ok(new CodeResponse(eventService.getEventUserLeaderBoard(eventId, userPrincipal.getId(), top)));
         } catch (CodeException ex) {
             return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
         } catch (Exception ex) {
@@ -296,6 +299,7 @@ public class EventController {
     @PostMapping("/getEventInfo")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getEventInfo(
+            @CurrentUser UserPrincipal userPrincipal,
             @RequestBody EventIdReq eventIdReq
     ) {
         try {
@@ -308,7 +312,9 @@ public class EventController {
                 List<EventOrganization> listOrganizationWithRole = sponsor.getEventOrganizationWithRole(eventId, i);
                 dataOrganization.add(listOrganizationWithRole);
             }
-            EventInfoResp resp = new EventInfoResp(event, numberTeam, totalDistance, dataOrganization);
+            EventParticipant eventParticipant = eventParticipantRepository.findEventParticipant(eventId, userPrincipal.getId());
+            long teamId = eventParticipant != null ? eventParticipant.getTeamId() : -1;
+            EventInfoResp resp = new EventInfoResp(event, numberTeam, totalDistance, dataOrganization, teamId);
             return ResponseEntity.ok(resp);
         } catch (CodeException ex) {
             return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));

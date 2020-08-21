@@ -14,6 +14,7 @@ public class EventTeamStatDTO {
   private long distance;
   private String name;
   private String avatar;
+  private int rank;
 
   public EventTeamStatDTO(long teamId, long distance) {
     this.itemId = teamId;

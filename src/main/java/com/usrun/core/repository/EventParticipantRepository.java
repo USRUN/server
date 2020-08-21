@@ -36,7 +36,7 @@ public interface EventParticipantRepository {
   
   long getTotalDistanceOfEvent(long eventId);
 
-  List<EventTeamStatDTO> getTeamStat(long eventId, int top);
+  List<EventTeamStatDTO> getTeamStat(long eventId);
 
   List<EventUserStatDTO> getUserStat(long eventId);
 

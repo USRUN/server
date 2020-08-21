@@ -181,14 +181,12 @@ public class EventParticipantRepositoryImpl implements EventParticipantRepositor
     }
 
     @Override
-    public List<EventTeamStatDTO> getTeamStat(long eventId, int top) {
+    public List<EventTeamStatDTO> getTeamStat(long eventId) {
         MapSqlParameterSource params = new MapSqlParameterSource("eventId", eventId);
-        params.addValue("top", top);
         String sql = "SELECT teamId, SUM(distance) as totalDistance FROM eventParticipant "
                 + "WHERE eventId = :eventId "
                 + "GROUP BY teamId "
-                + "ORDER BY totalDistance DESC "
-                + "LIMIT :top";
+                + "ORDER BY totalDistance DESC ";
         return namedParameterJdbcTemplate.query(sql, params,
                 (rs, i) -> new EventTeamStatDTO(rs.getLong("teamId"), rs.getLong("totalDistance")));
     }
