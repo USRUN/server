@@ -7,4 +7,5 @@ public class EventParticipantRequest {
     private long eventId;
     private int offset;
     private int count;
+    private String name;
 }

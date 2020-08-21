@@ -41,15 +41,16 @@ public class EventParticipantRepositoryImpl implements EventParticipantRepositor
     }
 
     @Override
-    public List<UserEventDTO> getUserParticipant(long eventId, int offset, int count) {
+    public List<UserEventDTO> getUserParticipant(long eventId, int offset, int count, String name) {
         MapSqlParameterSource map = new MapSqlParameterSource("eventId", eventId);
         map.addValue("offset", offset);
         map.addValue("count", count);
+        map.addValue("name", "%"+name+"%");
 
         try {
             List<UserEventDTO> users = namedParameterJdbcTemplate.query("SELECT user.userId,displayName,province,avatar  FROM user LEFT JOIN eventParticipant"
-                    + " ON user.userId = eventParticipant.userId"
-                    + " WHERE eventId = :eventId "
+                    + " ON user.userId = eventParticipant.userId" 
+                    + " WHERE eventId = :eventId AND user.displayName like :name "
                     + "LIMIT :offset, :count ", map,
                     (rs, i) -> new UserEventDTO(
                             rs.getLong("userId"),

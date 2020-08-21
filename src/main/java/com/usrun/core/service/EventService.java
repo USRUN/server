@@ -186,7 +186,7 @@ public class EventService {
         return eventParticipantRepository.getTeamParticipant(eventId, offset, count);
     }
 
-    public List<UserEventDTO> getUserEvent(long eventId, int offset, int count) {
-        return eventParticipantRepository.getUserParticipant(eventId, offset, count);
+    public List<UserEventDTO> getUserEvent(long eventId, int offset, int count, String name) {
+        return eventParticipantRepository.getUserParticipant(eventId, offset, count, name);
     }
 }
