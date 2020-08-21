@@ -439,7 +439,7 @@ public class TeamController {
             int offset = request.getOffset();
             long eventId =  request.getEventId();
             String keyword = '%' + request.getName() + '%';
-            List<Team> teams = teamService.searchTeamByEvent(eventId,keyword, count, offset);
+            List<Team> teams = teamService.searchTeamByEvent(eventId,keyword, offset, count);
             return ResponseEntity.ok(new CodeResponse(teams));
         } catch (CodeException ex) {
             return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
