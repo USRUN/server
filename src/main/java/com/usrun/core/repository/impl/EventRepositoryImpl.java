@@ -197,7 +197,7 @@ public class EventRepositoryImpl implements EventRepository {
                 + "left join eventParticipant ep "
                 + "on ep.eventId = null || ep.eventId = e.eventId "
                 + "group by e.eventId "
-                + "having e.eventName like %:name% "
+                + "having e.eventName like :name "
                 + "order by totalParticipant desc "
                 + "limit :limit offset :offset";
         List<EventWithCheckJoin> events = findEventWithCheckJoin(sql, parameters);

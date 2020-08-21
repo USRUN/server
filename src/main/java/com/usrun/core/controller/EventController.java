@@ -190,7 +190,7 @@ public class EventController {
             long userId = userPrincipal.getId();
 
             List<EventWithCheckJoin> listEventPart = eventRepository
-                    .searchEvent(userId, searchReq.getName(), searchReq.offset, searchReq.limit);
+                    .searchEvent(userId, '%' + searchReq.getName() + '%', searchReq.offset, searchReq.limit);
             return new ResponseEntity<>(new CodeResponse(listEventPart), HttpStatus.OK);
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
