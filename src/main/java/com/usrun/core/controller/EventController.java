@@ -265,7 +265,7 @@ public class EventController {
             int offset = Math.max(eventParticipantRequest.getOffset(), 0);
             int count = eventParticipantRequest.getCount() <= 0 ? 10 : eventParticipantRequest.getCount();
             String name = eventParticipantRequest.getName();
-            return ResponseEntity.ok(eventService.getUserEvent(eventId, offset, count, name));
+            return ResponseEntity.ok(new CodeResponse(eventService.getUserEvent(eventId, offset, count, name)));
         } catch (CodeException ex) {
             return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
         } catch (Exception ex) {
