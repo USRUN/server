@@ -102,16 +102,12 @@ public class EventRepositoryImpl implements EventRepository {
                         rs.getString("subtitle"),
                         rs.getString("thumbnail"),
                         rs.getString("poster"),
-                        rs.getLong("totalDistance"),
-                        rs.getInt("totalTeamParticipant"),
                         rs.getInt("totalParticipant"),
                         rs.getDate("startTime"),
                         rs.getDate("endTime"),
-                        rs.getInt("delete"),
+                        rs.getInt("deleted"),
                         rs.getString("banner"),
                         rs.getString("poweredBy"),
-                        ObjectUtils.fromJsonString(rs.getString("eventDetail"), new TypeReference<List<String>>() {
-                        }),
                         rs.getString("reward")
                 ));
         if (listEvent.size() > 0) {
@@ -227,6 +223,11 @@ public class EventRepositoryImpl implements EventRepository {
 
     @Override
     public List<Event> getMyEventNotJoin(long userId, int offset, int limit) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        MapSqlParameterSource parameters = new MapSqlParameterSource("userId", userId);
+        parameters.addValue("limit", limit);
+        parameters.addValue("offset", limit * offset);
+        String sql = "select * from event where eventId not in (select eventId from eventParticipant where userId = :userId) limit :limit offset :offset";
+        List<Event> events = findEvent(sql, parameters);
+        return events;
     }
 }

@@ -31,6 +31,8 @@ public interface EventParticipantRepository {
   boolean delete(EventParticipant eventParticipant);
   
   boolean updateDistance(long userId, long eventId, long distance);
+  
+  int getTotalTeamOfEvent(long eventId);
 
   List<EventTeamStatDTO> getTeamStat(long eventId, int top);
 

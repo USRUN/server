@@ -105,14 +105,11 @@ public class EventService {
                     eventReq.getThumbnail(),
                     eventReq.getPoster(),
                     0,
-                    0,
-                    0,
                     eventReq.getStartTime(),
                     eventReq.getEndTime(),
                     eventReq.getDelete(),
                     eventReq.getBanner(),
                     eventReq.getPoweredBy(),
-                    eventReq.getEventDetail(),
                     eventReq.getReward()
             );
 

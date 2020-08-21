@@ -22,6 +22,7 @@ import com.usrun.core.service.EventService;
 import com.usrun.core.service.UserService;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,7 +116,7 @@ public class EventController {
             if (event == null) {
                 return new ResponseEntity<>(new CodeResponse(ErrorCode.EVENT_NOT_EXISTED), HttpStatus.OK);
             }
-            boolean put =eventRepository.leaveEvent(userId, eventId);
+            boolean put = eventRepository.leaveEvent(userId, eventId);
             if (put) {
                 return new ResponseEntity<>(new CodeResponse(ErrorCode.SUCCESS), HttpStatus.OK);
             }
@@ -165,6 +166,7 @@ public class EventController {
     }
 
     @PostMapping("/getMyEvent")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getMyEvent(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestBody LimitOffsetReq limitOffsetReq
@@ -174,7 +176,26 @@ public class EventController {
 
             List<Event> listEventPart = eventRepository
                     .getMyEvent(userId, limitOffsetReq.offset, limitOffsetReq.limit);
-            return new ResponseEntity<>(new CodeResponse(listEventPart), HttpStatus.OK);
+            List<EventListResponse> resp = listEventPart.stream().map(item -> new EventListResponse(item,eventParticipantRepository.getTotalTeamOfEvent(item.getEventId()), true)).collect(Collectors.toList());
+            return new ResponseEntity<>(new CodeResponse(resp), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.GET_EVENT_FAIL), HttpStatus.OK);
+        }
+    }
+
+    @PostMapping("/getEventNotJoin")
+    public ResponseEntity<?> getEventNotJoin(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody LimitOffsetReq limitOffsetReq
+    ) {
+        try {
+            long userId = userPrincipal.getId();
+
+            List<Event> listEventPart = eventRepository
+                    .getMyEventNotJoin(userId, limitOffsetReq.offset, limitOffsetReq.limit);
+            List<EventListResponse> resp = listEventPart.stream().map(item -> new EventListResponse(item,eventParticipantRepository.getTotalTeamOfEvent(item.getEventId()), true)).collect(Collectors.toList());
+            return new ResponseEntity<>(new CodeResponse(resp), HttpStatus.OK);
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
             return new ResponseEntity<>(new CodeResponse(ErrorCode.GET_EVENT_FAIL), HttpStatus.OK);
