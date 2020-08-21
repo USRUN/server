@@ -196,7 +196,7 @@ public class EventService {
         EventUserStatDTO userStat = eventUserStats.get(position[0]);
         if (position[0] < eventUserStats.size() && position[0] >= top && userStat.getItemId() ==userId ) {
             userStat.setRank(position[0] + 1);
-            eventUserStats.add(userStat);
+            topUserStats.add(userStat);
         }
         List<Long> userIds = topUserStats.stream()
                 .map(e -> e.getItemId())
