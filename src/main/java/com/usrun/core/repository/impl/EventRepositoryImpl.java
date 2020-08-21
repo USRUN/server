@@ -108,7 +108,8 @@ public class EventRepositoryImpl implements EventRepository {
                         rs.getInt("deleted"),
                         rs.getString("banner"),
                         rs.getString("poweredBy"),
-                        rs.getString("reward")
+                        rs.getString("reward"),
+                        rs.getString("description")
                 ));
         if (listEvent.size() > 0) {
             return listEvent;

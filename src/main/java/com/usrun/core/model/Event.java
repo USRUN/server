@@ -38,8 +38,9 @@ public class Event {
   private String banner;
   private String poweredBy;
   private String reward;
+  private String description;
 
-    public Event(Long eventId, int status, Date createTime, String eventName, String subtitle, String thumbnail, String poster,  int totalParticipant, Date startTime, Date endTime, int deleted, String banner, String poweredBy,String reward) {
+    public Event(Long eventId, int status, Date createTime, String eventName, String subtitle, String thumbnail, String poster, int totalParticipant, Date startTime, Date endTime, int deleted, String banner, String poweredBy, String reward, String description) {
         this.eventId = eventId;
         this.status = status;
         this.createTime = createTime;
@@ -54,5 +55,7 @@ public class Event {
         this.banner = banner;
         this.poweredBy = poweredBy;
         this.reward = reward;
+        this.description = description;
     }
+
 }

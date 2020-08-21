@@ -176,7 +176,7 @@ public class EventController {
 
             List<Event> listEventPart = eventRepository
                     .getMyEvent(userId, limitOffsetReq.offset, limitOffsetReq.limit);
-            List<EventListResponse> resp = listEventPart.stream().map(item -> new EventListResponse(item,eventParticipantRepository.getTotalTeamOfEvent(item.getEventId()), true)).collect(Collectors.toList());
+            List<EventListResponse> resp = listEventPart.stream().map(item -> new EventListResponse(item, eventParticipantRepository.getTotalTeamOfEvent(item.getEventId()), true)).collect(Collectors.toList());
             return new ResponseEntity<>(new CodeResponse(resp), HttpStatus.OK);
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
@@ -194,7 +194,7 @@ public class EventController {
 
             List<Event> listEventPart = eventRepository
                     .getMyEventNotJoin(userId, limitOffsetReq.offset, limitOffsetReq.limit);
-            List<EventListResponse> resp = listEventPart.stream().map(item -> new EventListResponse(item,eventParticipantRepository.getTotalTeamOfEvent(item.getEventId()), false)).collect(Collectors.toList());
+            List<EventListResponse> resp = listEventPart.stream().map(item -> new EventListResponse(item, eventParticipantRepository.getTotalTeamOfEvent(item.getEventId()), false)).collect(Collectors.toList());
             return new ResponseEntity<>(new CodeResponse(resp), HttpStatus.OK);
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
@@ -212,8 +212,8 @@ public class EventController {
 
             List<EventWithCheckJoin> listEventPart = eventRepository
                     .searchEvent(userId, '%' + searchReq.getName() + '%', searchReq.offset, searchReq.limit);
-            
-            List<EventListResponse> resp = listEventPart.stream().map(item -> new EventListResponse(item,eventParticipantRepository.getTotalTeamOfEvent(item.getEventId()))).collect(Collectors.toList());
+
+            List<EventListResponse> resp = listEventPart.stream().map(item -> new EventListResponse(item, eventParticipantRepository.getTotalTeamOfEvent(item.getEventId()))).collect(Collectors.toList());
             return new ResponseEntity<>(new CodeResponse(resp), HttpStatus.OK);
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
@@ -283,6 +283,26 @@ public class EventController {
             int offset = Math.max(eventParticipantRequest.getOffset(), 0);
             int count = eventParticipantRequest.getCount() <= 0 ? 10 : eventParticipantRequest.getCount();
             return ResponseEntity.ok(eventService.getTeamEvent(eventId, offset, count));
+        } catch (CodeException ex) {
+            return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
+        } catch (Exception ex) {
+            logger.error("", ex);
+            return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+        }
+    }
+
+    @PostMapping("/getEventInfo")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getEventInfo(
+            @RequestBody EventIdReq eventIdReq
+    ) {
+        try {
+            long eventId = eventIdReq.getEventId();
+            Event event = eventRepository.findById(eventId);
+            int numberTeam = eventParticipantRepository.getTotalTeamOfEvent(eventId);
+            long totalDistance = eventParticipantRepository.getTotalDistanceOfEvent(eventId);
+            EventInfoResp resp = new EventInfoResp(event,numberTeam,totalDistance );
+            return ResponseEntity.ok(resp);
         } catch (CodeException ex) {
             return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
         } catch (Exception ex) {

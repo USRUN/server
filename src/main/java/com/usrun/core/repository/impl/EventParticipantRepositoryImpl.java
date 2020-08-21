@@ -206,11 +206,21 @@ public class EventParticipantRepositoryImpl implements EventParticipantRepositor
 
     @Override
     public int getTotalTeamOfEvent(long eventId) {
-       
         MapSqlParameterSource params = new MapSqlParameterSource("eventId", eventId);
         String sql = " select count(distinct teamId) as number from eventParticipant where eventId = :eventId";
-        List<Integer>resp =namedParameterJdbcTemplate.query(sql, params, (rs, i) -> rs.getInt("number"));
-        if(!resp.isEmpty()){
+        List<Integer> resp = namedParameterJdbcTemplate.query(sql, params, (rs, i) -> rs.getInt("number"));
+        if (!resp.isEmpty()) {
+            return resp.get(0);
+        }
+        return 0;
+    }
+
+    @Override
+    public long getTotalDistanceOfEvent(long eventId) {
+        MapSqlParameterSource params = new MapSqlParameterSource("eventId", eventId);
+        String sql = "select sum(distance) as sum from eventParticipant where eventId = :eventId";
+        List<Long> resp = namedParameterJdbcTemplate.query(sql, params, (rs, i) -> rs.getLong("sum"));
+        if (!resp.isEmpty()) {
             return resp.get(0);
         }
         return 0;
