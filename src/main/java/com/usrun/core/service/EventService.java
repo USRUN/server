@@ -162,31 +162,31 @@ public class EventService {
         }).collect(Collectors.toList());
     }
 
-  public List<EventUserStatDTO> getEventUserLeaderBoard(long eventId, int top) {
-    //get leader board
-    List<EventUserStatDTO> eventUserStats = eventParticipantRepository.getUserStat(eventId, top);
-    List<Long> userIds = eventUserStats.stream()
-        .map(e -> e.getItemId())
-        .collect(Collectors.toList());
-    //get User info in leader board
-    Map<Long, ShortUserDTO> userMap = userRepository.findAll(userIds)
-        .stream().collect(Collectors.toMap(ShortUserDTO::getUserId, Function.identity()));
-    return eventUserStats.stream().map(e -> {
-      ShortUserDTO user = userMap.get(e.getItemId());
-      if (user == null) {
-        return e;
-      } else {
-        return new EventUserStatDTO(e.getItemId(), e.getDistance(), user.getDisplayName(),
-            user.getAvatar());
-      }
-    }).collect(Collectors.toList());
-  }
+    public List<EventUserStatDTO> getEventUserLeaderBoard(long eventId, int top) {
+        //get leader board
+        List<EventUserStatDTO> eventUserStats = eventParticipantRepository.getUserStat(eventId, top);
+        List<Long> userIds = eventUserStats.stream()
+                .map(e -> e.getItemId())
+                .collect(Collectors.toList());
+        //get User info in leader board
+        Map<Long, ShortUserDTO> userMap = userRepository.findAll(userIds)
+                .stream().collect(Collectors.toMap(ShortUserDTO::getUserId, Function.identity()));
+        return eventUserStats.stream().map(e -> {
+            ShortUserDTO user = userMap.get(e.getItemId());
+            if (user == null) {
+                return e;
+            } else {
+                return new EventUserStatDTO(e.getItemId(), e.getDistance(), user.getDisplayName(),
+                        user.getAvatar());
+            }
+        }).collect(Collectors.toList());
+    }
 
-  public List<TeamEventDTO> getTeamEvent(long eventId, int offset, int count){
-    return eventParticipantRepository.getTeamParticipant(eventId,offset,count);
-  }
+    public List<TeamEventDTO> getTeamEvent(long eventId, int offset, int count) {
+        return eventParticipantRepository.getTeamParticipant(eventId, offset, count);
+    }
 
-  public List<UserEventDTO> getUserEvent(long eventId, int offset, int count){
-    return eventParticipantRepository.getUserParticipant(eventId,offset,count);
-  }
+    public List<UserEventDTO> getUserEvent(long eventId, int offset, int count) {
+        return eventParticipantRepository.getUserParticipant(eventId, offset, count);
+    }
 }

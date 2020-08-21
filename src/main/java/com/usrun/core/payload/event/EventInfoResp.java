@@ -7,6 +7,7 @@ package com.usrun.core.payload.event;
 
 import com.usrun.core.model.Event;
 import java.util.Date;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -34,6 +35,7 @@ public class EventInfoResp {
     private String poster;
     private long totalDistance;
     private String reward;
+    List<List<EventOrganization>> sponsorIds;
 
     public EventInfoResp(int status, String eventName, String subtitle, String thumbnail, int totalTeamParticipant, int totalParticipant, Date startTime, Date endTime, String banner, String poweredBy, String description, String poster, int totalDistance, String reward) {
         this.status = status;
@@ -53,7 +55,7 @@ public class EventInfoResp {
     }
 
    
-    public EventInfoResp(Event event, int totalTeam, long totalDistance) {
+    public EventInfoResp(Event event, int totalTeam, long totalDistance,    List<List<EventOrganization>> sponsorIds) {
         this.status = EventInfoResp.getStatus(event);
         this.eventName = event.getEventName();
         this.subtitle = event.getSubtitle();
@@ -68,6 +70,7 @@ public class EventInfoResp {
         this.poster = event.getPoster();
         this.totalDistance = totalDistance;
         this.reward = event.getReward();
+        this.sponsorIds = sponsorIds;
     }
 
     public static int getStatus(Event event) {

@@ -301,7 +301,12 @@ public class EventController {
             Event event = eventRepository.findById(eventId);
             int numberTeam = eventParticipantRepository.getTotalTeamOfEvent(eventId);
             long totalDistance = eventParticipantRepository.getTotalDistanceOfEvent(eventId);
-            EventInfoResp resp = new EventInfoResp(event,numberTeam,totalDistance );
+            List<List<EventOrganization>> dataOrganization = new ArrayList<>();
+            for(int i = 0; i<5;i++){
+                List<EventOrganization> listOrganizationWithRole = sponsor.getEventOrganizationWithRole( eventId,  i);
+                dataOrganization.add(listOrganizationWithRole);
+            }
+            EventInfoResp resp = new EventInfoResp(event,numberTeam,totalDistance,dataOrganization);
             return ResponseEntity.ok(resp);
         } catch (CodeException ex) {
             return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));

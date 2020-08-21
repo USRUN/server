@@ -6,7 +6,9 @@
 package com.usrun.core.repository.impl;
 
 import com.usrun.core.model.Sponsor;
+import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.SponsorType;
+import com.usrun.core.payload.event.EventOrganization;
 import com.usrun.core.repository.SponsorRepository;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +37,6 @@ public class SponsorRespositoryImpl implements SponsorRepository {
         map.addValue("role", sponsor.getRole().toValue());
         return map;
     }
-
 
     @Override
     public Sponsor insert(Sponsor sponsor) {
@@ -74,7 +75,7 @@ public class SponsorRespositoryImpl implements SponsorRepository {
     }
 
     @Override
-      @Transactional
+    @Transactional
     public int[] addOrganizers(long eventId, List<Long> organizationIds) {
         List<Sponsor> data = organizationIds.stream()
                 .map(item -> new Sponsor(eventId, item, SponsorType.POWERED))
@@ -84,6 +85,22 @@ public class SponsorRespositoryImpl implements SponsorRepository {
         SqlParameterSource[] params = SqlParameterSourceUtils.createBatch(data.toArray());
         int[] resp = namedParameterJdbcTemplate.batchUpdate(sql, params);
         return resp;
+    }
+
+    @Override
+    public List<EventOrganization> getEventOrganizationWithRole(long eventId, int role) {
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue("eventId", eventId);
+        map.addValue("role", role);
+        String sql = "select * from organization where id in (select organizationId from sponsor where eventId = :eventId and role = :role)";
+        List<EventOrganization> result = namedParameterJdbcTemplate.query(
+                sql,
+                map,
+                (rs, i) -> new EventOrganization(
+                        rs.getLong("id"),
+                        rs.getString("avatar"),
+                        rs.getString("name")));
+        return result;
     }
 
 }
