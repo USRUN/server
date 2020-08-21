@@ -46,10 +46,12 @@ public class EventWithCheckJoin {
     private int totalParticipant;
     private Date startTime;
     private Date endTime;
+    private String banner;
+    private String poweredBy;
     private int deleted;
 
     public EventWithCheckJoin(Long eventId, int status, Date createTime, String eventName, String subtitle, String thumbnail,
-            int totalParticipant, Date startTime, Date endTime, int deleted, boolean isJoin) {
+            int totalParticipant, Date startTime, Date endTime, int deleted, boolean isJoin, String banner, String poweredBy) {
         this.eventId = eventId;
         this.status = status;
         this.createTime = createTime;
@@ -61,5 +63,7 @@ public class EventWithCheckJoin {
         this.endTime = endTime;
         this.deleted = deleted;
         this.isJoin = isJoin;
+        this.banner = banner;
+        this.poweredBy = poweredBy;
     }
 }

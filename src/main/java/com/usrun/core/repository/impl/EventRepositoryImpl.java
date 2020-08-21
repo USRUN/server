@@ -130,7 +130,9 @@ public class EventRepositoryImpl implements EventRepository {
                         rs.getDate("startTime"),
                         rs.getDate("endTime"),
                         rs.getInt("status"),
-                        rs.getBoolean("isJoin")
+                        rs.getBoolean("isJoin"),
+                        rs.getString("banner"),
+                        rs.getString("poweredBy")
                 ));
         if (listEvent.size() > 0) {
             return listEvent;
