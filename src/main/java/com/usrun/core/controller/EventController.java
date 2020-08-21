@@ -206,7 +206,7 @@ public class EventController {
         try {
             long eventId = request.getEventId();
             int top = Math.max(request.getTop(), 10);
-            return ResponseEntity.ok(eventService.getEventTeamLeaderBoard(eventId, top));
+            return ResponseEntity.ok(new CodeResponse(eventService.getEventTeamLeaderBoard(eventId, top)));
         } catch (CodeException ex) {
             return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
         } catch (Exception ex) {
@@ -223,7 +223,7 @@ public class EventController {
         try {
             long eventId = request.getEventId();
             int top = Math.max(request.getTop(), 10);
-            return ResponseEntity.ok(eventService.getEventUserLeaderBoard(eventId, top));
+            return ResponseEntity.ok(new CodeResponse(eventService.getEventUserLeaderBoard(eventId, top)));
         } catch (CodeException ex) {
             return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
         } catch (Exception ex) {
