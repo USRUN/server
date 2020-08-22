@@ -24,9 +24,9 @@ public class TeamDTO {
 
   private String teamName;
 
-  private String banner;
-
   private String thumbnail;
+
+  private String banner;
 
   private boolean verified;
 
