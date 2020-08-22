@@ -73,6 +73,7 @@ public class EventInfoResp {
         this.totalDistance = totalDistance;
         this.reward = event.getReward();
         this.sponsorIds = sponsorIds;
+        this.teamId = teamId;
     }
 
     public static int getStatus(Event event) {

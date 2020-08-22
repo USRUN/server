@@ -144,6 +144,7 @@ public class EventService {
     public List<EventTeamStatDTO> getEventTeamLeaderBoard(long eventId, int top, long teamId) {
         //get leader board
         List<EventTeamStatDTO> eventTeamStats = eventParticipantRepository.getTeamStat(eventId);
+        top = Math.min(top, eventTeamStats.size());
         List<EventTeamStatDTO> topTeamStats = eventTeamStats.subList(0, top);
 
         int[] position = {-1};
@@ -185,6 +186,7 @@ public class EventService {
     public List<EventUserStatDTO> getEventUserLeaderBoard(long eventId, long userId, int top) {
         //get leader board
         List<EventUserStatDTO> eventUserStats = eventParticipantRepository.getUserStat(eventId);
+        top = Math.min(top, eventUserStats.size());
         List<EventUserStatDTO> topUserStats = eventUserStats.subList(0, top);
         int[] position = {-1};
         eventUserStats.stream().peek(x -> position[0]++) // increment every element encounter

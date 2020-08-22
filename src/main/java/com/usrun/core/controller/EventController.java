@@ -315,7 +315,7 @@ public class EventController {
             EventParticipant eventParticipant = eventParticipantRepository.findEventParticipant(eventId, userPrincipal.getId());
             long teamId = eventParticipant != null ? eventParticipant.getTeamId() : -1;
             EventInfoResp resp = new EventInfoResp(event, numberTeam, totalDistance, dataOrganization, teamId);
-            return ResponseEntity.ok(resp);
+            return ResponseEntity.ok(new CodeResponse(resp));
         } catch (CodeException ex) {
             return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
         } catch (Exception ex) {
