@@ -385,7 +385,7 @@ public class TeamRepositoryImpl implements TeamRepository {
     params.addValue("limit", limit);
     params.addValue("offset", offset);
     params.addValue("name", name);
-    String sql = "select t.* from team t, eventParticipant ep where ep.eventId = :eventId and ep.teamId = t.teamId and teamName like :name limit :limit offset :offset";
+    String sql = "select t.* from team t, eventParticipant ep where ep.eventId = :eventId and ep.teamId = t.teamId and teamName like :name  group by teamId limit :limit offset :offset";
     return getTeamsSQLParamMap(sql, params);
   }
 
