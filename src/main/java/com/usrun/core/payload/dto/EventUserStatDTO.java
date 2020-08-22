@@ -12,13 +12,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EventUserStatDTO {
-  private long userId;
+  private long itemId;
   private long distance;
-  private String displayName;
+  private String name;
   private String avatar;
+  private int rank;
 
   public EventUserStatDTO(long userId, long distance) {
-    this.userId = userId;
+    this.itemId = userId;
     this.distance = distance;
   }
 }

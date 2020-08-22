@@ -10,13 +10,14 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EventTeamStatDTO {
-  private long teamId;
+  private long itemId;
   private long distance;
-  private String teamName;
-  private String thumbnail;
+  private String name;
+  private String avatar;
+  private int rank;
 
   public EventTeamStatDTO(long teamId, long distance) {
-    this.teamId = teamId;
+    this.itemId = teamId;
     this.distance = distance;
   }
 }

@@ -6,6 +6,7 @@
 package com.usrun.core.repository;
 
 import com.usrun.core.model.Sponsor;
+import com.usrun.core.payload.event.EventOrganization;
 import java.util.List;
 
 /**
@@ -18,4 +19,6 @@ public interface SponsorRepository {
   Sponsor findById(long id);
   
   int[] addOrganizers(long eventId, List<Long> organizationIds);
+  
+  List<EventOrganization> getEventOrganizationWithRole(long eventId, int role);
 }

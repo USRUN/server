@@ -29,8 +29,11 @@ public class EventReq {
     private String banner;
     private String poweredBy;
     private List<String> eventDetail;
+    private List<List<Long>> sponsor;
+    private String reward;
+    private String description;
 
-    public EventReq(short status, String eventName, List<Long> organizers, String subtitle, String thumbnail, Date startTime, Date endTime, short delete, String poster, String banner, String poweredBy, List<String> eventDetail) {
+    public EventReq(short status, String eventName, List<Long> organizers, String subtitle, String thumbnail, Date startTime, Date endTime, short delete, String poster, String banner, String poweredBy, List<String> eventDetail, List<List<Long>> sponsor, String reward, String description) {
         this.status = status;
         this.eventName = eventName;
         this.organizers = organizers;
@@ -43,5 +46,10 @@ public class EventReq {
         this.banner = banner;
         this.poweredBy = poweredBy;
         this.eventDetail = eventDetail;
+        this.sponsor = sponsor;
+        this.reward = reward;
+        this.description = description;
     }
+
+
 }

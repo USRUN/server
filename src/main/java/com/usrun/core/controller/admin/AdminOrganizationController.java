@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.usrun.core.controller;
+package com.usrun.core.controller.admin;
 
 import com.usrun.core.config.ErrorCode;
 import com.usrun.core.exception.CodeException;
@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,10 +33,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author huyna3
  */
 @Controller
-@RequestMapping("/sponsor")
-public class OrganizationController {
+@RequestMapping("/admin/sponsor")
+public class AdminOrganizationController {
 
-    private static final Logger logger = LoggerFactory.getLogger(OrganizationController.class);
+    private static final Logger logger = LoggerFactory.getLogger(AdminOrganizationController.class);
 
     @Autowired
     private OrganizationRepository organizationRepository;
@@ -44,7 +45,7 @@ public class OrganizationController {
     private SponsorRepository sponsorRepository;
 
     @PostMapping("/createOrganization")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createOrganization(@RequestBody OrganizationCreateReq organizationReq) {
         try {
             Organization organization = new Organization(organizationReq.getName());
@@ -60,7 +61,7 @@ public class OrganizationController {
     }
 
     @PostMapping("/addSponsor")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addSponsor(@RequestBody SponsorCreateReq sponsorCreateReq) {
         try {
             if (sponsorCreateReq.getRole() > 5 || sponsorCreateReq.getRole() < 1) {
@@ -78,7 +79,7 @@ public class OrganizationController {
     }
 
     @PostMapping("/listOrganization")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> listOrganization(@RequestBody OrganizationListReq organizationListReq) {
         try {
             List<Organization> result = organizationRepository.listOrganization(organizationListReq.getOffset(), organizationListReq.getLimit(), organizationListReq.getKeyword());

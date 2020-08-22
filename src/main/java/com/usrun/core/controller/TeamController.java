@@ -192,7 +192,7 @@ public class TeamController {
       @RequestBody SuggestTeamRequest request
   ) {
     try {
-      int count = request.getCount() <= 0 ? 10 : request.getCount();
+       int count = request.getCount() <= 0 ? 10 :request.getCount();
       int province
           = request.getProvince() >= 1 && request.getProvince() <= 63 ? request.getProvince() : 0;
       Set<Team> teams = teamService.getTeamSuggestion(
@@ -438,8 +438,8 @@ public class TeamController {
             int count = request.getLimit()> 0 ? request.getLimit() : 10;
             int offset = request.getOffset();
             long eventId =  request.getEventId();
-            String keyword = request.getName();
-            List<Team> teams = teamService.searchTeamByEvent(eventId,keyword, count, offset);
+            String keyword = '%' + request.getName() + '%';
+            List<Team> teams = teamService.searchTeamByEvent(eventId,keyword, offset, count);
             return ResponseEntity.ok(new CodeResponse(teams));
         } catch (CodeException ex) {
             return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),

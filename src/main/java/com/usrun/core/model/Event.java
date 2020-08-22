@@ -31,17 +31,16 @@ public class Event {
   private String subtitle;
   private String thumbnail;
   private String poster;
-  private long totalDistance;
-  private int totalTeamParticipant;
   private int totalParticipant;
   private Date startTime;
   private Date endTime;
   private int deleted;
   private String banner;
   private String poweredBy;
-  private List<String> eventDetail;
+  private String reward;
+  private String description;
 
-    public Event(Long eventId, int status, Date createTime, String eventName, String subtitle, String thumbnail, String poster, long totalDistance, int totalTeamParticipant, int totalParticipant, Date startTime, Date endTime, int deleted, String banner, String poweredBy, List<String> eventDetail) {
+    public Event(Long eventId, int status, Date createTime, String eventName, String subtitle, String thumbnail, String poster, int totalParticipant, Date startTime, Date endTime, int deleted, String banner, String poweredBy, String reward, String description) {
         this.eventId = eventId;
         this.status = status;
         this.createTime = createTime;
@@ -49,14 +48,14 @@ public class Event {
         this.subtitle = subtitle;
         this.thumbnail = thumbnail;
         this.poster = poster;
-        this.totalDistance = totalDistance;
-        this.totalTeamParticipant = totalTeamParticipant;
         this.totalParticipant = totalParticipant;
         this.startTime = startTime;
         this.endTime = endTime;
         this.deleted = deleted;
         this.banner = banner;
         this.poweredBy = poweredBy;
-        this.eventDetail = eventDetail;
+        this.reward = reward;
+        this.description = description;
     }
+
 }

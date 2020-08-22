@@ -102,16 +102,14 @@ public class EventRepositoryImpl implements EventRepository {
                         rs.getString("subtitle"),
                         rs.getString("thumbnail"),
                         rs.getString("poster"),
-                        rs.getLong("totalDistance"),
-                        rs.getInt("totalTeamParticipant"),
                         rs.getInt("totalParticipant"),
                         rs.getDate("startTime"),
                         rs.getDate("endTime"),
-                        rs.getInt("delete"),
+                        rs.getInt("deleted"),
                         rs.getString("banner"),
                         rs.getString("poweredBy"),
-                        ObjectUtils.fromJsonString(rs.getString("eventDetail"), new TypeReference<List<String>>() {
-                        })
+                        rs.getString("reward"),
+                        rs.getString("description")
                 ));
         if (listEvent.size() > 0) {
             return listEvent;
@@ -133,7 +131,9 @@ public class EventRepositoryImpl implements EventRepository {
                         rs.getDate("startTime"),
                         rs.getDate("endTime"),
                         rs.getInt("status"),
-                        rs.getBoolean("isJoin")
+                        rs.getBoolean("isJoin"),
+                        rs.getString("banner"),
+                        rs.getString("poweredBy")
                 ));
         if (listEvent.size() > 0) {
             return listEvent;
@@ -177,7 +177,7 @@ public class EventRepositoryImpl implements EventRepository {
         String sql = "select * "
                 + "from eventParticipant ep, event e "
                 + "where ep.eventId = e.eventId and ep.userId=:userId "
-                + "ORDER BY e.totalParticipant DESC "
+                + "ORDER BY e.endTime DESC "
                 + "LIMIT :limit OFFSET :offset";;
         List<Event> events = findEvent(sql, parameters);
         return events;
@@ -196,21 +196,20 @@ public class EventRepositoryImpl implements EventRepository {
                 + "left join eventParticipant ep "
                 + "on ep.eventId = null || ep.eventId = e.eventId "
                 + "group by e.eventId "
-                + "having e.eventName like %:name% "
-                + "order by totalParticipant desc "
+                + "having e.eventName like :name "
+                + "order by e.endTime desc "
                 + "limit :limit offset :offset";
         List<EventWithCheckJoin> events = findEventWithCheckJoin(sql, parameters);
         return events;
     }
 
     @Override
-    public boolean leaveEvent(long userId, long teamId, long eventId) {
+    public boolean leaveEvent(long userId, long eventId) {
         int status = 0;
         MapSqlParameterSource parameters = new MapSqlParameterSource("userId", userId);
-        parameters.addValue("teamId", teamId);
         parameters.addValue("eventId", eventId);
         String sql = "DELETE FROM eventParticipant "
-                + "WHERE teamId = :teamId AND userId= :userId AND eventId:= eventId";
+                + "WHERE userId= :userId AND eventId:= eventId";
         status = namedParameterJdbcTemplate.update(sql, parameters);
         return status != 0;
     }
@@ -223,5 +222,15 @@ public class EventRepositoryImpl implements EventRepository {
         String sql = "UPDATE event set totalParticipant = totalParticipant +1 where eventId = :eventId";
         status = namedParameterJdbcTemplate.update(sql, parameters);
         return status != 0;
+    }
+
+    @Override
+    public List<Event> getMyEventNotJoin(long userId, int offset, int limit) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource("userId", userId);
+        parameters.addValue("limit", limit);
+        parameters.addValue("offset", limit * offset);
+        String sql = "select * from event where eventId not in (select eventId from eventParticipant where userId = :userId) order by endTime DESC limit :limit offset :offset";
+        List<Event> events = findEvent(sql, parameters);
+        return events;
     }
 }
