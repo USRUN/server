@@ -9,6 +9,7 @@ import lombok.Setter;
 @Getter
 public class UserStatRequest {
 
+  private long userId;
   private Date fromTime;
   private Date toTime;
 }
