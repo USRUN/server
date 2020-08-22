@@ -209,7 +209,7 @@ public class EventRepositoryImpl implements EventRepository {
         MapSqlParameterSource parameters = new MapSqlParameterSource("userId", userId);
         parameters.addValue("eventId", eventId);
         String sql = "DELETE FROM eventParticipant "
-                + "WHERE userId= :userId AND eventId:= eventId";
+                + "WHERE userId= :userId AND eventId= :eventId";
         status = namedParameterJdbcTemplate.update(sql, parameters);
         return status != 0;
     }
