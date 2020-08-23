@@ -58,7 +58,7 @@ public class UserController {
     try {
       long userId = request.getUserId();
       User user = userService.loadUser(userId);
-      return ResponseEntity.ok(new UserInfoResponse(user));
+      return ResponseEntity.ok(new CodeResponse(new UserInfoResponse(user)));
     } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
     } catch (Exception ex) {
