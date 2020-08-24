@@ -141,6 +141,11 @@ public class TeamService {
         return teamRepository.getTeamsByUserAndNotEqualTeamMemberTypeReturnTeam(userId, teamMemberType);
     }
 
+    public List<TeamDTO> getTeamDTOByUserAndLowerThanTeamMemberType(long userId,
+                                                                   TeamMemberType teamMemberType) {
+        return teamRepository.getTeamsByUserAndLowerThanTeamMemberTypeReturnTeam(userId, teamMemberType);
+    }
+
     public TeamMember getTeamMemberById(long teamId, long userId) {
         TeamMember teamMember = teamMemberRepository.findById(teamId, userId);
         if (teamMember == null) {

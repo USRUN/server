@@ -273,6 +273,27 @@ public class TeamController {
     }
   }
 
+  @PostMapping("/getJoinedTeamByUser")
+  @PreAuthorize("hasRole('USER')")
+  public ResponseEntity<?> getJoinedTeamByUser(@RequestBody(required=false)  GetTeamByUserRequest request, @CurrentUser UserPrincipal userPrincipal) {
+    try {
+      long userId = userPrincipal.getId();
+
+      if(request != null){
+        userId = request.getUserId();
+      }
+
+      List<TeamDTO> teams = teamService
+              .getTeamDTOByUserAndLowerThanTeamMemberType(userId, TeamMemberType.MEMBER);
+      return ResponseEntity.ok(new CodeResponse(teams));
+    } catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
+    } catch (Exception ex) {
+      log.error("", ex);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+    }
+  }
+
   @PostMapping("/getLeaderBoard")
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<?> getLeaderBoard(@RequestBody GetLeaderBoardRequest request) {
