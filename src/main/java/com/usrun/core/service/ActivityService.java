@@ -360,7 +360,7 @@ public class ActivityService {
     }
 
     public List<UserFeedResp> getTeamFeed(long teamId, int offset, int limit) {
-        List<UserActivity> userActivites = this.getActivitiesByTeam(teamId, offset, limit);
+        List<UserActivity> userActivites = this.getActivitiesByTeam(teamId, limit, offset);
         Set<Long> userIds = userActivites.stream().map(UserActivity::getUserId).collect(Collectors.toSet());
         List<Long> eventIds = userActivites.stream().map(UserActivity::getEventId).collect(Collectors.toList());
         List<Event> events = eventRepository.mFindById(eventIds);
