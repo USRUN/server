@@ -36,4 +36,4 @@ jobs:
     - name: Copy Package to Server
       run: scp -r develop/*.jar udeploy@128.199.168.137:/server/usrun/dist
     - name: Deployment
-      run: ssh udeploy@128.199.168.137 "cd /server/usrun/ && ./runserver restart"
+      run: ssh udeploy@128.199.168.137 "cd /server/usrun-dev/ && ./runserver restart"
