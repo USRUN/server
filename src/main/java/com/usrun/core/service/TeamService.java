@@ -41,314 +41,317 @@ import org.springframework.util.StringUtils;
 @Service
 public class TeamService {
 
-    private static final Logger logger = LoggerFactory.getLogger(TeamService.class);
+  private static final Logger logger = LoggerFactory.getLogger(TeamService.class);
 
-    @Autowired
-    private TeamRepository teamRepository;
+  @Autowired
+  private TeamRepository teamRepository;
 
-    @Autowired
-    private TeamMemberRepository teamMemberRepository;
+  @Autowired
+  private TeamMemberRepository teamMemberRepository;
 
-    @Autowired
-    private AmazonClient amazonClient;
+  @Autowired
+  private AmazonClient amazonClient;
 
-    @Autowired
-    private CacheClient cacheClient;
+  @Autowired
+  private CacheClient cacheClient;
 
-    @Autowired
-    private UserService userService;
+  @Autowired
+  private UserService userService;
 
-    @Autowired
-    private UserRepository userRepository;
+  @Autowired
+  private UserRepository userRepository;
 
-    @Autowired
-    private UserActivityRepository userActivityRepository;
+  @Autowired
+  private UserActivityRepository userActivityRepository;
 
-    @Autowired
-    private AppProperties appProperties;
+  @Autowired
+  private AppProperties appProperties;
 
-    public Team createTeam(
-            long ownerId, int privacy, String teamName, Integer province,
-            String thumbnailBase64) {
+  public Team createTeam(
+      long ownerId, int privacy, String teamName, Integer province,
+      String thumbnailBase64) {
 
-        String encodedName = Base64.getEncoder()
-                .encodeToString(teamName.getBytes(StandardCharsets.UTF_8));
-        String thumbnail = appProperties.getDefaultThumbnailTeam();
-        String banner = appProperties.getDefaultBannerTeam();
-        if (thumbnailBase64 != null && thumbnailBase64.length() > appProperties.getMaxImageSize()) {
-            throw new CodeException(ErrorCode.INVALID_IMAGE_SIZE);
-        }
-        if (!StringUtils.isEmpty(thumbnailBase64)) {
-            String fileUrl = amazonClient.uploadFile(thumbnailBase64,
-                    "thumbnail-team-" + encodedName + System.currentTimeMillis());
-            if (fileUrl != null) {
-                thumbnail = fileUrl;
-            }
-        }
-
-        Team toCreate = new Team(privacy, teamName, province, new Date(), thumbnail, banner);
-
-        toCreate = teamRepository.insert(toCreate, ownerId);
-        cacheClient.setTeamMemberType(toCreate.getId(), ownerId, TeamMemberType.OWNER);
-
-        addTeamToCache(toCreate.getId(), ownerId);
-
-        return toCreate;
+    String encodedName = Base64.getEncoder()
+        .encodeToString(teamName.getBytes(StandardCharsets.UTF_8));
+    String thumbnail = appProperties.getDefaultThumbnailTeam();
+    String banner = appProperties.getDefaultBannerTeam();
+    if (thumbnailBase64 != null && thumbnailBase64.length() > appProperties.getMaxImageSize()) {
+      throw new CodeException(ErrorCode.INVALID_IMAGE_SIZE);
+    }
+    if (!StringUtils.isEmpty(thumbnailBase64)) {
+      String fileUrl = amazonClient.uploadFile(thumbnailBase64,
+          "thumbnail-team-" + encodedName + System.currentTimeMillis());
+      if (fileUrl != null) {
+        thumbnail = fileUrl;
+      }
     }
 
-    public void deleteTeam(Long teamId) throws Exception {
-        Team toDelete = teamRepository.findTeamById(teamId);
+    Team toCreate = new Team(privacy, teamName, province, new Date(), thumbnail, banner);
 
-        if (toDelete == null) {
-            throw new DataRetrievalFailureException("Team not found");
-        }
+    toCreate = teamRepository.insert(toCreate, ownerId);
+    cacheClient.setTeamMemberType(toCreate.getId(), ownerId, TeamMemberType.OWNER);
 
-        if (!teamRepository.delete(toDelete)) {
-            throw new Exception("Can't delete team");
-        }
-        List<TeamMember> toRemove = teamMemberRepository.getAllMemberOfTeam(teamId);
+    addTeamToCache(toCreate.getId(), ownerId);
 
-        toRemove.forEach((teamMember -> {
-            removeTeamFromCache(teamId, teamMember.getUserId());
-            teamMemberRepository.delete(teamMember);
-        }));
+    return toCreate;
+  }
+
+  public void deleteTeam(Long teamId) throws Exception {
+    Team toDelete = teamRepository.findTeamById(teamId);
+
+    if (toDelete == null) {
+      throw new DataRetrievalFailureException("Team not found");
     }
 
-    public Team getTeamById(Long teamId) {
-        Team toGet = teamRepository.findTeamById(teamId);
+    if (!teamRepository.delete(toDelete)) {
+      throw new Exception("Can't delete team");
+    }
+    List<TeamMember> toRemove = teamMemberRepository.getAllMemberOfTeam(teamId);
 
-        if (toGet == null) {
-            throw new CodeException(ErrorCode.TEAM_NOT_FOUND);
-        }
+    toRemove.forEach((teamMember -> {
+      removeTeamFromCache(teamId, teamMember.getUserId());
+      teamMemberRepository.delete(teamMember);
+    }));
+  }
 
-        return toGet;
+  public Team getTeamById(Long teamId) {
+    Team toGet = teamRepository.findTeamById(teamId);
+
+    if (toGet == null) {
+      throw new CodeException(ErrorCode.TEAM_NOT_FOUND);
     }
 
-    public List<Team> getTeamByUser(long userId) {
-        return teamRepository.getTeamsByUserReturnTeam(userId);
+    return toGet;
+  }
+
+  public List<Team> getTeamByUser(long userId) {
+    return teamRepository.getTeamsByUserReturnTeam(userId);
+  }
+
+  public List<Team> getTeamByEvent(long eventId, int limit, int offset) {
+    return teamRepository.getTeamOfEvent(eventId, offset, limit);
+  }
+
+  public List<Team> searchTeamByEvent(long eventId, String keyword, int offset, int limit) {
+    return teamRepository.searchTeamOfEvent(eventId, keyword, offset, limit);
+  }
+
+  public List<TeamDTO> getTeamDTOByUserAndNotEqualTeamMemberType(long userId,
+      TeamMemberType teamMemberType) {
+    return teamRepository.getTeamsByUserAndNotEqualTeamMemberTypeReturnTeam(userId, teamMemberType);
+  }
+
+  public List<TeamDTO> getTeamDTOByUserAndLowerThanTeamMemberType(long userId,
+      TeamMemberType teamMemberType) {
+    return teamRepository
+        .getTeamsByUserAndLowerThanTeamMemberTypeReturnTeam(userId, teamMemberType);
+  }
+
+  public TeamMember getTeamMemberById(long teamId, long userId) {
+    TeamMember teamMember = teamMemberRepository.findById(teamId, userId);
+    if (teamMember == null) {
+      throw new CodeException(ErrorCode.TEAM_USER_NOT_FOUND);
+    }
+    return teamMember;
+  }
+
+  private void addTeamToCache(Long teamId, Long userId) {
+    User current = userService.loadUser(userId);
+    if (current.getTeams() == null) {
+      current.setTeams(new HashSet<>());
     }
 
-    public List<Team> getTeamByEvent(long eventId, int limit, int offset) {
-        return teamRepository.getTeamOfEvent(eventId, offset, limit);
+    current.getTeams().add(teamId);
+
+    cacheClient.setUser(current);
+  }
+
+  private void removeTeamFromCache(Long teamId, Long userId) {
+    User current = userService.loadUser(userId);
+    Set<Long> currentTeam = current.getTeams();
+    currentTeam.remove(teamId);
+    current.setTeams(currentTeam);
+    cacheClient.setUser(current);
+  }
+
+  public void requestToJoinTeam(Long requestId, Long teamId) {
+    try {
+      teamRepository.joinTeam(requestId, teamId);
+      User user = userService.loadUser(requestId);
+
+    } catch (DuplicateKeyException ex) {
+      log.error("", ex);
+      throw new CodeException(ErrorCode.TEAM_USER_EXISTED);
+    }
+  }
+
+  public void requestToAcceptTeam(long userId, long teamId) {
+    if (!teamRepository.acceptTeam(userId, teamId)) {
+      throw new CodeException(ErrorCode.TEAM_ACCEPT_FAILED);
+    }
+  }
+
+  public void inviteToTeam(String emailOrUserCode, long teamId) {
+    try {
+      User user = userRepository.findByEmailOrUserCode(emailOrUserCode);
+      if (user != null) {
+        teamMemberRepository
+            .insert(new TeamMember(teamId, user.getId(), TeamMemberType.INVITED, new Date()));
+      } else {
+        log.error("Invite to team, user not found, emailOrUserCode {}, teamId {}", emailOrUserCode,
+            teamId);
+        throw new CodeException(ErrorCode.USER_NOT_FOUND);
+      }
+    } catch (DuplicateKeyException ex) {
+      log.error("", ex);
+      throw new CodeException(ErrorCode.TEAM_USER_EXISTED);
+    }
+  }
+
+  public void cancelJoinTeam(Long requestId, Long teamId) {
+    teamRepository.cancelJoinTeam(requestId, teamId);
+  }
+
+  @Transactional
+  public boolean updateTeamRole(Long teamId, Long memberId, TeamMemberType toChangeInto) {
+    if (toChangeInto == null || toChangeInto == TeamMemberType.OWNER) {
+      return false;
     }
 
-    public List<Team> searchTeamByEvent(long eventId, String keyword, int offset, int limit) {
-        return teamRepository.searchTeamOfEvent(eventId, keyword, offset, limit);
+    boolean updated = teamRepository.updateTeamMemberType(teamId, memberId, toChangeInto);
+
+    if (updated) {
+      if (toChangeInto == TeamMemberType.BLOCKED) {
+        teamRepository.changeTotalMember(teamId, -1);
+        removeTeamFromCache(teamId, memberId);
+      }
+
+      if (toChangeInto == TeamMemberType.MEMBER) {
+        teamRepository.changeTotalMember(teamId, 1);
+        addTeamToCache(teamId, memberId);
+      }
+
+      cacheClient.setTeamMemberType(teamId, memberId, toChangeInto);
+    }
+    return updated;
+  }
+
+  public TeamMemberType loadTeamMemberType(Long teamId, Long userId) {
+    TeamMemberType teamMemberType = cacheClient.getTeamMemberType(teamId, userId);
+    if (teamMemberType == null) {
+      TeamMember teamMember = teamMemberRepository.findById(teamId, userId);
+      if (teamMember == null) {
+        String msg = String.format("User %s not belong to Team %s", userId, teamId);
+        log.warn(msg);
+        throw new CodeException(msg, ErrorCode.TEAM_USER_NOT_FOUND);
+      }
+      teamMemberType = teamMember.getTeamMemberType();
+    }
+    return teamMemberType;
+  }
+
+  public Team updateTeam(Long teamId, String thumbnail, String banner, int privacy,
+      Integer province, String description) {
+    Team toUpdate = teamRepository.findTeamById(teamId);
+
+    if (toUpdate == null) {
+      throw new CodeException(ErrorCode.TEAM_NOT_FOUND);
     }
 
-    public List<TeamDTO> getTeamDTOByUserAndNotEqualTeamMemberType(long userId,
-            TeamMemberType teamMemberType) {
-        return teamRepository.getTeamsByUserAndNotEqualTeamMemberTypeReturnTeam(userId, teamMemberType);
+    String encodedName = Base64.getEncoder()
+        .encodeToString(toUpdate.getTeamName().getBytes(StandardCharsets.UTF_8));
+
+    if ((thumbnail != null && thumbnail.length() > appProperties.getMaxImageSize())
+        || (banner != null && banner.length() > appProperties.getMaxImageSize())) {
+      throw new CodeException(ErrorCode.INVALID_IMAGE_SIZE);
     }
 
-    public List<TeamDTO> getTeamDTOByUserAndLowerThanTeamMemberType(long userId,
-                                                                   TeamMemberType teamMemberType) {
-        return teamRepository.getTeamsByUserAndLowerThanTeamMemberTypeReturnTeam(userId, teamMemberType);
+    if (thumbnail != null) {
+      String thumbnailURL = amazonClient
+          .uploadFile(thumbnail, "thumbnail-team-" + encodedName + System.currentTimeMillis());
+      if (thumbnailURL != null) {
+        amazonClient.deleteFile(toUpdate.getThumbnail());
+        toUpdate.setThumbnail(thumbnailURL);
+      }
+    }
+    if (banner != null) {
+      String bannerURL = amazonClient
+          .uploadFile(banner, "banner-team-" + encodedName + System.currentTimeMillis());
+      if (bannerURL != null) {
+        amazonClient.deleteFile(toUpdate.getBanner());
+        toUpdate.setBanner(bannerURL);
+      }
+    }
+    if (privacy != toUpdate.getPrivacy()) {
+      toUpdate.setPrivacy(privacy);
+    }
+    if (province != null && province >= 1 && province <= 63) {
+      toUpdate.setProvince(province);
     }
 
-    public TeamMember getTeamMemberById(long teamId, long userId) {
-        TeamMember teamMember = teamMemberRepository.findById(teamId, userId);
-        if (teamMember == null) {
-            throw new CodeException(ErrorCode.TEAM_USER_NOT_FOUND);
-        }
-        return teamMember;
+    if (description != null) {
+      toUpdate.setDescription(description);
     }
 
-    private void addTeamToCache(Long teamId, Long userId) {
-        User current = userService.loadUser(userId);
-        if (current.getTeams() == null) {
-            current.setTeams(new HashSet<>());
-        }
+    teamRepository.update(toUpdate);
+    log.info("Update team {}", teamId);
 
-        current.getTeams().add(teamId);
+    return toUpdate;
+  }
 
-        cacheClient.setUser(current);
+  public Set<Team> getTeamSuggestion(Long currentUserId, int province, int count) {
+    Set<Long> toExclude = userService.loadUser(currentUserId).getTeams();
+    Set<Team> toReturn = teamRepository
+        .getTeamSuggestionByUserLocation(province, count, toExclude);
+    if (toReturn == null || toReturn.isEmpty()) {
+      toReturn = teamRepository.getTeamSuggestionByUserLocation(0, count, toExclude);
+    }
+    return toReturn;
+  }
+
+  public Set<Team> findTeamWithNameContains(String searchString, int offset, int count) {
+    Set<Team> toGet = teamRepository.findTeamWithNameContains(searchString, offset, count);
+
+    if (toGet == null) {
+      throw new DataRetrievalFailureException("Team not found");
     }
 
-    private void removeTeamFromCache(Long teamId, Long userId) {
-        User current = userService.loadUser(userId);
-        Set<Long> currentTeam = current.getTeams();
-        currentTeam.remove(teamId);
-        current.setTeams(currentTeam);
-        cacheClient.setUser(current);
-    }
+    return toGet;
+  }
 
-    public void requestToJoinTeam(Long requestId, Long teamId) {
-        try {
-            teamRepository.joinTeam(requestId, teamId);
-            User user = userService.loadUser(requestId);
+  public List<UserFilterWithTypeDTO> getAllTeamMemberPaged(Long teamId, int offset, int limit) {
+    return userRepository
+        .getAllMemberByLessEqualTeamMemberType(teamId, TeamMemberType.MEMBER, offset, limit);
+  }
 
-        } catch (DuplicateKeyException ex) {
-            log.error("", ex);
-            throw new CodeException(ErrorCode.TEAM_USER_EXISTED);
-        }
-    }
+  public List<UserFilterWithTypeDTO> findTeamMember(String keyword, long teamId, int offset,
+      int limit) {
+    return userRepository
+        .findUserIsEnable(keyword, teamId, offset, limit);
+  }
 
-    public void requestToAcceptTeam(long userId, long teamId) {
-        if (!teamRepository.acceptTeam(userId, teamId)) {
-            throw new CodeException(ErrorCode.TEAM_ACCEPT_FAILED);
-        }
-    }
+  public List<UserLeaderBoardInfo> getLeaderBoard(long teamId, int limit) {
+    List<LeaderBoardTeamDTO> leaderBoard = teamRepository.getLeaderBoard(teamId);
+    List<Long> userIds = leaderBoard.stream()
+        .map(LeaderBoardTeamDTO::getUserId)
+        .limit(limit)
+        .collect(Collectors.toList());
+    Map<Long, UserLeaderBoardDTO> mapUsers = new HashMap<>();
+    List<UserLeaderBoardDTO> users = userRepository
+        .getUserLeaderBoard(userIds);
+    users.forEach(user -> mapUsers.put(user.getUserId(), user));
+    return leaderBoard.stream()
+        .map(user -> new UserLeaderBoardInfo(mapUsers.get(user.getUserId()), user.getTotal()))
+        .collect(
+            Collectors.toList());
+  }
 
-    public void inviteToTeam(String emailOrUserCode, long teamId) {
-        try {
-            User user = userRepository.findByEmailOrUserCode(emailOrUserCode);
-            if (user != null) {
-                teamMemberRepository
-                        .insert(new TeamMember(teamId, user.getId(), TeamMemberType.INVITED, new Date()));
-            } else {
-                log.error("Invite to team, user not found, emailOrUserCode {}, teamId {}", emailOrUserCode,
-                        teamId);
-                throw new CodeException(ErrorCode.USER_NOT_FOUND);
-            }
-        } catch (DuplicateKeyException ex) {
-            log.error("", ex);
-            throw new CodeException(ErrorCode.TEAM_USER_EXISTED);
-        }
-    }
+  public List<UserFilterDTO> getUserByMemberType(long teamId, TeamMemberType teamMemberType,
+      int offset, int limit) {
+    return userRepository.getUserByMemberType(teamId, teamMemberType, offset, limit);
+  }
 
-    public void cancelJoinTeam(Long requestId, Long teamId) {
-        teamRepository.cancelJoinTeam(requestId, teamId);
-    }
-
-    @Transactional
-    public boolean updateTeamRole(Long teamId, Long memberId, TeamMemberType toChangeInto) {
-        if (toChangeInto == null || toChangeInto == TeamMemberType.OWNER) {
-            return false;
-        }
-
-        boolean updated = teamRepository.updateTeamMemberType(teamId, memberId, toChangeInto);
-
-        if (updated) {
-            if (toChangeInto == TeamMemberType.BLOCKED) {
-                teamRepository.changeTotalMember(teamId, -1);
-                removeTeamFromCache(teamId, memberId);
-            }
-
-            if (toChangeInto == TeamMemberType.MEMBER) {
-                teamRepository.changeTotalMember(teamId, 1);
-                addTeamToCache(teamId, memberId);
-            }
-
-            cacheClient.setTeamMemberType(teamId, memberId, toChangeInto);
-        }
-        return updated;
-    }
-
-    public TeamMemberType loadTeamMemberType(Long teamId, Long userId) {
-        TeamMemberType teamMemberType = cacheClient.getTeamMemberType(teamId, userId);
-        if (teamMemberType == null) {
-            TeamMember teamMember = teamMemberRepository.findById(teamId, userId);
-            if (teamMember == null) {
-                String msg = String.format("User %s not belong to Team %s", userId, teamId);
-                log.warn(msg);
-                throw new CodeException(msg, ErrorCode.TEAM_USER_NOT_FOUND);
-            }
-            teamMemberType = teamMember.getTeamMemberType();
-        }
-        return teamMemberType;
-    }
-
-    public Team updateTeam(Long teamId, String thumbnail, String banner, int privacy,
-            Integer province, String description) {
-        Team toUpdate = teamRepository.findTeamById(teamId);
-
-        if (toUpdate == null) {
-            throw new CodeException(ErrorCode.TEAM_NOT_FOUND);
-        }
-
-        String encodedName = Base64.getEncoder()
-                .encodeToString(toUpdate.getTeamName().getBytes(StandardCharsets.UTF_8));
-
-        if ((thumbnail != null && thumbnail.length() > appProperties.getMaxImageSize())
-                || (banner != null && banner.length() > appProperties.getMaxImageSize())) {
-            throw new CodeException(ErrorCode.INVALID_IMAGE_SIZE);
-        }
-
-        if (thumbnail != null) {
-            String thumbnailURL = amazonClient
-                    .uploadFile(thumbnail, "thumbnail-team-" + encodedName + System.currentTimeMillis());
-            if (thumbnailURL != null) {
-                amazonClient.deleteFile(toUpdate.getThumbnail());
-                toUpdate.setThumbnail(thumbnailURL);
-            }
-        }
-        if (banner != null) {
-            String bannerURL = amazonClient
-                    .uploadFile(banner, "banner-team-" + encodedName + System.currentTimeMillis());
-            if (bannerURL != null) {
-                amazonClient.deleteFile(toUpdate.getBanner());
-                toUpdate.setBanner(bannerURL);
-            }
-        }
-        if (privacy != toUpdate.getPrivacy()) {
-            toUpdate.setPrivacy(privacy);
-        }
-        if (province != null && province >= 1 && province <= 63) {
-            toUpdate.setProvince(province);
-        }
-
-        if (description != null) {
-            toUpdate.setDescription(description);
-        }
-
-        teamRepository.update(toUpdate);
-        log.info("Update team {}", teamId);
-
-        return toUpdate;
-    }
-
-    public Set<Team> getTeamSuggestion(Long currentUserId, int province, int count) {
-        Set<Team> toReturn;
-        Set<Long> toExclude = userService.loadUser(currentUserId).getTeams();
-        toReturn = teamRepository
-                .getTeamSuggestionByUserLocation(province, count, toExclude);
-        return toReturn;
-    }
-
-    public Set<Team> findTeamWithNameContains(String searchString, int offset, int count) {
-        Set<Team> toGet = teamRepository.findTeamWithNameContains(searchString, offset, count);
-
-        if (toGet == null) {
-            throw new DataRetrievalFailureException("Team not found");
-        }
-
-        return toGet;
-    }
-
-    public List<UserFilterWithTypeDTO> getAllTeamMemberPaged(Long teamId, int offset, int limit) {
-        return userRepository
-                .getAllMemberByLessEqualTeamMemberType(teamId, TeamMemberType.MEMBER, offset, limit);
-    }
-
-    public List<UserFilterWithTypeDTO> findTeamMember(String keyword, long teamId, int offset,
-            int limit) {
-        return userRepository
-                .findUserIsEnable(keyword, teamId, offset, limit);
-    }
-
-    public List<UserLeaderBoardInfo> getLeaderBoard(long teamId, int limit) {
-        List<LeaderBoardTeamDTO> leaderBoard = teamRepository.getLeaderBoard(teamId);
-        List<Long> userIds = leaderBoard.stream()
-                .map(LeaderBoardTeamDTO::getUserId)
-                .limit(limit)
-                .collect(Collectors.toList());
-        Map<Long, UserLeaderBoardDTO> mapUsers = new HashMap<>();
-        List<UserLeaderBoardDTO> users = userRepository
-                .getUserLeaderBoard(userIds);
-        users.forEach(user -> mapUsers.put(user.getUserId(), user));
-        return leaderBoard.stream()
-                .map(user -> new UserLeaderBoardInfo(mapUsers.get(user.getUserId()), user.getTotal()))
-                .collect(
-                        Collectors.toList());
-    }
-
-    public List<UserFilterDTO> getUserByMemberType(long teamId, TeamMemberType teamMemberType,
-            int offset, int limit) {
-        return userRepository.getUserByMemberType(teamId, teamMemberType, offset, limit);
-    }
-
-    public List<Team> getAll(String teamName, int offset, int limit) {
-      return teamRepository.findAllTeam(teamName, offset, limit);
-    }
+  public List<Team> getAll(String teamName, int offset, int limit) {
+    return teamRepository.findAllTeam(teamName, offset, limit);
+  }
 }
