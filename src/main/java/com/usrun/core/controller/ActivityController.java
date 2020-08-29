@@ -198,6 +198,24 @@ public class ActivityController {
     }
   }
 
+  @PostMapping("/getTeamFeed")
+  public ResponseEntity<?> getTeamFeed(
+          @RequestBody GetActivitiesRequest request
+  ) {
+    try {
+      List<UserFeedResp> allByTimeRangeAndUserId = activityService
+              .getTeamFeed(request.getTeamId(), request.getOffset(),
+                      request.getCount());
+
+      return new ResponseEntity<>(new CodeResponse(allByTimeRangeAndUserId), HttpStatus.OK);
+    } catch (CodeException ex) {
+      return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
+    } catch (Exception ex) {
+      logger.error("", ex);
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
+    }
+  }
+
   @PostMapping("/getUserActivityByTime")
   public ResponseEntity<?> getUserActivityByTime(
       @CurrentUser UserPrincipal userPrincipal,

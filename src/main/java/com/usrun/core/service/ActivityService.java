@@ -14,6 +14,7 @@ import com.usrun.core.payload.activity.UserFeedResp;
 import com.usrun.core.payload.activity.UserStatResp;
 import com.usrun.core.payload.dto.SplitPaceDTO;
 import com.usrun.core.payload.dto.TeamActivityCountDTO;
+import com.usrun.core.payload.dto.UserDTO;
 import com.usrun.core.payload.user.CreateActivityRequest;
 import com.usrun.core.repository.EventParticipantRepository;
 import com.usrun.core.repository.EventRepository;
@@ -28,6 +29,7 @@ import com.usrun.core.utility.SequenceGenerator;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -70,6 +72,9 @@ public class ActivityService {
 
     @Autowired
     private LoveRepository loveRepository;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private SequenceGenerator sequenceGenerator;
@@ -329,6 +334,73 @@ public class ActivityService {
                     user.getName(),
                     user.getAvatar(),
                     user.isHcmus(),
+                    item.getEventId(),
+                    e.isPresent() ? e.get().getEventName() : "",
+                    e.isPresent() ? e.get().getThumbnail() : "",
+                    item.getCreateTime(),
+                    item.getTotalDistance(),
+                    item.getTotalTime(),
+                    item.getTotalStep(),
+                    item.getAvgPace(),
+                    item.getAvgHeart(),
+                    item.getMaxHeart(),
+                    item.getCalories(),
+                    item.getElevGain(),
+                    item.getElevMax(),
+                    item.getPhotos(),
+                    item.getTitle(),
+                    item.getDescription(),
+                    item.getTotalLove(),
+                    item.getTotalComment(),
+                    item.getTotalShare(),
+                    splitResp);
+            resp.add(itemUserFeed);
+        }
+        return resp;
+    }
+
+    public List<UserFeedResp> getTeamFeed(long teamId, int offset, int limit) {
+        List<UserActivity> userActivites = this.getActivitiesByTeam(teamId, limit, offset);
+        Set<Long> userIds = userActivites.stream().map(UserActivity::getUserId).collect(Collectors.toSet());
+        List<Long> eventIds = userActivites.stream().map(UserActivity::getEventId).collect(Collectors.toList());
+        List<Event> events = eventRepository.mFindById(eventIds);
+        Map<Long, UserDTO> userMap = userService.getUserDTOs(userIds)
+                .stream().collect(Collectors.toMap(UserDTO::getUserId, Function.identity()));
+
+        List<UserFeedResp> resp = new ArrayList<>();
+        for (int i = 0; i < userActivites.size(); i++) {
+            UserActivity item = userActivites.get(i);
+            Optional<Event> e = events.stream().filter(event -> event.getEventId() == item.getEventId()).findFirst();
+
+            if (!item.isShowMap()) {
+                List<String> photos = item.getPhotos();
+                if (photos.isEmpty()) {
+                    photos.add(IMAGE_DEFAULT);
+                } else {
+                    photos.set(0, IMAGE_DEFAULT);
+                }
+            }
+
+            String splitData = item.getSplitPace();
+            Map<String, Object> result = new HashMap<>();
+            if (splitData != null) {
+                result = ObjectUtils.fromJsonString(splitData, new TypeReference<HashMap<String, Object>>() {
+                });
+            }
+            List<SplitPaceDTO> splitResp = new ArrayList<>();
+            if (result != null) {
+                for (Map.Entry<String, Object> entry : result.entrySet()) {
+                    Double km = Double.valueOf(entry.getKey());
+                    int pace = (int) entry.getValue();
+                    SplitPaceDTO itemSplit = new SplitPaceDTO(km, pace);
+                    splitResp.add(itemSplit);
+                }
+            }
+            UserFeedResp itemUserFeed = new UserFeedResp(item.getUserActivityId(),
+                    item.getUserId(),
+                    userMap.get(item.getUserId()).getDisplayName(),
+                    userMap.get(item.getUserId()).getAvatar(),
+                    userMap.get(item.getUserId()).isHcmus(),
                     item.getEventId(),
                     e.isPresent() ? e.get().getEventName() : "",
                     e.isPresent() ? e.get().getThumbnail() : "",
