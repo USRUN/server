@@ -28,6 +28,8 @@ public interface EventRepository {
 
     List<EventWithCheckJoin> getAllEvent(long userId, int offset, int limit);
 
+    List<EventWithCheckJoin> getUserEventWithCheckJoin(long curUserId, long userId);
+
     List<Event> getMyEvent(long userId, int offset, int limit);
     
     List<Event> getMyEventNotJoin(long userId, int offset, int limit);

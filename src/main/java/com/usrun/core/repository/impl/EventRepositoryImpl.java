@@ -170,6 +170,23 @@ public class EventRepositoryImpl implements EventRepository {
     }
 
     @Override
+    public List<EventWithCheckJoin> getUserEventWithCheckJoin(long curUserId, long userId) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource("userId", userId);
+        parameters.addValue("curUserId", curUserId);
+        String sql = "select e.*, if(ep2.userId=:curUserId,true,false) as isJoin "
+                + "from event e "
+                + "left join eventParticipant ep "
+                + "on ep.eventId = null || ep.eventId = e.eventId "
+                + "left join eventParticipant ep2 "
+                + "on ep2.eventId = null || ep2.eventId = e.eventId "
+                + "where ep.userId = :userId "
+                + "group by e.eventId "
+                + "order by totalParticipant desc ";
+        List<EventWithCheckJoin> events = findEventWithCheckJoin(sql, parameters);
+        return events;
+    }
+
+    @Override
     public List<Event> getMyEvent(long userId, int offset, int limit) {
         MapSqlParameterSource parameters = new MapSqlParameterSource("userId", userId);
         parameters.addValue("limit", limit);

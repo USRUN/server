@@ -165,6 +165,26 @@ public class EventController {
         }
     }
 
+    @PostMapping("/getUserEventWithCheckJoin")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getUserEventWithCheckJoin(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestBody UserEventReq userEventReq
+    ) {
+        try {
+            long curUserId = userPrincipal.getId();
+            long userId = userEventReq.getUserId();
+
+            List<EventWithCheckJoin> listEventPart = eventRepository
+                    .getUserEventWithCheckJoin(curUserId,userId);
+            List<EventListResponse> resp = listEventPart.stream().map(item -> new EventListResponse(item, eventParticipantRepository.getTotalTeamOfEvent(item.getEventId()))).collect(Collectors.toList());
+            return new ResponseEntity<>(new CodeResponse(resp), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+            return new ResponseEntity<>(new CodeResponse(ErrorCode.GET_EVENT_FAIL), HttpStatus.OK);
+        }
+    }
+
     @PostMapping("/getMyEvent")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getMyEvent(
