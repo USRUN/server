@@ -22,6 +22,7 @@ import com.usrun.core.payload.event.EventWithCheckJoin;
 import com.usrun.core.payload.event.JoinEventReq;
 import com.usrun.core.payload.event.LimitOffsetReq;
 import com.usrun.core.payload.event.SearchEventReq;
+import com.usrun.core.payload.event.UserEventReq;
 import com.usrun.core.repository.EventParticipantRepository;
 import com.usrun.core.repository.EventRepository;
 import com.usrun.core.repository.SponsorRepository;
@@ -169,6 +170,28 @@ public class EventController {
       List<EventWithCheckJoin> listEventPart = eventRepository
           .getAllEvent(userId, limitOffsetReq.offset, limitOffsetReq.limit);
       return new ResponseEntity<>(new CodeResponse(listEventPart), HttpStatus.OK);
+    } catch (Exception ex) {
+      logger.error(ex.getMessage(), ex);
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.GET_EVENT_FAIL), HttpStatus.OK);
+    }
+  }
+
+  @PostMapping("/getUserEventWithCheckJoin")
+  @PreAuthorize("hasRole('USER')")
+  public ResponseEntity<?> getUserEventWithCheckJoin(
+      @CurrentUser UserPrincipal userPrincipal,
+      @RequestBody UserEventReq userEventReq
+  ) {
+    try {
+      long curUserId = userPrincipal.getId();
+      long userId = userEventReq.getUserId();
+
+      List<EventWithCheckJoin> listEventPart = eventRepository
+          .getUserEventWithCheckJoin(curUserId, userId);
+      List<EventListResponse> resp = listEventPart.stream().map(item -> new EventListResponse(item,
+          eventParticipantRepository.getTotalTeamOfEvent(item.getEventId())))
+          .collect(Collectors.toList());
+      return new ResponseEntity<>(new CodeResponse(resp), HttpStatus.OK);
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);
       return new ResponseEntity<>(new CodeResponse(ErrorCode.GET_EVENT_FAIL), HttpStatus.OK);
