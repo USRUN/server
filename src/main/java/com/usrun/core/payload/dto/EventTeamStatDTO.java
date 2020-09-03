@@ -1,6 +1,8 @@
 package com.usrun.core.payload.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author phuctt4
@@ -10,6 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EventTeamStatDTO {
+
   private long itemId;
   private long distance;
   private String name;

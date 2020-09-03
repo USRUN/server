@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FindTeamMemberRequest {
+
   private long teamId;
   private int count;
   private int offset;

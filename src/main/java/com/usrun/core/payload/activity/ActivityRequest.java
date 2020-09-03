@@ -9,13 +9,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- *
  * @author huyna3
  */
 @Getter
 @Setter
 public class ActivityRequest {
-    private long userId;
-    private int offset ;
-    private int limit ;
+
+  private long userId;
+  private int offset;
+  private int limit;
 }

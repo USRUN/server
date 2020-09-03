@@ -9,19 +9,19 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- *
  * @author huyna3
  */
 @Getter
 @Setter
 public class EventOrganization {
-    private long organizationId;
-    private String avatar;
-    private String name;
 
-    public EventOrganization(long organizationId, String avatar, String name) {
-        this.organizationId = organizationId;
-        this.avatar = avatar;
-        this.name = name;
-    }
+  private long organizationId;
+  private String avatar;
+  private String name;
+
+  public EventOrganization(long organizationId, String avatar, String name) {
+    this.organizationId = organizationId;
+    this.avatar = avatar;
+    this.name = name;
+  }
 }

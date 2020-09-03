@@ -8,6 +8,7 @@ import lombok.Data;
 
 @Data
 public class BanUserRequest {
+
   private long userId;
   private boolean banned;
 }

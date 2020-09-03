@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class UserLeaderBoardInfo {
+
   private long userId;
   private String displayName;
   private String avatar;

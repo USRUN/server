@@ -132,7 +132,7 @@ public class CacheClient {
   public TeamMemberType getTeamMemberType(long teamId, long userId) {
     RBucket<String> rBucket = redissonClient
         .getBucket(cacheKeyGenerator.keyTeamMemberType(teamId, userId));
-    if(rBucket.isExists()) {
+    if (rBucket.isExists()) {
       return TeamMemberType.fromInt(Integer.parseInt(rBucket.get()));
     }
     return null;

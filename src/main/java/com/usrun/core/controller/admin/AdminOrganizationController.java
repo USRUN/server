@@ -24,7 +24,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,56 +35,59 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/admin/sponsor")
 public class AdminOrganizationController {
 
-    private static final Logger logger = LoggerFactory.getLogger(AdminOrganizationController.class);
+  private static final Logger logger = LoggerFactory.getLogger(AdminOrganizationController.class);
 
-    @Autowired
-    private OrganizationRepository organizationRepository;
+  @Autowired
+  private OrganizationRepository organizationRepository;
 
-    @Autowired
-    private SponsorRepository sponsorRepository;
+  @Autowired
+  private SponsorRepository sponsorRepository;
 
-    @PostMapping("/createOrganization")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> createOrganization(@RequestBody OrganizationCreateReq organizationReq) {
-        try {
-            Organization organization = new Organization(organizationReq.getName());
-            int resp = organizationRepository.insert(organization);
-            if (resp >= 0) {
-                return ResponseEntity.ok(new CodeResponse("add success"));
-            } else {
-                return new ResponseEntity<>(new CodeResponse(resp), HttpStatus.BAD_REQUEST);
-            }
-        } catch (CodeException ex) {
-            return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
-        }
+  @PostMapping("/createOrganization")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<?> createOrganization(@RequestBody OrganizationCreateReq organizationReq) {
+    try {
+      Organization organization = new Organization(organizationReq.getName());
+      int resp = organizationRepository.insert(organization);
+      if (resp >= 0) {
+        return ResponseEntity.ok(new CodeResponse("add success"));
+      } else {
+        return new ResponseEntity<>(new CodeResponse(resp), HttpStatus.BAD_REQUEST);
+      }
+    } catch (CodeException ex) {
+      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
     }
+  }
 
-    @PostMapping("/addSponsor")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> addSponsor(@RequestBody SponsorCreateReq sponsorCreateReq) {
-        try {
-            if (sponsorCreateReq.getRole() > 5 || sponsorCreateReq.getRole() < 1) {
-                return ResponseEntity.ok(new CodeResponse(ErrorCode.ROLE_SPONSOR_INVALID));
-            }
-            List<Long> organizationId = sponsorCreateReq.getOrganizationId();
-            for (Long oId : organizationId) {
-                Sponsor sponsor = new Sponsor(sponsorCreateReq.getEventId(), oId, SponsorType.getSponsor(sponsorCreateReq.getRole()));
-                sponsorRepository.insert(sponsor);
-            }
-            return ResponseEntity.ok(new CodeResponse(ErrorCode.ROLE_SPONSOR_INVALID));
-        } catch (CodeException ex) {
-            return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
-        }
+  @PostMapping("/addSponsor")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<?> addSponsor(@RequestBody SponsorCreateReq sponsorCreateReq) {
+    try {
+      if (sponsorCreateReq.getRole() > 5 || sponsorCreateReq.getRole() < 1) {
+        return ResponseEntity.ok(new CodeResponse(ErrorCode.ROLE_SPONSOR_INVALID));
+      }
+      List<Long> organizationId = sponsorCreateReq.getOrganizationId();
+      for (Long oId : organizationId) {
+        Sponsor sponsor = new Sponsor(sponsorCreateReq.getEventId(), oId,
+            SponsorType.getSponsor(sponsorCreateReq.getRole()));
+        sponsorRepository.insert(sponsor);
+      }
+      return ResponseEntity.ok(new CodeResponse(ErrorCode.ROLE_SPONSOR_INVALID));
+    } catch (CodeException ex) {
+      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
     }
+  }
 
-    @PostMapping("/listOrganization")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> listOrganization(@RequestBody OrganizationListReq organizationListReq) {
-        try {
-            List<Organization> result = organizationRepository.listOrganization(organizationListReq.getOffset(), organizationListReq.getLimit(), organizationListReq.getKeyword());
-                return new ResponseEntity<>(new CodeResponse(result), HttpStatus.OK);
-        } catch (CodeException ex) {
-            return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
-        }
+  @PostMapping("/listOrganization")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<?> listOrganization(@RequestBody OrganizationListReq organizationListReq) {
+    try {
+      List<Organization> result = organizationRepository
+          .listOrganization(organizationListReq.getOffset(), organizationListReq.getLimit(),
+              organizationListReq.getKeyword());
+      return new ResponseEntity<>(new CodeResponse(result), HttpStatus.OK);
+    } catch (CodeException ex) {
+      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()), HttpStatus.BAD_REQUEST);
     }
+  }
 }

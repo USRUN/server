@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 public class TrackRequest {
 
-    private List<List<Location>> locations;
-    private Map<String, Object> splitDistance;
-    private double time;
+  private List<List<Location>> locations;
+  private Map<String, Object> splitDistance;
+  private double time;
 }

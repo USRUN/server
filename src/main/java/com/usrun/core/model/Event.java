@@ -1,7 +1,6 @@
 package com.usrun.core.model;
 
 import java.util.Date;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
@@ -40,22 +39,24 @@ public class Event {
   private String reward;
   private String description;
 
-    public Event(Long eventId, int status, Date createTime, String eventName, String subtitle, String thumbnail, String poster, int totalParticipant, Date startTime, Date endTime, int deleted, String banner, String poweredBy, String reward, String description) {
-        this.eventId = eventId;
-        this.status = status;
-        this.createTime = createTime;
-        this.eventName = eventName;
-        this.subtitle = subtitle;
-        this.thumbnail = thumbnail;
-        this.poster = poster;
-        this.totalParticipant = totalParticipant;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.deleted = deleted;
-        this.banner = banner;
-        this.poweredBy = poweredBy;
-        this.reward = reward;
-        this.description = description;
-    }
+  public Event(Long eventId, int status, Date createTime, String eventName, String subtitle,
+      String thumbnail, String poster, int totalParticipant, Date startTime, Date endTime,
+      int deleted, String banner, String poweredBy, String reward, String description) {
+    this.eventId = eventId;
+    this.status = status;
+    this.createTime = createTime;
+    this.eventName = eventName;
+    this.subtitle = subtitle;
+    this.thumbnail = thumbnail;
+    this.poster = poster;
+    this.totalParticipant = totalParticipant;
+    this.startTime = startTime;
+    this.endTime = endTime;
+    this.deleted = deleted;
+    this.banner = banner;
+    this.poweredBy = poweredBy;
+    this.reward = reward;
+    this.description = description;
+  }
 
 }

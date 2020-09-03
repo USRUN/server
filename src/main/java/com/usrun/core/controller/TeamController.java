@@ -7,16 +7,38 @@ import com.usrun.core.model.junction.TeamMember;
 import com.usrun.core.model.type.TeamMemberType;
 import com.usrun.core.payload.CodeResponse;
 import com.usrun.core.payload.TeamStatResponse;
-import com.usrun.core.payload.dto.*;
-import com.usrun.core.payload.team.*;
+import com.usrun.core.payload.dto.TeamDTO;
+import com.usrun.core.payload.dto.TeamLeaderBoardResp;
+import com.usrun.core.payload.dto.TeamStatDTO;
+import com.usrun.core.payload.dto.UserFilterDTO;
+import com.usrun.core.payload.dto.UserFilterWithTypeDTO;
+import com.usrun.core.payload.dto.UserLeaderBoardInfo;
+import com.usrun.core.payload.team.FindTeamMemberRequest;
+import com.usrun.core.payload.team.FindTeamRequest;
+import com.usrun.core.payload.team.GetAllTeamMemberRequest;
+import com.usrun.core.payload.team.GetLeaderBoardRequest;
+import com.usrun.core.payload.team.GetTeamByIdRequest;
+import com.usrun.core.payload.team.GetTeamByUserRequest;
+import com.usrun.core.payload.team.GetTeamOfEventReq;
+import com.usrun.core.payload.team.GetUserByMemberTypeRequest;
+import com.usrun.core.payload.team.InviteTeamRequest;
+import com.usrun.core.payload.team.JoinTeamRequest;
+import com.usrun.core.payload.team.SearchTeamOfEventReq;
+import com.usrun.core.payload.team.SuggestTeamRequest;
+import com.usrun.core.payload.team.UpdateMemberRequest;
+import com.usrun.core.payload.team.UpdateTeamRequest;
 import com.usrun.core.security.CurrentUser;
 import com.usrun.core.security.UserPrincipal;
 import com.usrun.core.service.TeamService;
 import com.usrun.core.utility.CacheClient;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,12 +46,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -192,7 +208,7 @@ public class TeamController {
       @RequestBody SuggestTeamRequest request
   ) {
     try {
-       int count = request.getCount() <= 0 ? 10 :request.getCount();
+      int count = request.getCount() <= 0 ? 10 : request.getCount();
       int province
           = request.getProvince() >= 1 && request.getProvince() <= 63 ? request.getProvince() : 0;
       Set<Team> teams = teamService.getTeamSuggestion(
@@ -254,11 +270,13 @@ public class TeamController {
 
   @PostMapping("/getTeamByUser")
   @PreAuthorize("hasRole('USER')")
-  public ResponseEntity<?> getTeamByUser(@RequestBody(required=false)  GetTeamByUserRequest request, @CurrentUser UserPrincipal userPrincipal) {
+  public ResponseEntity<?> getTeamByUser(
+      @RequestBody(required = false) GetTeamByUserRequest request,
+      @CurrentUser UserPrincipal userPrincipal) {
     try {
       long userId = userPrincipal.getId();
 
-      if(request != null){
+      if (request != null) {
         userId = request.getUserId();
       }
 
@@ -275,16 +293,18 @@ public class TeamController {
 
   @PostMapping("/getJoinedTeamByUser")
   @PreAuthorize("hasRole('USER')")
-  public ResponseEntity<?> getJoinedTeamByUser(@RequestBody(required=false)  GetTeamByUserRequest request, @CurrentUser UserPrincipal userPrincipal) {
+  public ResponseEntity<?> getJoinedTeamByUser(
+      @RequestBody(required = false) GetTeamByUserRequest request,
+      @CurrentUser UserPrincipal userPrincipal) {
     try {
       long userId = userPrincipal.getId();
 
-      if(request != null){
+      if (request != null) {
         userId = request.getUserId();
       }
 
       List<TeamDTO> teams = teamService
-              .getTeamDTOByUserAndLowerThanTeamMemberType(userId, TeamMemberType.MEMBER);
+          .getTeamDTOByUserAndLowerThanTeamMemberType(userId, TeamMemberType.MEMBER);
       return ResponseEntity.ok(new CodeResponse(teams));
     } catch (CodeException ex) {
       return ResponseEntity.ok(new CodeResponse(ex.getErrorCode()));
@@ -433,42 +453,43 @@ public class TeamController {
       return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
     }
   }
+
   @PostMapping("/getTeamByEvent")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> getTeamOfEvent(@RequestBody GetTeamOfEventReq request) {
-        try {
-            int count = request.getLimit()> 0 ? request.getLimit() : 10;
-            int offset = request.getOffset();
-            long eventId =  request.getEventId();
-            List<Team> teams = teamService.getTeamByEvent(eventId, count, offset);
-            return ResponseEntity.ok(new CodeResponse(teams));
-        } catch (CodeException ex) {
-            return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
-                    HttpStatus.OK);
-        } catch (Exception ex) {
-            log.error("", ex);
-            return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-                    HttpStatus.OK);
-        }
+  @PreAuthorize("hasRole('USER')")
+  public ResponseEntity<?> getTeamOfEvent(@RequestBody GetTeamOfEventReq request) {
+    try {
+      int count = request.getLimit() > 0 ? request.getLimit() : 10;
+      int offset = request.getOffset();
+      long eventId = request.getEventId();
+      List<Team> teams = teamService.getTeamByEvent(eventId, count, offset);
+      return ResponseEntity.ok(new CodeResponse(teams));
+    } catch (CodeException ex) {
+      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
+          HttpStatus.OK);
+    } catch (Exception ex) {
+      log.error("", ex);
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
+          HttpStatus.OK);
     }
-    
-    @PostMapping("/searchTeamByEvent")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> searchTeamOfEvent(@RequestBody SearchTeamOfEventReq request) {
-        try {
-            int count = request.getLimit()> 0 ? request.getLimit() : 10;
-            int offset = request.getOffset();
-            long eventId =  request.getEventId();
-            String keyword = '%' + request.getName() + '%';
-            List<Team> teams = teamService.searchTeamByEvent(eventId,keyword, offset, count);
-            return ResponseEntity.ok(new CodeResponse(teams));
-        } catch (CodeException ex) {
-            return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
-                    HttpStatus.OK);
-        } catch (Exception ex) {
-            log.error("", ex);
-            return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
-                    HttpStatus.OK);
-        }
+  }
+
+  @PostMapping("/searchTeamByEvent")
+  @PreAuthorize("hasRole('USER')")
+  public ResponseEntity<?> searchTeamOfEvent(@RequestBody SearchTeamOfEventReq request) {
+    try {
+      int count = request.getLimit() > 0 ? request.getLimit() : 10;
+      int offset = request.getOffset();
+      long eventId = request.getEventId();
+      String keyword = '%' + request.getName() + '%';
+      List<Team> teams = teamService.searchTeamByEvent(eventId, keyword, offset, count);
+      return ResponseEntity.ok(new CodeResponse(teams));
+    } catch (CodeException ex) {
+      return new ResponseEntity<>(new CodeResponse(ex.getErrorCode()),
+          HttpStatus.OK);
+    } catch (Exception ex) {
+      log.error("", ex);
+      return new ResponseEntity<>(new CodeResponse(ErrorCode.SYSTEM_ERROR),
+          HttpStatus.OK);
     }
+  }
 }

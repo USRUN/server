@@ -1,6 +1,5 @@
 package com.usrun.core.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.usrun.core.model.type.AuthType;
 import com.usrun.core.model.type.Gender;

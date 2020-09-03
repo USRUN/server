@@ -6,8 +6,7 @@ import java.util.HashMap;
 
 public enum RoleType {
   ROLE_USER(1),
-  ROLE_ADMIN(2)
-  ;
+  ROLE_ADMIN(2);
 
   private int value;
   private static final HashMap<Integer, RoleType> returnMap = new HashMap<>();

@@ -16,25 +16,25 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EventRepository {
 
-    int insert(Event event);
+  int insert(Event event);
 
-    Event findById(long id);
+  Event findById(long id);
 
-    List<Event> findByName(String name);
+  List<Event> findByName(String name);
 
-    boolean delete(Event delete);
+  boolean delete(Event delete);
 
-    List<Event> mFindById(List<Long> ids);
+  List<Event> mFindById(List<Long> ids);
 
-    List<EventWithCheckJoin> getAllEvent(long userId, int offset, int limit);
+  List<EventWithCheckJoin> getAllEvent(long userId, int offset, int limit);
 
-    List<Event> getMyEvent(long userId, int offset, int limit);
-    
-    List<Event> getMyEventNotJoin(long userId, int offset, int limit);
+  List<Event> getMyEvent(long userId, int offset, int limit);
 
-    List<EventWithCheckJoin> searchEvent(long userId, String name, int offset, int limit);
+  List<Event> getMyEventNotJoin(long userId, int offset, int limit);
 
-    boolean leaveEvent(long userId, long eventId);
-    
-    boolean inscreaseEventParticipant(long eventId);
+  List<EventWithCheckJoin> searchEvent(long userId, String name, int offset, int limit);
+
+  boolean leaveEvent(long userId, long eventId);
+
+  boolean inscreaseEventParticipant(long eventId);
 }

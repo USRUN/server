@@ -26,13 +26,13 @@ public class Organization {
     this.name = name;
   }
 
-    public Organization(long id, String name, String avatar, String website, String description) {
-        this.id = id;
-        this.name = name;
-        this.avatar = avatar;
-        this.website = website;
-        this.description = description;
-    }
+  public Organization(long id, String name, String avatar, String website, String description) {
+    this.id = id;
+    this.name = name;
+    this.avatar = avatar;
+    this.website = website;
+    this.description = description;
+  }
 
   public Organization(String name) {
     this.name = name;

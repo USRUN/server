@@ -9,16 +9,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- *
  * @author huyna
  */
 @Getter
 @Setter
 public class TeamLeaderBoardResp {
-    public int rank;
-    public long teamId;
-    public long distance;
-    public String name;
-    public String avatar;
-    
+
+  public int rank;
+  public long teamId;
+  public long distance;
+  public String name;
+  public String avatar;
+
 }

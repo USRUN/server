@@ -17,8 +17,8 @@ public interface SponsorRepository {
   Sponsor insert(Sponsor sponsor);
 
   Sponsor findById(long id);
-  
+
   int[] addOrganizers(long eventId, List<Long> organizationIds);
-  
+
   List<EventOrganization> getEventOrganizationWithRole(long eventId, int role);
 }

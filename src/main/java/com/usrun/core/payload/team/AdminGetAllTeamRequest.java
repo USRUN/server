@@ -8,6 +8,7 @@ import lombok.Data;
 
 @Data
 public class AdminGetAllTeamRequest {
+
   private int offset;
   private int limit;
   private String teamName;

@@ -8,9 +8,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserManagerDTO {
-    private long userId;
-    private String email;
-    private String displayName;
-    private String authType;
-    private boolean isEnabled;
+
+  private long userId;
+  private String email;
+  private String displayName;
+  private String authType;
+  private boolean isEnabled;
 }

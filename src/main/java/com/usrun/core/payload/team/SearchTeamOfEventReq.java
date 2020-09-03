@@ -11,7 +11,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- *
  * @author huyna3
  */
 @Data
@@ -19,10 +18,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SearchTeamOfEventReq {
 
-    private long eventId;
-    @Min(0)
-    private int offset;
-    @Min(1)
-    private int limit;
-    private String name;
+  private long eventId;
+  @Min(0)
+  private int offset;
+  @Min(1)
+  private int limit;
+  private String name;
 }

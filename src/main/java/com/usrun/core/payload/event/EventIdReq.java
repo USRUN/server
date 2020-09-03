@@ -9,11 +9,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- *
  * @author huyna3
  */
 @Getter
 @Setter
 public class EventIdReq {
-    private long eventId;
+
+  private long eventId;
 }

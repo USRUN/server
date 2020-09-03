@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ShortUserDTO {
+
   private long userId;
   private String displayName;
   private String avatar;

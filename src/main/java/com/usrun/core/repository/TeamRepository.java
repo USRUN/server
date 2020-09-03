@@ -11,50 +11,52 @@ import java.util.Set;
 
 public interface TeamRepository {
 
-    Team insert(Team toInsert, Long ownerUserId);
+  Team insert(Team toInsert, Long ownerUserId);
 
-    Team update(Team toUpdate);
+  Team update(Team toUpdate);
 
-    boolean delete(Team toDelete);
+  boolean delete(Team toDelete);
 
-    Team findTeamById(Long teamId);
+  Team findTeamById(Long teamId);
 
-    Team findTeamByName(String teamName);
+  Team findTeamByName(String teamName);
 
-    boolean joinTeam(Long requestingId, Long teamId);
+  boolean joinTeam(Long requestingId, Long teamId);
 
-    boolean cancelJoinTeam(Long requestingId, Long teamId);
+  boolean cancelJoinTeam(Long requestingId, Long teamId);
 
-    int changeTotalMember(Long teamId, int changeAmount);
+  int changeTotalMember(Long teamId, int changeAmount);
 
-    List<User> getMemberListByType(Long teamId, TeamMemberType toGet);
+  List<User> getMemberListByType(Long teamId, TeamMemberType toGet);
 
-    boolean updateTeamMemberType(Long teamId, Long memberId, TeamMemberType action);
+  boolean updateTeamMemberType(Long teamId, Long memberId, TeamMemberType action);
 
-    Set<Team> findTeamWithNameContains(String searchString, int offset, int count);
+  Set<Team> findTeamWithNameContains(String searchString, int offset, int count);
 
-    Set<Long> getTeamsByUser(long userId);
+  Set<Long> getTeamsByUser(long userId);
 
-    Set<Team> getTeamSuggestionByUserLocation(int province, int count,
-            Set<Long> toExclude);
+  Set<Team> getTeamSuggestionByUserLocation(int province, int count,
+      Set<Long> toExclude);
 
-    List<Team> findAllTeam();
+  List<Team> findAllTeam();
 
-    List<Team> findAllTeam(String teamName, int offset, int limit);
+  List<Team> findAllTeam(String teamName, int offset, int limit);
 
-    List<Team> getTeamsByUserReturnTeam(long userId);
+  List<Team> getTeamsByUserReturnTeam(long userId);
 
-    List<TeamDTO> getTeamsByUserAndNotEqualTeamMemberTypeReturnTeam(long userId, TeamMemberType teamMemberType);
+  List<TeamDTO> getTeamsByUserAndNotEqualTeamMemberTypeReturnTeam(long userId,
+      TeamMemberType teamMemberType);
 
-    List<TeamDTO> getTeamsByUserAndLowerThanTeamMemberTypeReturnTeam(long userId, TeamMemberType teamMemberType);
+  List<TeamDTO> getTeamsByUserAndLowerThanTeamMemberTypeReturnTeam(long userId,
+      TeamMemberType teamMemberType);
 
-    List<LeaderBoardTeamDTO> getLeaderBoard(long teamId);
+  List<LeaderBoardTeamDTO> getLeaderBoard(long teamId);
 
-    boolean acceptTeam(long userId, long teamId);
+  boolean acceptTeam(long userId, long teamId);
 
-    List<Team> getTeamOfEvent(long eventId, int offset, int limit);
+  List<Team> getTeamOfEvent(long eventId, int offset, int limit);
 
-    List<Team> searchTeamOfEvent(long eventId, String name, int offset, int limit);
+  List<Team> searchTeamOfEvent(long eventId, String name, int offset, int limit);
 
-    List<ShortTeamDTO> getShortTeams(List<Long> teams);
+  List<ShortTeamDTO> getShortTeams(List<Long> teams);
 }

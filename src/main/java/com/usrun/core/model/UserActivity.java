@@ -99,7 +99,8 @@ public class UserActivity {
     this.privacy = createActivityRequest.getPrivacy();
     this.eventId = createActivityRequest.getEventId();
     this.isShowMap = createActivityRequest.isShowMap();
-    this.splitPace = ObjectUtils.toJsonString(createActivityRequest.getTrackRequest().getSplitDistance());
+    this.splitPace = ObjectUtils
+        .toJsonString(createActivityRequest.getTrackRequest().getSplitDistance());
   }
 
   public UserActivity(long userActivityId, long userId, long totalDistance, long totalTime,

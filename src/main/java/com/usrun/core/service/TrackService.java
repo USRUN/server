@@ -32,7 +32,8 @@ public class TrackService {
   @Autowired
   private CacheClient cacheClient;
 
-  public Track createTrack(Long userId, String description, List<List<Location>> locations, Map<String, Double> splitDistance) {
+  public Track createTrack(Long userId, String description, List<List<Location>> locations,
+      Map<String, Double> splitDistance) {
     Long trackId = sequenceGenerator.nextId();
     Track track = new Track(trackId, userId, description, splitDistance);
 

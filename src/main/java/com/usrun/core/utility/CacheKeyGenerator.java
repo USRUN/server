@@ -1,7 +1,6 @@
 package com.usrun.core.utility;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;
 
 /**
@@ -56,9 +55,9 @@ public class CacheKeyGenerator {
   public String keyActivityLock(long userId, long time) {
     return PREFIX + "activity:lock:" + userId + ":" + time;
   }
-  
-  public String keyTeamStat(){
-      return PREFIX + "team:stat:";
+
+  public String keyTeamStat() {
+    return PREFIX + "team:stat:";
   }
 
   public String keyLoveCount(long activityId) {

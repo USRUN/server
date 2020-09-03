@@ -6,13 +6,10 @@
 package com.usrun.core.repository;
 
 import com.usrun.core.model.EventParticipant;
-import com.usrun.core.model.Team;
-import com.usrun.core.model.User;
 import com.usrun.core.payload.dto.EventTeamStatDTO;
 import com.usrun.core.payload.dto.EventUserStatDTO;
 import com.usrun.core.payload.dto.TeamEventDTO;
 import com.usrun.core.payload.dto.UserEventDTO;
-
 import java.util.List;
 
 /**
@@ -21,19 +18,19 @@ import java.util.List;
 public interface EventParticipantRepository {
 
   int insert(EventParticipant eventParticipant);
-  
+
   EventParticipant findEventParticipant(long eventId, long userId);
-  
+
   int updateEventParticipant(EventParticipant eventParticipant);
 
   List<EventParticipant> findByUserId(long userId);
 
   boolean delete(EventParticipant eventParticipant);
-  
+
   boolean updateDistance(long userId, long eventId, long distance);
-  
+
   int getTotalTeamOfEvent(long eventId);
-  
+
   long getTotalDistanceOfEvent(long eventId);
 
   List<EventTeamStatDTO> getTeamStat(long eventId);

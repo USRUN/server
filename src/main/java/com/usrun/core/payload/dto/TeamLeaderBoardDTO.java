@@ -9,17 +9,17 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- *
  * @author huyna3
  */
 @Getter
 @Setter
 public class TeamLeaderBoardDTO {
-    public long teamId;
-    public long distance;
-    public String name;
-    public String avatar;
-    
-    public TeamLeaderBoardDTO(){
-    }
+
+  public long teamId;
+  public long distance;
+  public String name;
+  public String avatar;
+
+  public TeamLeaderBoardDTO() {
+  }
 }

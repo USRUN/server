@@ -8,6 +8,7 @@ import lombok.Data;
 
 @Data
 public class InviteTeamRequest {
+
   private long teamId;
   private String emailOrUserCode;
 }

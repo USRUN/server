@@ -6,7 +6,12 @@ import com.usrun.core.model.type.AuthType;
 import com.usrun.core.model.type.Gender;
 import com.usrun.core.model.type.RoleType;
 import com.usrun.core.model.type.TeamMemberType;
-import com.usrun.core.payload.dto.*;
+import com.usrun.core.payload.dto.ShortUserDTO;
+import com.usrun.core.payload.dto.UserDTO;
+import com.usrun.core.payload.dto.UserFilterDTO;
+import com.usrun.core.payload.dto.UserFilterWithTypeDTO;
+import com.usrun.core.payload.dto.UserLeaderBoardDTO;
+import com.usrun.core.payload.dto.UserManagerDTO;
 import com.usrun.core.repository.UserRepository;
 import java.util.Collections;
 import java.util.Date;
@@ -253,7 +258,8 @@ public class UserRepositoryImpl implements UserRepository {
     MapSqlParameterSource params = new MapSqlParameterSource("users", users);
     String sql = "SELECT userId, displayName, avatar FROM user WHERE userId IN (:users)";
     return namedParameterJdbcTemplate.query(sql, params,
-        (rs, i) -> new ShortUserDTO(rs.getLong("userId"), rs.getString("displayName"),rs.getString("avatar")));
+        (rs, i) -> new ShortUserDTO(rs.getLong("userId"), rs.getString("displayName"),
+            rs.getString("avatar")));
   }
 
   private List<User> getUsers(String sql, MapSqlParameterSource params) {

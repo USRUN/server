@@ -8,8 +8,6 @@ import com.usrun.core.utility.ObjectUtils;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -259,25 +257,25 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     ));
   }
 
-    @Override
-    public UserActivity update(UserActivity toUpdate) {
-        MapSqlParameterSource params = getMapUserActivity(toUpdate);
+  @Override
+  public UserActivity update(UserActivity toUpdate) {
+    MapSqlParameterSource params = getMapUserActivity(toUpdate);
 
-        int affected = namedParameterJdbcTemplate.update(
-                "UPDATE userActivity SET title = :title, description = :description, photo = :photo, isShowMap = :isShowMap",
-                params
-        );
+    int affected = namedParameterJdbcTemplate.update(
+        "UPDATE userActivity SET title = :title, description = :description, photo = :photo, isShowMap = :isShowMap",
+        params
+    );
 
-        return affected == 0 ? null : toUpdate;
-    }
-    @Override
-    public boolean delete(long activityId) {
-        MapSqlParameterSource params = new MapSqlParameterSource("activityId", activityId);
+    return affected == 0 ? null : toUpdate;
+  }
 
+  @Override
+  public boolean delete(long activityId) {
+    MapSqlParameterSource params = new MapSqlParameterSource("activityId", activityId);
 
-        String sql = "UPDATE userActivity SET isDeleted = true WHERE activityId = :activityId";
+    String sql = "UPDATE userActivity SET isDeleted = true WHERE activityId = :activityId";
 
-        int affected = namedParameterJdbcTemplate.update(sql, params);
-        return affected != 0;
-    }
+    int affected = namedParameterJdbcTemplate.update(sql, params);
+    return affected != 0;
+  }
 }

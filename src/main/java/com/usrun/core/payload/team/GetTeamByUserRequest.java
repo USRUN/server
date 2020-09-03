@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class GetTeamByUserRequest {
-    private long userId;
+
+  private long userId;
 }

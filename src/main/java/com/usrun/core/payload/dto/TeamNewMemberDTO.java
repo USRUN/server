@@ -9,20 +9,21 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- *
  * @author huyna3
  */
 @Getter
 @Setter
 public class TeamNewMemberDTO {
-    private long teamId;
-    private int numberNewMember;
 
-    public TeamNewMemberDTO(long teamId, int numberNewMember) {
-        this.teamId = teamId;
-        this.numberNewMember = numberNewMember;
-    }
-    
-    public TeamNewMemberDTO(){}
-    
+  private long teamId;
+  private int numberNewMember;
+
+  public TeamNewMemberDTO(long teamId, int numberNewMember) {
+    this.teamId = teamId;
+    this.numberNewMember = numberNewMember;
+  }
+
+  public TeamNewMemberDTO() {
+  }
+
 }

@@ -205,13 +205,13 @@ public class TeamRepositoryImpl implements TeamRepository {
 
   @Override
   public List<TeamDTO> getTeamsByUserAndLowerThanTeamMemberTypeReturnTeam(long userId,
-                                                                         TeamMemberType teamMemberType) {
+      TeamMemberType teamMemberType) {
     MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
     params.addValue("teamMemberType", teamMemberType.toValue());
     String sql = "SELECT t.*, tm.teamMemberType FROM team t, teamMember tm "
-            + "WHERE tm.userId = :userId "
-            + "AND tm.teamId = t.teamId "
-            + "AND tm.teamMemberType <= :teamMemberType";
+        + "WHERE tm.userId = :userId "
+        + "AND tm.teamId = t.teamId "
+        + "AND tm.teamMemberType <= :teamMemberType";
     return getTeamDTOsSQLParamMap(sql, params);
   }
 

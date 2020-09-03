@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserActivityStatDTO {
+
   private long userId;
   private long totalDistance;
   private long totalTime;

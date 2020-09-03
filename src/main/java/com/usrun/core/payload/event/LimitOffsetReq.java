@@ -10,14 +10,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- *
  * @author huyna3
  */
 @Getter
 @Setter
 public class LimitOffsetReq {
-    @Min(1)
-    public int limit;
-    @Min(0)
-    public int offset;
+
+  @Min(1)
+  public int limit;
+  @Min(0)
+  public int offset;
 }

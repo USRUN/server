@@ -8,6 +8,7 @@ import lombok.Data;
 
 @Data
 public class GetUserByMemberTypeRequest {
+
   private long teamId;
   private int memberType;
   private int page;

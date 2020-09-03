@@ -10,15 +10,15 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- *
  * @author huyna3
  */
 @Getter
 @Setter
 public class SearchEventReq {
-    @Min(1)
-    public int limit;
-    @Min(0)
-    public int offset;
-    String name;
+
+  @Min(1)
+  public int limit;
+  @Min(0)
+  public int offset;
+  String name;
 }

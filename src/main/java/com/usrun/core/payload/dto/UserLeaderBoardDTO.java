@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserLeaderBoardDTO {
+
   private long userId;
   private String displayName;
   private String avatar;

@@ -200,12 +200,12 @@ public class ActivityController {
 
   @PostMapping("/getTeamFeed")
   public ResponseEntity<?> getTeamFeed(
-          @RequestBody GetActivitiesRequest request
+      @RequestBody GetActivitiesRequest request
   ) {
     try {
       List<UserFeedResp> allByTimeRangeAndUserId = activityService
-              .getTeamFeed(request.getTeamId(), request.getOffset(),
-                      request.getCount());
+          .getTeamFeed(request.getTeamId(), request.getOffset(),
+              request.getCount());
 
       return new ResponseEntity<>(new CodeResponse(allByTimeRangeAndUserId), HttpStatus.OK);
     } catch (CodeException ex) {

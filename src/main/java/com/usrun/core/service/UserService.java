@@ -170,13 +170,10 @@ public class UserService {
     }
 
     if (base64Image != null) {
-      if (base64Image.length() > appProperties.getMaxImageSize()) {
-        throw new CodeException(ErrorCode.INVALID_IMAGE_SIZE);
-      }
       String fileUrl = amazonClient
-          .uploadFile(base64Image, "avatar-" + userId + System.currentTimeMillis());
+          .uploadFileWithLimitation(base64Image, "avatar-" + userId + System.currentTimeMillis());
       if (fileUrl != null) {
-        amazonClient.deleteFile(user.getAvatar());
+//        amazonClient.deleteFile(user.getAvatar());
         user.setAvatar(fileUrl);
       }
     }
@@ -199,11 +196,11 @@ public class UserService {
     return user;
   }
 
-  public List<UserManagerDTO> getAllUsersPaged(int offset, int limit){
+  public List<UserManagerDTO> getAllUsersPaged(int offset, int limit) {
     return userRepository.getAllUsersPaged(offset, limit);
   }
 
-  public List<UserManagerDTO> findAllUsersPaged(String keyword, int offset, int limit){
+  public List<UserManagerDTO> findAllUsersPaged(String keyword, int offset, int limit) {
     return userRepository.findUsersPaged(keyword, offset, limit);
   }
 
@@ -291,7 +288,8 @@ public class UserService {
     return userDTOS.isEmpty() ? null : userDTOS.get(0);
   }
 
-    public List<UserFeedResp> getUserFeed(long userId, int offset, int limit) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+  public List<UserFeedResp> getUserFeed(long userId, int offset, int limit) {
+    throw new UnsupportedOperationException(
+        "Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+  }
 }

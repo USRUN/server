@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ShortTeamDTO {
+
   private long teamId;
   private String teamName;
   private String thumbnail;

@@ -8,6 +8,7 @@ import lombok.Data;
 
 @Data
 public class EventLeaderBoardRequest {
+
   private long eventId;
   private int top;
 }

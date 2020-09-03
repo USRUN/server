@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EventUserStatDTO {
+
   private long itemId;
   private long distance;
   private String name;

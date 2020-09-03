@@ -18,7 +18,7 @@ public interface OrganizationRepository {
   Organization findById(long id);
 
   Organization findByName(String name);
-  
+
   List<Organization> listOrganization(int offset, int limit, String keyword);
-  
+
 }

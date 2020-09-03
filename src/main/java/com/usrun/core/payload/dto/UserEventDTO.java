@@ -8,8 +8,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserEventDTO {
-    private long userId;
-    private String name;
-    private int province;
-    private String avatar;
+
+  private long userId;
+  private String name;
+  private int province;
+  private String avatar;
 }
