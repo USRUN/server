@@ -212,7 +212,7 @@ public class ActivityService {
       String photoTrack = googleMapService.getRouteImage(request.getTrackRequest().getLocations());
       photos.add(photoTrack);
     } catch (IOException ex) {
-      LOGGER.error("fail to parse image track: " + ex.getMessage());
+      LOGGER.error("fail to parse image track: {}", ex.getMessage(), ex);
     }
     for (String photoBase64 : photosBase64) {
       String fileUrl = amazonClient
