@@ -139,7 +139,7 @@ public class UserService {
       String deviceToken, Integer gender,
       Date birthday, Double weight, Double height,
       String base64Image, Integer province) {
-    User user = userRepository.findById(userId);
+    User user = loadUser(userId);
 
     if (name != null) {
       user.setName(name);
