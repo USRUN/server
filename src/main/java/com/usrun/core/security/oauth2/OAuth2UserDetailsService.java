@@ -93,7 +93,7 @@ public class OAuth2UserDetailsService {
             " account to login.");
         throw new CodeException(ErrorCode.USER_EMAIL_IS_USED);
       }
-      user = updateExistingUser(user, oAuth2UserInfo);
+//      user = updateExistingUser(user, oAuth2UserInfo);
     } else {
       user = registerNewUser(oAuth2UserInfo);
     }
