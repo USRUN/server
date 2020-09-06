@@ -49,7 +49,7 @@ public class GoogleMapService {
         .map(location -> new LatLng(location.getLatitude(), location.getLongitude())).collect(
             Collectors.toList());
     EncodedPolyline encodedPolyline = new EncodedPolyline(latLngs);
-    String path = "color:0xf0602dFF|weight:5|enc:" + encodedPolyline.getEncodedPath();
+    String path = "color:0xf0602dFF|weight:3|enc:" + encodedPolyline.getEncodedPath();
     String key = appProperties.getGoogleMapKey();
     String markerStart = "";
     String markerFinish = "";
