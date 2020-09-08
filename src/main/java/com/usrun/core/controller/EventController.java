@@ -103,6 +103,10 @@ public class EventController {
 
       EventParticipant eventParticipant = new EventParticipant(eventId, userId, teamId, 0);
       int put = eventParticipantRepository.insert(eventParticipant);
+      boolean inscreaseParticipantResult = eventRepository.inscreaseEventParticipant(eventId);
+      if(!inscreaseParticipantResult){
+          logger.error("cannot inscrease participant in event: "+eventId );
+      }
       if (put >= 0) {
         return new ResponseEntity<>(new CodeResponse(ErrorCode.SUCCESS), HttpStatus.OK);
       }
