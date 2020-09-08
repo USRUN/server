@@ -47,7 +47,7 @@ public class UserService {
   private TemplateEngine templateEngine;
 
   @Autowired
-  private AmazonClient amazonClient;
+  private ImageClient imageClient;
 
   @Autowired
   private CacheClient cacheClient;
@@ -170,8 +170,8 @@ public class UserService {
     }
 
     if (base64Image != null) {
-      String fileUrl = amazonClient
-          .uploadFileWithLimitation(base64Image, "avatar-" + userId + System.currentTimeMillis());
+      String fileUrl = imageClient
+          .uploadFileWithLimitation(base64Image);
       if (fileUrl != null) {
 //        amazonClient.deleteFile(user.getAvatar());
         user.setAvatar(fileUrl);

@@ -50,7 +50,7 @@ public class TeamService {
   private TeamMemberRepository teamMemberRepository;
 
   @Autowired
-  private AmazonClient amazonClient;
+  private ImageClient imageClient;
 
   @Autowired
   private CacheClient cacheClient;
@@ -77,8 +77,7 @@ public class TeamService {
     String banner = appProperties.getDefaultBannerTeam();
 
     if (!StringUtils.isEmpty(thumbnailBase64)) {
-      String fileUrl = amazonClient.uploadFileWithLimitation(thumbnailBase64,
-          "thumbnail-team-" + encodedName + System.currentTimeMillis());
+      String fileUrl = imageClient.uploadFileWithLimitation(thumbnailBase64);
       if (fileUrl != null) {
         thumbnail = fileUrl;
       }
@@ -265,18 +264,16 @@ public class TeamService {
     }
 
     if (thumbnail != null) {
-      String thumbnailURL = amazonClient
-          .uploadFileWithLimitation(thumbnail,
-              "thumbnail-team-" + encodedName + System.currentTimeMillis());
+      String thumbnailURL = imageClient
+          .uploadFileWithLimitation(thumbnail);
       if (thumbnailURL != null) {
 //        amazonClient.deleteFile(toUpdate.getThumbnail());
         toUpdate.setThumbnail(thumbnailURL);
       }
     }
     if (banner != null) {
-      String bannerURL = amazonClient
-          .uploadFileWithLimitation(banner,
-              "banner-team-" + encodedName + System.currentTimeMillis());
+      String bannerURL = imageClient
+          .uploadFileWithLimitation(banner);
       if (bannerURL != null) {
 //        amazonClient.deleteFile(toUpdate.getBanner());
         toUpdate.setBanner(bannerURL);

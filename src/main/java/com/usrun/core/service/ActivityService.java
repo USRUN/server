@@ -68,7 +68,7 @@ public class ActivityService {
   private AppProperties appProperties;
 
   @Autowired
-  private AmazonClient amazonClient;
+  private ImageClient imageClient;
 
   @Autowired
   private TrackService trackService;
@@ -215,8 +215,8 @@ public class ActivityService {
       LOGGER.error("fail to parse image track: {}", ex.getMessage(), ex);
     }
     for (String photoBase64 : photosBase64) {
-      String fileUrl = amazonClient
-          .uploadFileWithLimitation(photoBase64, "activity-" + UUID.randomUUID().toString());
+      String fileUrl = imageClient
+          .uploadFileWithLimitation(photoBase64);
       if (fileUrl != null) {
         photos.add(fileUrl);
       }
@@ -459,8 +459,8 @@ public class ActivityService {
     if (photos != null) {
       List<String> newPhotos = new ArrayList<>();
       for (String photo : photos) {
-        String fileUrl = amazonClient
-            .uploadFileWithLimitation(photo, "activity-" + UUID.randomUUID().toString());
+        String fileUrl = imageClient
+            .uploadFileWithLimitation(photo);
         if (fileUrl != null) {
           newPhotos.add(fileUrl);
         }
