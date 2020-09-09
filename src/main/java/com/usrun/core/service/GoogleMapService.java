@@ -37,7 +37,7 @@ public class GoogleMapService {
   private AppProperties appProperties;
 
   @Autowired
-  private AmazonClient amazonClient;
+  private ImageClient imageClient;
 
   @Autowired
   private ActivityService activityService;
@@ -64,7 +64,7 @@ public class GoogleMapService {
         URLEncoder.encode(markerFinish, StandardCharsets.UTF_8.name()) + "&key=" + key;
     BufferedImage resultImage = ImageIO.read(new URL(url + query));
     String fileName = "activity-track-" + UUID.randomUUID().toString() + "." + "png";
-    String fileUrl = amazonClient.uploadFile(resultImage, fileName, "png");
+    String fileUrl = imageClient.uploadFile(resultImage, "png");
 
     return fileUrl.isEmpty() ? activityService.IMAGE_DEFAULT : fileUrl;
   }
