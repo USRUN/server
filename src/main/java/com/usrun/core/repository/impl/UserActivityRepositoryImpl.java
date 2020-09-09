@@ -37,7 +37,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
   @Override
   public UserActivity findById(long id) {
     MapSqlParameterSource params = new MapSqlParameterSource("userActivityId", id);
-    String sql = "SELECT * FROM userActivity WHERE userActivityId = :userActivityId";
+    String sql = "SELECT * FROM userActivity WHERE userActivityId = :userActivityId  and deleted = false";
     List<UserActivity> userActivity = findUserActivity(sql, params);
     if (userActivity.size() > 0) {
       return userActivity.get(0);
@@ -51,7 +51,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
     params.addValue("offset", offset * limit);
     params.addValue("limit", limit);
-    String sql = "SELECT * FROM userActivity WHERE userId= :userId ORDER BY createTime DESC LIMIT :limit OFFSET :offset";
+    String sql = "SELECT * FROM userActivity WHERE userId= :userId and deleted = false ORDER BY createTime DESC LIMIT :limit OFFSET :offset";
     List<UserActivity> userActivity = findUserActivity(sql, params);
     return userActivity;
   }
@@ -65,7 +65,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     params.addValue("timeTo", timeTo);
     params.addValue("offset", offset * limit);
     params.addValue("limit", limit);
-    String sql = "SELECT * FROM userActivity WHERE userId= :userId AND createTime >= :timeFrom AND createTime <= :timeTo LIMIT :limit OFFSET :offset";
+    String sql = "SELECT * FROM userActivity WHERE userId= :userId and deleted = false AND createTime >= :timeFrom AND createTime <= :timeTo LIMIT :limit OFFSET :offset";
     List<UserActivity> userActivity = findUserActivity(sql, params);
     return userActivity;
   }
@@ -76,7 +76,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     params.addValue("userId", userId);
     params.addValue("timeFrom", timeFrom);
     params.addValue("timeTo", timeTo);
-    String sql = "SELECT * FROM userActivity WHERE userId = :userId AND createTime >= :timeFrom AND createTime <= :timeTo";
+    String sql = "SELECT * FROM userActivity WHERE userId = :userId and deleted = false AND createTime >= :timeFrom AND createTime <= :timeTo";
     List<UserActivity> userActivity = findUserActivity(sql, params);
     return userActivity;
   }
@@ -95,7 +95,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     params.addValue("limit", limmit);
     String sql
         =
-        "SELECT * FROM userActivity WHERE userId = :userId AND createTime >= :timeFrom AND createTime <= :timeTo"
+        "SELECT * FROM userActivity WHERE userId = :userId and deleted = false AND  createTime >= :timeFrom AND createTime <= :timeTo"
             + "AND totalDistance >= :distance AND avgPace <= :pace AND elevGain >= elev LIMIT :limit OFFSET :offset ";
     List<UserActivity> userActivity = findUserActivity(sql, params);
     return userActivity;
@@ -107,7 +107,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     params.addValue("userId", userId);
     params.addValue("size", pageable.getPageSize());
     params.addValue("offset", pageable.getOffset());
-    String sql = "SELECT * FROM userActivity WHERE userId = :userId ORDER BY createTime DESC, userActivityId DESC LIMIT :size OFFSET :offset";
+    String sql = "SELECT * FROM userActivity WHERE userId = :userId and deleted = false ORDER BY createTime DESC, userActivityId DESC LIMIT :size OFFSET :offset";
     List<UserActivity> userActivity = findUserActivity(sql, params);
     return userActivity;
   }
@@ -115,7 +115,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
   @Override
   public long countUserActivityByUser(long teamId) {
     MapSqlParameterSource params = new MapSqlParameterSource("teamId", teamId);
-    String sql = "SELECT count(*) FROM userActivity ua, teamMember tm WHERE tm.teamId = :teamId AND tm.userId = ua.userId";
+    String sql = "SELECT count(*) FROM userActivity ua, teamMember tm WHERE tm.teamId = :teamId AND tm.userId = ua.userId and ua.deleted = false";
     return namedParameterJdbcTemplate.queryForObject(sql, params, Long.class);
   }
 
@@ -126,7 +126,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     params.addValue("limit", limit);
     String sql = "SELECT userActivityId "
         + "FROM userActivity ua, teamMember tm "
-        + "WHERE tm.teamId = :teamId AND tm.userId = ua.userId "
+        + "WHERE tm.teamId = :teamId AND tm.userId = ua.userId AND ua.deleted = false"
         + "ORDER BY userActivityId "
         + "DESC LIMIT :limit";
     return namedParameterJdbcTemplate.query(
@@ -141,7 +141,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
       ids = Collections.singletonList(-1L);
     }
     MapSqlParameterSource params = new MapSqlParameterSource("ids", ids);
-    String sql = "SELECT * FROM userActivity WHERE userId IN (:ids)";
+    String sql = "SELECT * FROM userActivity WHERE userId IN (:ids) and deleted = false";
     return findUserActivity(sql, params);
   }
 
@@ -151,7 +151,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
       ids = Collections.singletonList(-1L);
     }
     MapSqlParameterSource params = new MapSqlParameterSource("ids", ids);
-    String sql = "SELECT * FROM userActivity WHERE userActivityId IN (:ids) ORDER BY userActivityId DESC";
+    String sql = "SELECT * FROM userActivity WHERE userActivityId IN (:ids) AND deleted = false ORDER BY userActivityId DESC";
     return findUserActivity(sql, params);
   }
 
@@ -226,7 +226,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     MapSqlParameterSource params = new MapSqlParameterSource("teamId", teamId);
     String sql = "SELECT * "
         + "FROM userActivity ua, teamMember tm "
-        + "WHERE tm.teamId = :teamId AND tm.userId = ua.userId ";
+        + "WHERE tm.teamId = :teamId AND tm.userId = ua.userId AND deleted = false ";
     return findUserActivity(sql, params);
   }
 
