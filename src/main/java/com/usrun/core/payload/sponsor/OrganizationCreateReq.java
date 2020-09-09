@@ -16,4 +16,8 @@ import lombok.Setter;
 public class OrganizationCreateReq {
 
   private String name;
+  private String avatar;
+  private long id;
+  private String description;
+  private String website;
 }

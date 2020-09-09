@@ -273,7 +273,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
   public boolean delete(long activityId) {
     MapSqlParameterSource params = new MapSqlParameterSource("activityId", activityId);
 
-    String sql = "UPDATE userActivity SET isDeleted = true WHERE activityId = :activityId";
+    String sql = "UPDATE userActivity SET isDeleted = true WHERE userActivityId = :activityId";
 
     int affected = namedParameterJdbcTemplate.update(sql, params);
     return affected != 0;
