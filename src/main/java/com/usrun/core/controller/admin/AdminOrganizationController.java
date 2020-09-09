@@ -16,7 +16,7 @@ import com.usrun.core.payload.sponsor.OrganizationListReq;
 import com.usrun.core.payload.sponsor.SponsorCreateReq;
 import com.usrun.core.repository.OrganizationRepository;
 import com.usrun.core.repository.SponsorRepository;
-import com.usrun.core.service.AmazonClient;
+import com.usrun.core.service.ImageClient;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +45,7 @@ public class AdminOrganizationController {
     private SponsorRepository sponsorRepository;
 
     @Autowired
-    private AmazonClient amazonClient;
+    private ImageClient imageClient;
 
     @PostMapping("/createOrUpdate")
     @PreAuthorize("hasRole('ADMIN')")
@@ -53,8 +53,7 @@ public class AdminOrganizationController {
         try {
             String newLinkAvatar = "";
             if (!organizationReq.getAvatar().isEmpty()) {
-                String nameAvatar = "avatar-organization-" + System.currentTimeMillis();
-                newLinkAvatar = amazonClient.uploadFile(organizationReq.getAvatar(), nameAvatar);
+                newLinkAvatar = imageClient.uploadFile(organizationReq.getAvatar());
             }
             int resp = -1;
             if (organizationReq.getId() == 0) {
