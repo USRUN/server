@@ -262,7 +262,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     MapSqlParameterSource params = getMapUserActivity(toUpdate);
 
     int affected = namedParameterJdbcTemplate.update(
-        "UPDATE userActivity SET title = :title, description = :description, photo = :photo, isShowMap = :isShowMap",
+        "UPDATE userActivity SET title = :title, description = :description, photo = :photo, isShowMap = :isShowMap WHERE userActivityId = :userActivityId",
         params
     );
 
