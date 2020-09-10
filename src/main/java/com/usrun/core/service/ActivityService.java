@@ -460,6 +460,8 @@ public class ActivityService {
 
         if (photos != null) {
             List<String> newPhotos = new ArrayList<>();
+            newPhotos.add(toUpdate.getPhotos().get(0));
+            
             for (String photo : photos) {
                 String fileUrl = imageClient
                         .uploadFileWithLimitation(photo);
