@@ -16,7 +16,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import org.slf4j.Logger;
@@ -49,7 +48,7 @@ public class GoogleMapService {
         .map(location -> new LatLng(location.getLatitude(), location.getLongitude())).collect(
             Collectors.toList());
     EncodedPolyline encodedPolyline = new EncodedPolyline(latLngs);
-    String path = "color:0xf0602dFF|weight:3|enc:" + encodedPolyline.getEncodedPath();
+    String path = "color:0xf0602dFF|weight:2|enc:" + encodedPolyline.getEncodedPath();
     String key = appProperties.getGoogleMapKey();
     String markerStart = "";
     String markerFinish = "";
@@ -63,10 +62,9 @@ public class GoogleMapService {
         .encode(markerStart, StandardCharsets.UTF_8.name()) + "&markers=" +
         URLEncoder.encode(markerFinish, StandardCharsets.UTF_8.name()) + "&key=" + key;
     BufferedImage resultImage = ImageIO.read(new URL(url + query));
-    String fileName = "activity-track-" + UUID.randomUUID().toString() + "." + "png";
     String fileUrl = imageClient.uploadFile(resultImage, "png");
 
-    return fileUrl.isEmpty() ? activityService.IMAGE_DEFAULT : fileUrl;
+    return fileUrl == null && fileUrl.isEmpty() ? activityService.IMAGE_DEFAULT : fileUrl;
   }
 
   public static double latRad(double lat) {
