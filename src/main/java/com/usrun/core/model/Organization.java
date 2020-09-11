@@ -33,8 +33,13 @@ public class Organization {
     this.website = website;
     this.description = description;
   }
-
-  public Organization(String name) {
+  
+   public Organization(String name, String avatar, String website, String description) {
     this.name = name;
+    this.avatar = avatar;
+    this.website = website;
+    this.description = description;
   }
+
+
 }

@@ -70,7 +70,8 @@ server:
 
 amazon:
   endpointUrl: https://s3-ap-southeast-1.amazonaws.com
-  accessKey: AKIAZAQQP6WHFUSLGUSH
-  secretKey: 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
-  bucketName: usrun
+  accessKey: AKIAJ2CYNZA5TTW5WO6Q
+  secretKey: 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
+  bucketName: usrun-photo
+
 

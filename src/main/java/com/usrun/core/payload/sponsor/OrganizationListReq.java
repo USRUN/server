@@ -16,8 +16,7 @@ import lombok.Setter;
 @Setter
 @Data
 public class OrganizationListReq {
-
-  int offset;
-  int limit;
-  String keyword;
+//  int offset;
+//  int limit;
+//  String keyword;
 }

@@ -43,13 +43,14 @@ public class UserFeedResp {
   long totalComment;
   long totalShare;
   List<SplitPaceDTO> splitPace;
+  boolean showMap;
 
   public UserFeedResp(long userActivityId, long userId, String userDisplayName, String userAvatar,
       boolean userHcmus, long eventId, String eventName, String eventThumbnail, Date createTime,
       long totalDistance, long totalTime, long totalStep, double avgPace, double avgHeart,
       double maxHeart, long calories, double elevGain, double elevMax, List<String> photos,
       String title, String description, long totalLove, long totalComment, long totalShare,
-      List<SplitPaceDTO> splitPace) {
+      List<SplitPaceDTO> splitPace, boolean showMap) {
     this.userActivityId = userActivityId;
     this.userId = userId;
     this.userDisplayName = userDisplayName;
@@ -75,6 +76,7 @@ public class UserFeedResp {
     this.totalComment = totalComment;
     this.totalShare = totalShare;
     this.splitPace = splitPace;
+    this.showMap = showMap;
   }
 
 

@@ -13,12 +13,16 @@ import java.util.List;
  */
 public interface OrganizationRepository {
 
-  int insert(Organization organization);
+    int insert(Organization organization);
 
-  Organization findById(long id);
+    int update(Organization organization);
 
-  Organization findByName(String name);
+    Organization findById(long id);
 
-  List<Organization> listOrganization(int offset, int limit, String keyword);
+    Organization findByName(String name);
+
+    List<Organization> listOrganization(int offset, int limit, String keyword);
+
+    List<Organization> listAllOrganization();
 
 }
