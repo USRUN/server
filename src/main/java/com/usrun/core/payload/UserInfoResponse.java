@@ -28,7 +28,7 @@ public class UserInfoResponse {
   private String accessToken;
   private boolean hcmus;
   private String tokenType;
-  private Integer province;
+  private int province;
 
   public UserInfoResponse(User user) {
     this.type = user.getType().ordinal();
