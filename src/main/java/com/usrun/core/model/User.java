@@ -56,7 +56,7 @@ public class User {
 
   private boolean hcmus = false;
 
-  private Integer province;
+  private int province;
 
   private Set<Role> roles;
 

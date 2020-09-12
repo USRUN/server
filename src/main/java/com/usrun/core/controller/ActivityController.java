@@ -148,7 +148,7 @@ public class ActivityController {
           cacheClient.setActivityCreated(user, userActivity);
           return ResponseEntity.ok(new CodeResponse(userActivity));
         } else {
-          return ResponseEntity.ok(new CodeResponse(ErrorCode.ACTIVITY_ADD_FAIL));
+          return ResponseEntity.ok(new CodeResponse(ErrorCode.ACTIVITY_SIG_INVALID));
         }
       } catch (Exception exp) {
         logger.error("", exp);
