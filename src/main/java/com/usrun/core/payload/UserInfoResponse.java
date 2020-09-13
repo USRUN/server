@@ -21,9 +21,9 @@ public class UserInfoResponse {
   private int isActive;
   private String deviceToken;
   private Date birthday;
-  private Gender gender;
-  private Double weight;
-  private Double height;
+  private int gender;
+  private double weight;
+  private double height;
   private Date lastLogin;
   private String accessToken;
   private boolean hcmus;
@@ -39,7 +39,7 @@ public class UserInfoResponse {
     this.birthday = user.getBirthday();
     this.weight = user.getWeight();
     this.height = user.getHeight();
-    this.gender = user.getGender();
+    this.gender = user.getGender() == Gender.FEMALE ? 1 : 0;
     this.lastLogin = user.getLastLogin();
     this.isActive = user.isEnabled() ? 1 : 0;
     this.deviceToken = user.getDeviceToken();

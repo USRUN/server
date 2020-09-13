@@ -35,9 +35,9 @@ public class User {
 
   private Date lastLogin;
 
-  private Double weight;
+  private double weight;
 
-  private Double height;
+  private double height;
 
   private Gender gender;
 
