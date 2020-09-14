@@ -6,6 +6,7 @@
 package com.usrun.core.repository.impl;
 
 import com.usrun.core.model.Event;
+import com.usrun.core.payload.event.EventDataExport;
 import com.usrun.core.payload.event.EventWithCheckJoin;
 import com.usrun.core.repository.EventRepository;
 import java.util.Collections;
@@ -140,6 +141,24 @@ public class EventRepositoryImpl implements EventRepository {
             return Collections.emptyList();
         }
     }
+    
+    private List<EventDataExport> findEventDataExport(String sql,
+            MapSqlParameterSource params) {
+        List<EventDataExport> listEvent = namedParameterJdbcTemplate.query(sql,
+                params,
+                (rs, i) -> new EventDataExport(rs.getLong("userId"),
+                        rs.getLong("teamId"),
+                        rs.getString("email"),
+                        rs.getLong("distance"),
+                        rs.getLong("totalTime"),
+                        rs.getDouble("avgPace")
+                ));
+        if (listEvent.size() > 0) {
+            return listEvent;
+        } else {
+            return Collections.emptyList();
+        }
+    }
 
     @Override
     public List<Event> mFindById(List<Long> ids) {
@@ -259,5 +278,24 @@ public class EventRepositoryImpl implements EventRepository {
         String sql = "UPDATE event set totalParticipant = totalParticipant -1 where eventId = :eventId";
         status = namedParameterJdbcTemplate.update(sql, parameters);
         return status != 0;
+    }
+
+    @Override
+    public List<Event> getAllEventNotLimit() {
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        String sql = "select * "
+                + "from  event e ";
+        List<Event> events = findEvent(sql, parameters);
+        return events;
+    }
+
+    @Override
+    public List<EventDataExport> exportEventData(long eventId) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource("eventId", eventId);
+        String sql = "select e.*, u.email as email "
+                + "from eventParticipant e, user u "
+                + "where u.userId = e.userId and e.eventId = :eventId";
+        List<EventDataExport> events = findEventDataExport(sql, parameters);
+        return events;
     }
 }
