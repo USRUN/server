@@ -386,7 +386,7 @@ public class TeamController {
       if (teamStat == null) {
         return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
       }
-      AtomicInteger rank = new AtomicInteger(-1);
+      AtomicInteger rank = new AtomicInteger(0);
 
       TeamStatDTO teamStatValue = teamStat.stream()
           .peek(i -> rank.incrementAndGet())
