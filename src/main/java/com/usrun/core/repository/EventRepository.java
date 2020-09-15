@@ -6,6 +6,7 @@
 package com.usrun.core.repository;
 
 import com.usrun.core.model.Event;
+import com.usrun.core.payload.event.EventDataExport;
 import com.usrun.core.payload.event.EventWithCheckJoin;
 import java.util.List;
 import org.springframework.stereotype.Repository;
@@ -27,6 +28,8 @@ public interface EventRepository {
     List<Event> mFindById(List<Long> ids);
 
     List<EventWithCheckJoin> getAllEvent(long userId, int offset, int limit);
+    
+    List<Event> getAllEventNotLimit();
 
     List<EventWithCheckJoin> getUserEventWithCheckJoin(long curUserId, long userId);
 
@@ -41,4 +44,6 @@ public interface EventRepository {
     boolean inscreaseEventParticipant(long eventId);
 
     boolean descreaseEventParticipant(long eventId);
+
+    public List<EventDataExport> exportEventData(long eventId);
 }
