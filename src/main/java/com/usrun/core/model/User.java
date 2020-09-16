@@ -77,6 +77,7 @@ public class User {
     this.birthday = Date.from(Instant.parse("2000-01-01T00:00:00.00Z"));
     this.lastLogin = new Date();
     this.deviceToken = "";
+    this.gender = Gender.MALE;
   }
 
   public User(Long id, String name, @Email String email, String password, AuthType type,
