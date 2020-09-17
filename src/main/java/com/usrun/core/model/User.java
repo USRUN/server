@@ -3,6 +3,7 @@ package com.usrun.core.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.usrun.core.model.type.AuthType;
 import com.usrun.core.model.type.Gender;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Set;
 import javax.validation.constraints.Email;
@@ -73,6 +74,9 @@ public class User {
     this.email = email;
     this.password = password;
     this.type = type;
+    this.birthday = Date.from(Instant.parse("2000-01-01T00:00:00.00Z"));
+    this.lastLogin = new Date();
+    this.deviceToken = "";
   }
 
   public User(Long id, String name, @Email String email, String password, AuthType type,

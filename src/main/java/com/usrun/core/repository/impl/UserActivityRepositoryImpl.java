@@ -126,7 +126,7 @@ public class UserActivityRepositoryImpl implements UserActivityRepository {
     params.addValue("limit", limit);
     String sql = "SELECT userActivityId "
         + "FROM userActivity ua, teamMember tm "
-        + "WHERE tm.teamId = :teamId AND tm.userId = ua.userId AND ua.deleted = false"
+        + "WHERE tm.teamId = :teamId AND tm.userId = ua.userId AND ua.deleted = false "
         + "ORDER BY userActivityId "
         + "DESC LIMIT :limit";
     return namedParameterJdbcTemplate.query(
