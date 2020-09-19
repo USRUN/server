@@ -227,13 +227,14 @@ public class EventRepositoryImpl implements EventRepository {
         parameters.addValue("offset", limit * offset);
         parameters.addValue("limit", limit);
         parameters.addValue("offset", limit * offset);
-        String sql = "select e.*, if(userId=:userId,true,false) as isJoin "
-                + "from event e "
-                + "left join eventParticipant ep "
-                + "on ep.eventId = null || ep.eventId = e.eventId "
-                + "group by e.eventId "
-                + "having e.eventName like :name "
-                + "order by e.endTime desc "
+        String sql = "select e.*, if(ep2.userId= :userId,true,false) as isJoin "
+                + "FROM event e "
+                + "LEFT JOIN ( "
+                + "SELECT ep.userId, ep.eventId "
+                + "FROM eventParticipant ep "
+                + "WHERE userId = :userId) "
+                + " ep2 ON ep2.eventId = e.eventId "
+                + "ORDER BY e.endTime desc "
                 + "limit :limit offset :offset";
         List<EventWithCheckJoin> events = findEventWithCheckJoin(sql, parameters);
         return events;
