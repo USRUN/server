@@ -233,7 +233,8 @@ public class EventRepositoryImpl implements EventRepository {
                 + "SELECT ep.userId, ep.eventId "
                 + "FROM eventParticipant ep "
                 + "WHERE userId = :userId) "
-                + " ep2 ON ep2.eventId = e.eventId "
+                + " ep2 ON ep2.eventId = e.eventId || ep2.eventId = null "
+                + "WHERE e.eventName LIKE :name "
                 + "ORDER BY e.endTime desc "
                 + "limit :limit offset :offset";
         List<EventWithCheckJoin> events = findEventWithCheckJoin(sql, parameters);
