@@ -419,7 +419,7 @@ public class TeamController {
       if (teamList == null || teamList.size() <= 0) {
         return ResponseEntity.ok(new CodeResponse(ErrorCode.SYSTEM_ERROR));
       }
-      List<TeamStatDTO> top10 = teamList.subList(0, 10);
+      List<TeamStatDTO> top10 = teamList.subList(0, Math.min(10,teamList.size()));
       for (int i = 0; i < top10.size(); i++) {
         TeamLeaderBoardResp itemResp = new TeamLeaderBoardResp();
         itemResp.avatar = top10.get(i).getAvatar();
