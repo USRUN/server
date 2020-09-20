@@ -1,5 +1,6 @@
 package com.usrun.core.listener;
 
+import com.google.firebase.FirebaseApp;
 import com.usrun.core.service.ActivityService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

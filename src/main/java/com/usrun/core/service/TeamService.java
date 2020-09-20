@@ -28,9 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -41,31 +38,38 @@ import org.springframework.util.StringUtils;
 @Service
 public class TeamService {
 
-  private static final Logger logger = LoggerFactory.getLogger(TeamService.class);
+  private final TeamRepository teamRepository;
 
-  @Autowired
-  private TeamRepository teamRepository;
+  private final TeamMemberRepository teamMemberRepository;
 
-  @Autowired
-  private TeamMemberRepository teamMemberRepository;
+  private final ImageClient imageClient;
 
-  @Autowired
-  private ImageClient imageClient;
+  private final CacheClient cacheClient;
 
-  @Autowired
-  private CacheClient cacheClient;
+  private final UserService userService;
 
-  @Autowired
-  private UserService userService;
+  private final UserRepository userRepository;
 
-  @Autowired
-  private UserRepository userRepository;
+  private final UserActivityRepository userActivityRepository;
 
-  @Autowired
-  private UserActivityRepository userActivityRepository;
+  private final AppProperties appProperties;
 
-  @Autowired
-  private AppProperties appProperties;
+  private final MessagingService messagingService;
+
+  public TeamService(TeamRepository teamRepository, TeamMemberRepository teamMemberRepository,
+      ImageClient imageClient, CacheClient cacheClient, UserService userService,
+      UserRepository userRepository, UserActivityRepository userActivityRepository,
+      AppProperties appProperties, MessagingService messagingService) {
+    this.teamRepository = teamRepository;
+    this.teamMemberRepository = teamMemberRepository;
+    this.imageClient = imageClient;
+    this.cacheClient = cacheClient;
+    this.userService = userService;
+    this.userRepository = userRepository;
+    this.userActivityRepository = userActivityRepository;
+    this.appProperties = appProperties;
+    this.messagingService = messagingService;
+  }
 
   public Team createTeam(
       long ownerId, int privacy, String teamName, Integer province,
@@ -174,8 +178,19 @@ public class TeamService {
   public void requestToJoinTeam(Long requestId, Long teamId) {
     try {
       teamRepository.joinTeam(requestId, teamId);
-      User user = userService.loadUser(requestId);
-
+      long ownerId = teamMemberRepository.getOwner(teamId);
+      User requester = userService.loadUser(requestId);
+      try {
+        User owner = userService.loadUser(ownerId);
+        messagingService
+            .sendMessage(owner,
+                "Thông báo",
+                requester.getName() + " muốn tham gia đội của bạn");
+      } catch (CodeException e) {
+        if (e.getErrorCode() != ErrorCode.USER_NOT_FOUND) {
+          throw new CodeException(e.getErrorCode());
+        }
+      }
     } catch (DuplicateKeyException ex) {
       log.error("", ex);
       throw new CodeException(ErrorCode.TEAM_USER_EXISTED);
@@ -185,6 +200,16 @@ public class TeamService {
   public void requestToAcceptTeam(long userId, long teamId) {
     if (!teamRepository.acceptTeam(userId, teamId)) {
       throw new CodeException(ErrorCode.TEAM_ACCEPT_FAILED);
+    } else {
+      User user = userService.loadUser(userId);
+      Team team = teamRepository.findTeamById(teamId);
+      String body = String
+          .format("Chúc mừng yêu cầu tham gia %s của bạn đã được chấp thuận",
+              team.getTeamName());
+      messagingService
+          .sendMessage(user,
+              "Thông báo",
+              body);
     }
   }
 

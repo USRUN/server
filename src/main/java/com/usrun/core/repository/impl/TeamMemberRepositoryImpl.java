@@ -200,6 +200,18 @@ public class TeamMemberRepositoryImpl implements TeamMemberRepository {
         new MapSqlParameterSource("teamMemberType", teamMemberType.toValue()));
   }
 
+  @Override
+  public long getOwner(long teamId) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("teamId", teamId);
+    params.addValue("memberType", TeamMemberType.OWNER.toValue());
+    String sql = "SELECT userId FROM teamMember "
+        + "WHERE teamId = :teamId "
+        + "AND teamMemberType = :memberType";
+    return namedParameterJdbcTemplate.query(sql, params, (rs, i) -> rs.getLong("userId")).stream()
+        .findFirst().orElse(-1L);
+  }
+
   private List<TeamMember> getTeamMembers(String sql, MapSqlParameterSource params) {
     return namedParameterJdbcTemplate.query(
         sql,

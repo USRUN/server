@@ -32,4 +32,6 @@ public interface TeamMemberRepository {
 
   List<TeamMember> getAllByLessEqualTeamMemberType(TeamMemberType teamMemberType);
 
+  long getOwner(long teamId);
+
 }
