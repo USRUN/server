@@ -302,4 +302,18 @@ public class CacheClient {
 
     return (List<Long>) rBatch.execute().getResponses();
   }
+
+  public void setAppVersion(String appVersion) {
+    RBucket<String> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyAppVersion());
+    rBucket.set(appVersion);
+  }
+
+  public String getAppVersion() {
+    RBucket<String> rBucket = redissonClient.getBucket(cacheKeyGenerator.keyAppVersion());
+    if(rBucket.isExists()) {
+      return rBucket.get();
+    } else {
+      return null;
+    }
+  }
 }

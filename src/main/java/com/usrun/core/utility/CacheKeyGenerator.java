@@ -63,4 +63,8 @@ public class CacheKeyGenerator {
   public String keyLoveCount(long activityId) {
     return PREFIX + "activity:love:" + activityId;
   }
+
+  public String keyAppVersion() {
+    return PREFIX + "app:version";
+  }
 }
